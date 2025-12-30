@@ -45,10 +45,10 @@ Generate a detailed development specification document from a Figma design for R
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /create-ux-spec-rn
+devorch check-version --command /create-ux-spec-rn
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -58,7 +58,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -481,7 +481,7 @@ All components MUST include:
 
 \`\`\`
 
-Save this document to \`spec-machine/.state/artifacts/ux-specs/[design-name]-rn.md\`
+Save this document to \`devorch/.state/artifacts/ux-specs/[design-name]-rn.md\`
 
 ## Report
 
@@ -490,7 +490,7 @@ After generating the spec:
 \`\`\`
 UX Spec Generated Successfully
 
-**File:** spec-machine/.state/artifacts/ux-specs/[design-name]-rn.md
+**File:** devorch/.state/artifacts/ux-specs/[design-name]-rn.md
 
 **Summary:**
 - X design tokens mapped

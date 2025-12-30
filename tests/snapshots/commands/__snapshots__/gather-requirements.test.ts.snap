@@ -21,7 +21,7 @@ Gather information for a new spec by initializing a spec folder and researching 
 
 This process follows 4 sequential phases:
 
-0. **Pre-checks** - Verify spec-machine version
+0. **Pre-checks** - Verify devorch version
 1. **Initialize Spec** - Create a new dated spec folder
 2. **Research Requirements** - Ask clarifying questions and analyze visuals
 3. **Inform User** - Confirm completion and provide next steps
@@ -39,10 +39,10 @@ This process follows 4 sequential phases:
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /gather-requirements
+devorch check-version --command /gather-requirements
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -52,7 +52,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -100,12 +100,12 @@ The spec-initializer will provide the path to the dated spec folder (YYYY-MM-DD-
 **After spec-initializer completes:**
 
 Extract the spec name from the folder path (the part after the date prefix):
-- Example: \`spec-machine/specs/2025-11-18-user-auth\` → spec name is \`user-auth\`
+- Example: \`devorch/specs/2025-11-18-user-auth\` → spec name is \`user-auth\`
 
 Set the newly created spec as active:
 
 \`\`\`bash
-spec-machine get-spec [spec-name]
+devorch get-spec [spec-name]
 \`\`\`
 
 Verify the output shows \`SUCCESS=true\`. If not, display the error to the user.
@@ -169,19 +169,19 @@ After all steps complete, inform the user:
 
 **Artifacts created:**
 \`\`\`
-spec-machine/specs/YYYY-MM-DD-spec-name/
+devorch/specs/YYYY-MM-DD-spec-name/
 ├── planning/
 │   ├── initialization.md    # Initial spec idea and metadata
 │   ├── requirements.md       # Gathered requirements and answers
 │   └── visuals/             # Optional visual assets (screenshots, mockups)
 
-spec-machine/.state/artifacts/spec-researcher/
+devorch/.state/artifacts/spec-researcher/
 ├── state.json               # Research state and progress
 ├── user-responses.txt       # Raw user responses from each round
 ├── figma-analysis.json      # Figma design data (if analyzed)
 └── visuals-check.txt        # Visual folder check output
 \`\`\`
 
-**Debug artifacts:** All research state preserved in \`spec-machine/.state/artifacts/spec-researcher/\` for inspection.
+**Debug artifacts:** All research state preserved in \`devorch/.state/artifacts/spec-researcher/\` for inspection.
 "
 `;

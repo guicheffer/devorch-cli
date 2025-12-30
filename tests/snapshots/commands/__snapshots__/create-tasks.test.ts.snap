@@ -22,7 +22,7 @@ Create a detailed task breakdown for the specification with implementer assignme
 
 This process follows 5 sequential phases:
 
-0. **Pre-checks** - Verify spec-machine version and required subagents
+0. **Pre-checks** - Verify devorch version and required subagents
 1. **Select Spec** - Choose active spec with stale detection
 2. **Map Roles** - Discover implementers and verifiers from context-training
 3. **Create Tasks** - Break down spec into actionable tasks with assignments
@@ -56,10 +56,10 @@ Context training provides:
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /create-tasks
+devorch check-version --command /create-tasks
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -69,7 +69,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -111,7 +111,7 @@ This command requires these subagents to function properly. Please ensure your p
 **Get the active spec:**
 
 \`\`\`bash
-spec-machine get-spec
+devorch get-spec
 \`\`\`
 
 **Parse the output:**
@@ -120,7 +120,7 @@ spec-machine get-spec
 - Always extract \`NEWEST_SPEC=[path]\`, \`NEWEST_SPEC_NAME=[name]\`, and \`NEWEST_SPEC_FOLDER=[folder]\` from output
 - Check \`IS_STALE\` flag to determine if active spec is older than newest
 
-**Note:** If no active spec was previously set, \`spec-machine get-spec\` automatically sets the newest spec as active.
+**Note:** If no active spec was previously set, \`devorch get-spec\` automatically sets the newest spec as active.
 
 **Always ask the user to confirm or change the spec:**
 
@@ -146,7 +146,7 @@ Options:
 
 **Handle user's response:**
 - **Option 1 (Continue)**: Use \`CURRENT_SPEC\` path as-is
-- **Option 2 (Switch)**: Run \`spec-machine get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`spec-machine get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
+- **Option 2 (Switch)**: Run \`devorch get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`devorch get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
 - **Option 3 (Cancel)**: Stop execution and exit the command
 
 **Validate spec folder exists:**
@@ -160,7 +160,7 @@ fi
 
 **Store the selected spec path as \`[spec-folder-path]\`** for use in subsequent phases.
 
-The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`spec-machine/specs/2025-11-18-user-auth\`).
+The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`devorch/specs/2025-11-18-user-auth\`).
 
 
 ### PHASE 2: Map Domains
@@ -170,10 +170,10 @@ Inform the user: **"Discovering implementers and verifiers from context-training
 Use the \`implementation/domain-mapper\` subagent to discover and map available implementer and verifier domains.
 
 The domain-mapper will:
-- Discover all implementer domains from \`spec-machine/context-training//implementers/\`
-- Discover all verifier domains from \`spec-machine/context-training//verifiers/\`
+- Discover all implementer domains from \`devorch/context-training//implementers/\`
+- Discover all verifier domains from \`devorch/context-training//verifiers/\`
 - Extract \`domain\` and \`description\` from frontmatter
-- Generate mapping files in \`spec-machine/.state/artifacts//\`:
+- Generate mapping files in \`devorch/.state/artifacts//\`:
   - \`implementer-domains.yml\`
   - \`verifier-domains.yml\`
 
@@ -190,8 +190,8 @@ Provide the tasks-list-creator with:
 - The original requirements from \`[spec-folder-path]/planning/requirements.md\`
 - Any visual assets in \`[spec-folder-path]/planning/visuals/\`
 - The domain mappings from:
-  - \`spec-machine/.state/artifacts//implementer-domains.yml\`
-  - \`spec-machine/.state/artifacts//verifier-domains.yml\`
+  - \`devorch/.state/artifacts//implementer-domains.yml\`
+  - \`devorch/.state/artifacts//verifier-domains.yml\`
 
 The tasks-list-creator will:
 
@@ -216,7 +216,7 @@ Verify the task breakdown for accuracy and completeness.
 
 **Spec folder path:** [spec-folder-path]
 
-Example path: spec-machine/specs/2025-11-18-user-auth
+Example path: devorch/specs/2025-11-18-user-auth
 
 The tasks.md file has been created with [X] major tasks and [Y] subtasks. Please verify:
 - All spec requirements have corresponding tasks
@@ -228,8 +228,8 @@ The tasks.md file has been created with [X] major tasks and [Y] subtasks. Please
 - Acceptance criteria are clear and measurable
 
 **Available domain mappings:**
-- Implementers: spec-machine/.state/artifacts//implementer-domains.yml
-- Verifiers: spec-machine/.state/artifacts//verifier-domains.yml
+- Implementers: devorch/.state/artifacts//implementer-domains.yml
+- Verifiers: devorch/.state/artifacts//verifier-domains.yml
 
 Use these mappings to validate that assigned implementer and verifier domains actually exist.
 
@@ -256,7 +256,7 @@ After the tasks-verifier completes, you may optionally add a brief summary of do
 
 **Artifacts created:**
 \`\`\`
-spec-machine/specs/[date-spec-name]/
+devorch/specs/[date-spec-name]/
 ├── planning/
 │   ├── initialization.md
 │   ├── requirements.md
@@ -267,7 +267,7 @@ spec-machine/specs/[date-spec-name]/
 ├── spec.md
 └── tasks.md                   # NEW: Task breakdown
 
-spec-machine/.state/artifacts//
+devorch/.state/artifacts//
 ├── implementer-domains.yml  # NEW: Domain mappings
 └── verifier-domains.yml     # NEW: Domain mappings
 \`\`\`"

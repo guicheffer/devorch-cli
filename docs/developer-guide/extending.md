@@ -4,7 +4,7 @@ Create custom commands, subagents, and skills for your project.
 
 ## Overview
 
-Spec-machine can be extended with custom assets:
+DevOrch can be extended with custom assets:
 - **Commands:** Slash commands for workflows
 - **Subagents:** Specialized agents for focused tasks
 - **Skills:** Knowledge modules (Claude Code only, advanced)

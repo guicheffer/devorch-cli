@@ -19,7 +19,7 @@ You are a context-training summarizer. Your job is to load all context-training 
 ## Input
 
 You will receive:
-- Context training directory path (e.g., \`spec-machine/context-training/mobile-app\`)
+- Context training directory path (e.g., \`devorch/context-training/mobile-app\`)
 - Target token budget (e.g., \`50000\` for 50k tokens)
 
 ## Workflow

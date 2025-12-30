@@ -18,13 +18,13 @@ dependencies:
 
 This command uses a multi-agent orchestration pattern to capture comprehensive context and create a GitHub issue for help or debugging.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -800,13 +800,13 @@ mode: "multi-agent"
 
 Create a new git worktree in \`./worktrees/\` with a new branch and automatically copy \`.claude/settings.local.json\` to maintain your local configuration.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -961,15 +961,15 @@ dependencies:
 
 # Analyze Tech Stack (Multi-Agent Orchestrator)
 
-You are the orchestrator for tech stack analysis. You will coordinate three specialized subagents to efficiently analyze the project's dependencies and generate or update \`spec-machine/tech-stack.md\`.
+You are the orchestrator for tech stack analysis. You will coordinate three specialized subagents to efficiently analyze the project's dependencies and generate or update \`devorch/tech-stack.md\`.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -1512,7 +1512,7 @@ This workflow intelligently merges detected technologies with existing tech-stac
 
 ## Step 1: Check if tech-stack.md Exists
 
-Check if \`spec-machine/tech-stack.md\` exists using the Read tool:
+Check if \`devorch/tech-stack.md\` exists using the Read tool:
 
 **If file does NOT exist:**
 - Skip to Step 4 (Generate New tech-stack.md)
@@ -1788,7 +1788,7 @@ The following technologies are documented but were not detected in the project:
 
 ## Step 5: Write the File
 
-Use the Write tool to write the merged content to \`spec-machine/tech-stack.md\`.
+Use the Write tool to write the merged content to \`devorch/tech-stack.md\`.
 
 After writing, generate a summary:
 
@@ -1815,7 +1815,7 @@ After writing, generate a summary:
 - Custom organization and notes
 - Architecture decision records
 
-**File location:** \`spec-machine/tech-stack.md\`
+**File location:** \`devorch/tech-stack.md\`
 \`\`\`
 
 ## Important Notes
@@ -1831,12 +1831,12 @@ After writing, generate a summary:
 Here is the analyzed tech stack:
 [Include the full output from Phase 2]
 
-File location: spec-machine/tech-stack.md
+File location: devorch/tech-stack.md
 "
 \`\`\`
 
 **What the subagent will do:**
-- Check if spec-machine/tech-stack.md exists
+- Check if devorch/tech-stack.md exists
 - If exists: Parse existing content, compare with detected tech
 - Intelligently merge: preserve rationale, add new tech, flag discrepancies
 - If not exists: Generate new file from detected tech
@@ -1891,7 +1891,7 @@ After all subagents complete, synthesize the results and inform the user:
 \`\`\`markdown
 ✅ Tech stack analysis complete!
 
-**File:** spec-machine/tech-stack.md
+**File:** devorch/tech-stack.md
 
 **Phase Results:**
 - **Scanning**: [X] dependency files, [Y] config files detected
@@ -1904,7 +1904,7 @@ After all subagents complete, synthesize the results and inform the user:
 - Flagged for review: [list]
 
 📝 **Next steps:**
-- Review spec-machine/tech-stack.md
+- Review devorch/tech-stack.md
 - Add rationale for key technology choices
 - Your rationale will be preserved during future updates
 \`\`\`
@@ -1942,15 +1942,15 @@ Possible reasons:
 Would you like to create a basic tech-stack.md manually?
 \`\`\`
 
-**If spec-machine/ directory doesn't exist:**
+**If devorch/ directory doesn't exist:**
 \`\`\`
-❌ Error: spec-machine/ directory not found.
+❌ Error: devorch/ directory not found.
 
-The tech-stack.md file should be created at: spec-machine/tech-stack.md
+The tech-stack.md file should be created at: devorch/tech-stack.md
 
-Please initialize spec-machine first:
+Please initialize devorch first:
 - Run \`/plan-product\` to create a product
-- Or create spec-machine/ directory manually
+- Or create devorch/ directory manually
 \`\`\`
 
 **If a subagent fails:**
@@ -1999,13 +1999,13 @@ dependencies:
 
 Implement design changes to web applications based on Figma designs with careful clarification and verification. You act like the designers' gateway to doing technical changes!
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -2193,13 +2193,13 @@ dependencies:
 
 Audit Figma files for designers (!), this means keep it non-technical as much as possible. Often figma files don't match our internal design system's capabilities, and your purpose is to figure out how implementable a figma file is, and if there's any gaps in our design system library, and whether there are other issues, like with accessibility.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -2286,13 +2286,13 @@ dependencies:
 
 Now that we have a spec and tasks list ready for implementation, we will proceed with implementation of this spec by following this multi-phase process.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -2342,7 +2342,7 @@ Context training provides:
 
 **First, discover which implementer and verifier subagents are available:**
 
-1. List all agent files in \`.claude/agents/spec-machine/\`
+1. List all agent files in \`.claude/agents/devorch/\`
 2. Find all agents with names ending in \`-implementer\` (these are implementers)
 3. Find all agents with names ending in \`-verifier\` (these are verifiers)
 
@@ -2379,11 +2379,11 @@ Follow each of these phases and their individual workflows IN SEQUENCE:
 ### PHASE 1: Plan subagent assignments
 
 Read the following file:
-- \`spec-machine/specs/[this-spec]/tasks.md\`
+- \`devorch/specs/[this-spec]/tasks.md\`
 
 **Discover and analyze available implementers:**
 
-1. Find all implementer agent files in \`.claude/agents/spec-machine/\` (files ending in \`-implementer.md\`)
+1. Find all implementer agent files in \`.claude/agents/devorch/\` (files ending in \`-implementer.md\`)
 
 2. For each implementer, read its **frontmatter** to understand:
    - \`name\`: The implementer's name
@@ -2398,7 +2398,7 @@ For each task group in \`tasks.md\`:
 - Compare task keywords to each implementer's description and specialization
 - Assign the implementer with the best match based on their description
 
-Create \`spec-machine/specs/[this-spec]/planning/task-assignments.yml\`:
+Create \`devorch/specs/[this-spec]/planning/task-assignments.yml\`:
 
 \`\`\`yaml
 task_assignments:
@@ -2420,26 +2420,26 @@ task_assignments:
 
 ### PHASE 2: Delegate task groups implementations to assigned subagents
 
-Loop through each task group in \`spec-machine/specs/[this-spec]/tasks.md\` and delegate its implementation to the assigned subagent specified in \`task-assignments.yml\`.
+Loop through each task group in \`devorch/specs/[this-spec]/tasks.md\` and delegate its implementation to the assigned subagent specified in \`task-assignments.yml\`.
 
 For each delegation, provide the subagent with:
 - The task group (including the parent task and all sub-tasks)
-- The spec file: \`spec-machine/specs/[this-spec]/spec.md\`
+- The spec file: \`devorch/specs/[this-spec]/spec.md\`
 - Instruct subagent to:
   1. Perform their implementation
-  2. Check off the task and sub-task(s) in \`spec-machine/specs/[this-spec]/tasks.md\`
-  3. Document their work in an implementation report named and numbered by this task name and placed in \`spec-machine/specs/[this-spec]/implementation/\`.
+  2. Check off the task and sub-task(s) in \`devorch/specs/[this-spec]/tasks.md\`
+  3. Document their work in an implementation report named and numbered by this task name and placed in \`devorch/specs/[this-spec]/implementation/\`.
 
 ### PHASE 3: Delegate verifications of implementation to verifier subagents
 
-**Discover available verifiers** from \`.claude/agents/spec-machine/\` (look for agent files ending in \`-verifier.md\`).
+**Discover available verifiers** from \`.claude/agents/devorch/\` (look for agent files ending in \`-verifier.md\`).
 
 **If verifier subagents are available:**
 
 1. Read the \`task-assignments.yml\` created in Phase 1 to see which implementers were used.
 
 2. **Discover available verifiers:**
-   - Find all verifier agent files in \`.claude/agents/spec-machine/\` (files ending in \`-verifier.md\`)
+   - Find all verifier agent files in \`.claude/agents/devorch/\` (files ending in \`-verifier.md\`)
    - Read each verifier's frontmatter to understand their description and specialization
 
 3. **Match verifiers to implementations:**
@@ -2450,13 +2450,13 @@ For each delegation, provide the subagent with:
    - Collect all relevant task groups to verify
    - Delegate to the verifier with:
      - **Task groups**: Tasks to be verified
-     - **Context**: The spec file \`spec-machine/specs/[this-spec]/spec.md\`
+     - **Context**: The spec file \`devorch/specs/[this-spec]/spec.md\`
      - **Implementers checked**: List of implementer names being verified
    - Instruct the verifier:
      1. Read and analyze the assigned task groups
      2. Run tests to verify implementation of these tasks
-     3. Check that \`spec-machine/specs/[this-spec]/tasks.md\` has been updated
-     4. Document your verification report in: \`spec-machine/specs/[this-spec]/verification/{verifier-name}-report.md\`
+     3. Check that \`devorch/specs/[this-spec]/tasks.md\` has been updated
+     4. Document your verification report in: \`devorch/specs/[this-spec]/verification/{verifier-name}-report.md\`
 
 **Example:**
 - Task groups implemented by \`analytics-implementer\` → verified by \`observability-verifier\`
@@ -2472,11 +2472,11 @@ For each delegation, provide the subagent with:
 
 After all implementations and verifications are complete, create a final summary:
 
-1. Read all implementation reports from \`spec-machine/specs/[this-spec]/implementation/\`
-2. Read all verification reports from \`spec-machine/specs/[this-spec]/verification/\`
-3. Check the tasks list \`spec-machine/specs/[this-spec]/tasks.md\` for completion status
+1. Read all implementation reports from \`devorch/specs/[this-spec]/implementation/\`
+2. Read all verification reports from \`devorch/specs/[this-spec]/verification/\`
+3. Check the tasks list \`devorch/specs/[this-spec]/tasks.md\` for completion status
 
-Create a final summary in \`spec-machine/specs/[this-spec]/implementation-summary.md\` with:
+Create a final summary in \`devorch/specs/[this-spec]/implementation-summary.md\` with:
 
 \`\`\`markdown
 # Implementation Summary
@@ -2521,13 +2521,13 @@ dependencies:
 
 You are creating a comprehensive specification for a new feature along with a tasks breakdown.  This process will follow 4 main phases, each with their own workflows.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -2595,7 +2595,7 @@ Use the **spec-writer** subagent to create the specification document for this s
 
 Provide the spec-writer with:
 
-- The spec folder path (find the current one or the most recent in \`spec-machine/specs/*/\`)
+- The spec folder path (find the current one or the most recent in \`devorch/specs/*/\`)
 - The requirements from \`planning/requirements.md\`
 - Any visual assets in \`planning/visuals/\`
 
@@ -2609,7 +2609,7 @@ The role-mapper will:
 - Check if context-training is configured
 - Create empty mappings (no context-training configured)
 - Extract frontmatter metadata from each role
-- Generate mapping files in \`spec-machine/.state/artifacts/\`:
+- Generate mapping files in \`devorch/.state/artifacts/\`:
   - \`implementer-mapping.yml\`
   - \`verifier-mapping.yml\`
 
@@ -2621,7 +2621,7 @@ Use the **tasks-list-creator** subagent to break down the spec into an actionabl
 
 Provide the tasks-list-creator:
 
-- The spec folder path (find the current one or the most recent in \`spec-machine/specs/*/\`)
+- The spec folder path (find the current one or the most recent in \`devorch/specs/*/\`)
 - The \`spec.md\` file that was just created.
 - The original requirement from \`planning/requirements.md\`
 - Any visual assets in \`planning/visuals/\`
@@ -2656,7 +2656,7 @@ If verification found issues, highlight them for the user's attention.
 After completion, you should have:
 
 \`\`\`
-spec-machine/specs/[date-spec-name]/
+devorch/specs/[date-spec-name]/
 ├── planning/
 │   ├── initialization.md
 │   ├── requirements.md
@@ -2693,13 +2693,13 @@ dependencies:
 
 You are initiating a new spec for a new feature.  This process will follow 3 main phases, each with their own workflow steps.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 
@@ -3162,13 +3162,13 @@ You are a specialized subagent focused on intelligently merging detected technol
 
 You will receive:
 1. **Detected Tech Stack**: Output from tech-stack-analyzer with categorized technologies
-2. **File Location**: Path to \`spec-machine/tech-stack.md\`
+2. **File Location**: Path to \`devorch/tech-stack.md\`
 
 ## Workflow
 
 ### Step 1: Check if tech-stack.md Exists
 
-Use the Read tool to check if \`spec-machine/tech-stack.md\` exists:
+Use the Read tool to check if \`devorch/tech-stack.md\` exists:
 
 **If file does NOT exist:**
 - Proceed to Step 4 (Generate New tech-stack.md)
@@ -3305,7 +3305,7 @@ The following technologies were detected but not previously documented:
 
 ### Step 5: Write the File
 
-Use the Write tool to write the merged content to \`spec-machine/tech-stack.md\`
+Use the Write tool to write the merged content to \`devorch/tech-stack.md\`
 
 ## Merging Strategies
 
@@ -3416,7 +3416,7 @@ You are a context training artifact generator. Your primary responsibility is to
 - DO NOT deviate from the standard structure
 - DO NOT skip required files (context-training.yml, specification.md, implementation.md)
 - DO NOT create files outside the context-training directory
-- ONLY create files in \`spec-machine/context-training/{name}/\`
+- ONLY create files in \`devorch/context-training/{name}/\`
 - ONLY use validated patterns from previous workflow
 - ONLY follow markdown template format
 
@@ -3489,14 +3489,14 @@ Create the context-training directory:
 CT_NAME="mobile-app"  # From input
 
 # Create main directory
-mkdir -p "spec-machine/context-training/\${CT_NAME}"
+mkdir -p "devorch/context-training/\${CT_NAME}"
 
 # Create subdirectories
-mkdir -p "spec-machine/context-training/\${CT_NAME}/implementers"
-mkdir -p "spec-machine/context-training/\${CT_NAME}/verifiers"
+mkdir -p "devorch/context-training/\${CT_NAME}/implementers"
+mkdir -p "devorch/context-training/\${CT_NAME}/verifiers"
 
 # Verify creation
-ls -la "spec-machine/context-training/\${CT_NAME}"
+ls -la "devorch/context-training/\${CT_NAME}"
 \`\`\`
 
 **If directory already exists:**
@@ -3507,9 +3507,9 @@ ls -la "spec-machine/context-training/\${CT_NAME}"
 
 \`\`\`bash
 # Backup existing directory
-if [ -d "spec-machine/context-training/\${CT_NAME}" ]; then
-  mv "spec-machine/context-training/\${CT_NAME}" \\
-     "spec-machine/context-training/\${CT_NAME}.backup.$(date +%Y%m%d-%H%M%S)"
+if [ -d "devorch/context-training/\${CT_NAME}" ]; then
+  mv "devorch/context-training/\${CT_NAME}" \\
+     "devorch/context-training/\${CT_NAME}.backup.$(date +%Y%m%d-%H%M%S)"
 fi
 \`\`\`
 
@@ -3542,7 +3542,7 @@ domains:
 
 **Write the file:**
 \`\`\`bash
-cat > "spec-machine/context-training/\${CT_NAME}/context-training.yml" <<'EOF'
+cat > "devorch/context-training/\${CT_NAME}/context-training.yml" <<'EOF'
 # Generated content here
 EOF
 \`\`\`
@@ -3826,7 +3826,7 @@ required_files=(
 
 # Check each required file exists
 for file in "\${required_files[@]}"; do
-  if [ ! -f "spec-machine/context-training/\${CT_NAME}/\${file}" ]; then
+  if [ ! -f "devorch/context-training/\${CT_NAME}/\${file}" ]; then
     echo "❌ Missing required file: \${file}"
   else
     echo "✅ Created: \${file}"
@@ -3835,14 +3835,14 @@ done
 
 # List implementer files
 echo "Implementer files:"
-ls -1 "spec-machine/context-training/\${CT_NAME}/implementers/"
+ls -1 "devorch/context-training/\${CT_NAME}/implementers/"
 
 # List verifier files
 echo "Verifier files:"
-ls -1 "spec-machine/context-training/\${CT_NAME}/verifiers/"
+ls -1 "devorch/context-training/\${CT_NAME}/verifiers/"
 
 # Count total files
-total_files=$(find "spec-machine/context-training/\${CT_NAME}" -type f | wc -l)
+total_files=$(find "devorch/context-training/\${CT_NAME}" -type f | wc -l)
 echo "Total files generated: \${total_files}"
 \`\`\`
 
@@ -3853,7 +3853,7 @@ Present a summary to the user and return structured output:
 \`\`\`
 ✅ Context Training Artifacts Generated
 
-**Location:** spec-machine/context-training/mobile-app/
+**Location:** devorch/context-training/mobile-app/
 
 **Generated Files:**
 - context-training.yml (metadata)
@@ -3876,13 +3876,13 @@ Present a summary to the user and return structured output:
 - Total files: 12
 
 **Next Steps:**
-1. Review generated files in spec-machine/context-training/mobile-app/
-2. Update your spec-machine.config.yml with:
+1. Review generated files in devorch/context-training/mobile-app/
+2. Update your devorch.config.yml with:
    \`\`\`yaml
    profile:
      context_training: mobile-app
    \`\`\`
-3. Run \`spec-machine install\` to activate the context training
+3. Run \`devorch install\` to activate the context training
 4. Test with a spec writing or implementation command
 \`\`\`
 
@@ -3891,7 +3891,7 @@ Return JSON summary:
 \`\`\`json
 {
   "context_training_name": "mobile-app",
-  "directory": "spec-machine/context-training/mobile-app",
+  "directory": "devorch/context-training/mobile-app",
   "files_generated": [
     {
       "path": "context-training.yml",
@@ -3923,8 +3923,8 @@ Return JSON summary:
   },
   "next_steps": [
     "Review generated files",
-    "Update spec-machine.config.yml",
-    "Run spec-machine install",
+    "Update devorch.config.yml",
+    "Run devorch install",
     "Test with commands"
   ]
 }
@@ -3938,7 +3938,7 @@ Your final output should be a summary and next steps for the user:
 {
   "success": true,
   "context_training_name": "string",
-  "directory": "spec-machine/context-training/{name}",
+  "directory": "devorch/context-training/{name}",
   "files_generated": [
     {
       "path": "relative/path/to/file.md",
@@ -5310,7 +5310,7 @@ You are a pull request fetcher specialist. Your primary responsibility is to hel
 - DO NOT make recommendations about what PRs to select
 - DO NOT interpret or summarize PR changes
 - DO NOT suggest labels or filters beyond what exists
-- DO NOT write files to local project folders (like .spec-machine, spec-machine, or any other project directories)
+- DO NOT write files to local project folders (like .devorch, devorch, or any other project directories)
 - ONLY fetch PRs based on user-selected criteria
 - ONLY categorize and present PR data for user selection
 - ONLY return results as JSON in your final response
@@ -5899,7 +5899,7 @@ FINAL_OUTPUT=$(jq -n \\
 echo "$FINAL_OUTPUT"
 \`\`\`
 
-**IMPORTANT: Return the JSON output above in your response. DO NOT write to .spec-machine/ or spec-machine/ directories.**
+**IMPORTANT: Return the JSON output above in your response. DO NOT write to .devorch/ or devorch/ directories.**
 
 The JSON structure will match:
 \`\`\`json
@@ -6008,7 +6008,7 @@ You have access to these tools:
 - Don't fetch PR files or diffs (only metadata)
 - Don't make assumptions about user preferences
 - Don't proceed if gh CLI is not available
-- Don't write files to local project folders (like .spec-machine, spec-machine, or any other project directories)
+- Don't write files to local project folders (like .devorch, devorch, or any other project directories)
 - Don't save JSON output to disk (return it in your response)
 - Don't assume bash variables persist across multiple Bash tool calls (use /tmp/ files instead)
 
@@ -6079,7 +6079,7 @@ You are a pattern analysis specialist. Your primary responsibility is to extract
 - DO NOT suggest improvements or changes
 - DO NOT interpret business logic or feature intent
 - DO NOT make judgments about code quality
-- DO NOT write files to local project folders (like .spec-machine, spec-machine, or any other project directories)
+- DO NOT write files to local project folders (like .devorch, devorch, or any other project directories)
 - **DO NOT return only a summary** - must include full detailed patterns
 - ONLY extract observable patterns from the code
 - ONLY categorize patterns objectively
@@ -6090,7 +6090,7 @@ You are a pattern analysis specialist. Your primary responsibility is to extract
 ## Core Responsibilities
 
 1. **Read Tech Stack Documentation**
-   - Read spec-machine/tech-stack.md from previous workflow step
+   - Read devorch/tech-stack.md from previous workflow step
    - Extract all technologies, libraries, and frameworks
    - Establish baseline expectations for pattern discovery
    - Create reference list for coverage comparison
@@ -6135,7 +6135,7 @@ You are a pattern analysis specialist. Your primary responsibility is to extract
 
 You will receive TWO JSON inputs from the orchestrator in your prompt:
 
-**1. Tech Stack Analysis JSON** - Already parsed from spec-machine/tech-stack.md
+**1. Tech Stack Analysis JSON** - Already parsed from devorch/tech-stack.md
 
 The orchestrator provides this in your prompt. Parse it to extract:
 - Application type
@@ -6416,7 +6416,7 @@ EOF
 
 ### Step 7: Return Structured Analysis
 
-**⚠️ CRITICAL: Return the COMPLETE analysis as JSON in your response. DO NOT write to .spec-machine/ or spec-machine/ directories.**
+**⚠️ CRITICAL: Return the COMPLETE analysis as JSON in your response. DO NOT write to .devorch/ or devorch/ directories.**
 
 **Your output MUST include:**
 - ✅ ALL domains discovered (not just a count)
@@ -6619,7 +6619,7 @@ You have access to these tools:
 - Don't make assumptions without code evidence
 - Don't fetch unnecessary data
 - Don't overwhelm with too many micro-patterns
-- Don't write files to local project folders (like .spec-machine, spec-machine, or any other project directories)
+- Don't write files to local project folders (like .devorch, devorch, or any other project directories)
 - Don't save JSON output to disk (return it in your response)
 - Don't create manual for loops for fetching PRs (use the xargs pattern from Step 3)
 - **Don't return ONLY a summary** - must include full domains/patterns/examples
@@ -6709,7 +6709,7 @@ You are a technology stack documentation specialist. Your primary responsibility
 ## Core Responsibilities
 
 1. **Locate and Read Tech Stack Documentation**
-   - Find tech-stack.md file (typically at spec-machine/tech-stack.md or project root)
+   - Find tech-stack.md file (typically at devorch/tech-stack.md or project root)
    - Read the complete documentation
    - Understand the structure and organization
    - Note any rationale or architecture patterns sections
@@ -6729,7 +6729,7 @@ You are a technology stack documentation specialist. Your primary responsibility
 ## Search Strategy
 
 ### Step 1: Locate the Tech Stack File
-1. First, try to read \`spec-machine/tech-stack.md\`
+1. First, try to read \`devorch/tech-stack.md\`
 2. If still not found, search for similar documentation files
 
 ### Step 2: Read and Parse the Documentation
@@ -7642,7 +7642,7 @@ DO NOT update task checkboxes for other task groups that were NOT assigned to yo
 
 Using the task number and task title that's been assigned to you, create a file in the current spec's \`implementation\` folder called \`[task-number]-[task-title]-implementation.md\`.
 
-For example, if you've been assigned implement the 3rd task from \`tasks.md\` and that task's title is "Commenting System", then you must create the file: \`spec-machine/specs/[this-spec]/implementation/3-commenting-system-implementation.md\`.
+For example, if you've been assigned implement the 3rd task from \`tasks.md\` and that task's title is "Commenting System", then you must create the file: \`devorch/specs/[this-spec]/implementation/3-commenting-system-implementation.md\`.
 
 Use the following structure for the content of your implementation documentation:
 
@@ -7651,7 +7651,7 @@ Use the following structure for the content of your implementation documentation
 
 ## Overview
 
-**Task Reference:** Task #[number] from \`spec-machine/specs/[this-spec]/tasks.md\`
+**Task Reference:** Task #[number] from \`devorch/specs/[this-spec]/tasks.md\`
 **Implemented By:** [Agent Role/Name]
 **Date:** [Implementation Date]
 **Status:** ✅ Complete | ⚠️ Partial | 🔄 In Progress
@@ -7953,20 +7953,20 @@ You are a role discovery specialist. Your primary responsibility is to discover 
 ## Core Responsibilities
 
 1. **Check Context-Training Configuration**
-   - Determine if context-training is configured in spec-machine.config.yml
+   - Determine if context-training is configured in devorch.config.yml
    - Identify the context-training name being used
    - Handle cases where no context-training is configured
 
 2. **Discover Implementer Roles**
    - Find all implementer markdown files in context-training
    - Extract frontmatter metadata from each file
-   - Generate structured mapping in spec-machine/.state/artifacts/implementer-mapping.yml
+   - Generate structured mapping in devorch/.state/artifacts/implementer-mapping.yml
    - Validate required fields exist
 
 3. **Discover Verifier Roles**
    - Find all verifier markdown files in context-training
    - Extract frontmatter metadata from each file
-   - Generate structured mapping in spec-machine/.state/artifacts/verifier-mapping.yml
+   - Generate structured mapping in devorch/.state/artifacts/verifier-mapping.yml
    - Handle cases where no verifiers are configured
 
 4. **Report Discovery Summary**
@@ -7982,7 +7982,7 @@ You are a role discovery specialist. Your primary responsibility is to discover 
 **1.1 Read project configuration:**
 
 \`\`\`bash
-cat spec-machine.config.yml
+cat devorch.config.yml
 \`\`\`
 
 Look for \`profile.context_training\` field.
@@ -7995,10 +7995,10 @@ Look for \`profile.context_training\` field.
 Create empty mapping files:
 
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts
+mkdir -p devorch/.state/artifacts
 
 # Create empty implementer mapping
-cat > spec-machine/.state/artifacts/implementer-mapping.yml << 'EOF'
+cat > devorch/.state/artifacts/implementer-mapping.yml << 'EOF'
 # No context training configured
 # tasks-list-creator will use generic task groups
 
@@ -8006,7 +8006,7 @@ implementers: []
 EOF
 
 # Create empty verifier mapping
-cat > spec-machine/.state/artifacts/verifier-mapping.yml << 'EOF'
+cat > devorch/.state/artifacts/verifier-mapping.yml << 'EOF'
 # No context training configured
 
 verifiers: []
@@ -8016,7 +8016,7 @@ EOF
 Display message to user:
 \`\`\`
 ⚠️  No context-training configured
-Empty mappings created in spec-machine/.state/artifacts/
+Empty mappings created in devorch/.state/artifacts/
 tasks-list-creator will use generic task groups
 \`\`\`
 
@@ -8193,7 +8193,7 @@ SPEC_NAME="[kebab-case-name]"
 DATED_SPEC_NAME="\${TODAY}-\${SPEC_NAME}"
 
 # Store this path for output
-SPEC_PATH="spec-machine/specs/$DATED_SPEC_NAME"
+SPEC_PATH="devorch/specs/$DATED_SPEC_NAME"
 
 # Create folder structure following architecture
 mkdir -p $SPEC_PATH/planning
@@ -8304,12 +8304,12 @@ Before generating questions, understand the technical context:
 
 Load the tech stack context:
 
-**Read Tech Stack**: Load \`spec-machine/tech-stack.md\` to understand:
+**Read Tech Stack**: Load \`devorch/tech-stack.md\` to understand:
 - Technologies and frameworks in use
 - Technical constraints and capabilities
 - Libraries and tools available
 
-**Important**: If \`spec-machine/tech-stack.md\` does not exist:
+**Important**: If \`devorch/tech-stack.md\` does not exist:
 - Stop the spec research workflow
 - Inform the user: "Tech stack not found. Please run \`/analyze-tech-stack\` first to generate the shared tech-stack.md file."
 - Wait for the user to run the command before proceeding
@@ -8634,17 +8634,17 @@ When reading multiple independent files or searching for different patterns:
 **Load all required context files in parallel using the Read tool:**
 
 Make these Read tool calls **in parallel** (in a single response):
-- Read: \`spec-machine/specs/[current-spec]/planning/initialization.md\`
-- Read: \`spec-machine/specs/[current-spec]/planning/requirements.md\`
-- Read: \`spec-machine/tech-stack.md\`
-- Read: \`spec-machine/agents-registry.yml\` (if it exists)
+- Read: \`devorch/specs/[current-spec]/planning/initialization.md\`
+- Read: \`devorch/specs/[current-spec]/planning/requirements.md\`
+- Read: \`devorch/tech-stack.md\`
+- Read: \`devorch/agents-registry.yml\` (if it exists)
 
 Also check for visual assets:
-- Bash: \`ls -la spec-machine/specs/[current-spec]/planning/visuals/ 2>/dev/null | grep -v "^total" | grep -v "^d"\`
+- Bash: \`ls -la devorch/specs/[current-spec]/planning/visuals/ 2>/dev/null | grep -v "^total" | grep -v "^d"\`
 
 **Parse and analyze:**
 
-- Tech stack from \`spec-machine/tech-stack.md\`
+- Tech stack from \`devorch/tech-stack.md\`
 - User's feature description and goals
 - Requirements gathered by spec-researcher
 - Visual mockups or screenshots (if present in visuals directory)
@@ -8725,7 +8725,7 @@ Then **move on to Step 3**. Don't spend more than 30% of your time searching.
 
 ### Step 3: Create Core Specification
 
-Write the main specification to \`spec-machine/specs/[current-spec]/spec.md\`:
+Write the main specification to \`devorch/specs/[current-spec]/spec.md\`:
 
 \`\`\`markdown
 ---

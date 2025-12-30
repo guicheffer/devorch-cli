@@ -21,7 +21,7 @@ Create a comprehensive specification document from gathered requirements and ver
 
 This process follows 4 sequential phases:
 
-0. **Pre-checks** - Verify spec-machine version and required subagents
+0. **Pre-checks** - Verify devorch version and required subagents
 1. **Select Spec** - Choose active spec with stale detection
 2. **Write Spec** - Generate detailed specification document
 3. **Verify Spec** - Validate specification accuracy
@@ -54,10 +54,10 @@ Context training provides:
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /create-spec
+devorch check-version --command /create-spec
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -67,7 +67,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -108,7 +108,7 @@ This command requires these subagents to function properly. Please ensure your p
 **Get the active spec:**
 
 \`\`\`bash
-spec-machine get-spec
+devorch get-spec
 \`\`\`
 
 **Parse the output:**
@@ -117,7 +117,7 @@ spec-machine get-spec
 - Always extract \`NEWEST_SPEC=[path]\`, \`NEWEST_SPEC_NAME=[name]\`, and \`NEWEST_SPEC_FOLDER=[folder]\` from output
 - Check \`IS_STALE\` flag to determine if active spec is older than newest
 
-**Note:** If no active spec was previously set, \`spec-machine get-spec\` automatically sets the newest spec as active.
+**Note:** If no active spec was previously set, \`devorch get-spec\` automatically sets the newest spec as active.
 
 **Always ask the user to confirm or change the spec:**
 
@@ -143,7 +143,7 @@ Options:
 
 **Handle user's response:**
 - **Option 1 (Continue)**: Use \`CURRENT_SPEC\` path as-is
-- **Option 2 (Switch)**: Run \`spec-machine get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`spec-machine get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
+- **Option 2 (Switch)**: Run \`devorch get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`devorch get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
 - **Option 3 (Cancel)**: Stop execution and exit the command
 
 **Validate spec folder exists:**
@@ -157,7 +157,7 @@ fi
 
 **Store the selected spec path as \`[spec-folder-path]\`** for use in subsequent phases.
 
-The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`spec-machine/specs/2025-11-18-user-auth\`).
+The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`devorch/specs/2025-11-18-user-auth\`).
 
 
 ### PHASE 2: Write Specification
@@ -175,7 +175,7 @@ Create a comprehensive specification document.
 
 Spec folder path: [spec-folder-path]
 
-Example path: spec-machine/specs/2025-11-18-user-auth
+Example path: devorch/specs/2025-11-18-user-auth
 
 Read the requirements document at [spec-folder-path]/planning/requirements.md - it contains all the research findings, user answers, and context you need.
 
@@ -196,7 +196,7 @@ Use the **spec-verifier** subagent to verify accuracy.
 \`\`\`
 Spec folder path: [spec-folder-path]
 
-Example path: spec-machine/specs/2025-11-18-user-auth
+Example path: devorch/specs/2025-11-18-user-auth
 
 Questions asked to user during requirements gathering:
 [List all questions from earlier in this conversation]
@@ -269,7 +269,7 @@ Then inform the user with this structure:
 
 **Artifacts created:**
 \`\`\`
-spec-machine/specs/[date-spec-name]/
+devorch/specs/[date-spec-name]/
 ├── planning/
 │   ├── initialization.md
 │   ├── requirements.md

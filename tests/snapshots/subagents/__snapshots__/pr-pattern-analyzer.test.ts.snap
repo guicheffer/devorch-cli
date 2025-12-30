@@ -20,7 +20,7 @@ You are a pattern analysis specialist. Your primary responsibility is to extract
 - DO NOT suggest improvements or changes
 - DO NOT interpret business logic or feature intent
 - DO NOT make judgments about code quality
-- DO NOT write files to local project folders (like .spec-machine, spec-machine, or any other project directories)
+- DO NOT write files to local project folders (like .devorch, devorch, or any other project directories)
 - **DO NOT return only a summary** - must include full detailed patterns
 - ONLY extract observable patterns from the code
 - ONLY categorize patterns objectively
@@ -31,7 +31,7 @@ You are a pattern analysis specialist. Your primary responsibility is to extract
 ## Core Responsibilities
 
 1. **Read Tech Stack Documentation**
-   - Read spec-machine/tech-stack.md from previous workflow step
+   - Read devorch/tech-stack.md from previous workflow step
    - Extract all technologies, libraries, and frameworks
    - Establish baseline expectations for pattern discovery
    - Create reference list for coverage comparison
@@ -76,7 +76,7 @@ You are a pattern analysis specialist. Your primary responsibility is to extract
 
 You will receive TWO JSON inputs from the orchestrator in your prompt:
 
-**1. Tech Stack Analysis JSON** - Already parsed from spec-machine/tech-stack.md
+**1. Tech Stack Analysis JSON** - Already parsed from devorch/tech-stack.md
 
 The orchestrator provides this in your prompt. Parse it to extract:
 - Application type
@@ -87,7 +87,7 @@ The orchestrator provides this in your prompt. Parse it to extract:
 **Create reference file from the provided JSON:**
 \`\`\`bash
 # Extract technology names from the provided JSON and store for comparison
-echo "$TECH_STACK_JSON" | jq -r '.technologies[].name' > spec-machine/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt
+echo "$TECH_STACK_JSON" | jq -r '.technologies[].name' > devorch/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt
 \`\`\`
 
 This gives you a baseline of what technologies exist in the project, so you can identify:
@@ -134,8 +134,8 @@ REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 # Fetch PR details in parallel (up to 10 concurrent for performance)
 # CRITICAL: Use xargs as shown, not a manual for loop
 echo "$pr_numbers" | xargs -P 10 -I {} sh -c \\
-  "gh pr view {} --repo \\"$REPO\\" --json number,title,files,body,labels,additions,deletions,changedFiles > spec-machine/.state/artifacts/pr-pattern-analyzer/pr_{}.json && \\
-   gh pr diff {} --repo \\"$REPO\\" > spec-machine/.state/artifacts/pr-pattern-analyzer/pr_{}.diff"
+  "gh pr view {} --repo \\"$REPO\\" --json number,title,files,body,labels,additions,deletions,changedFiles > devorch/.state/artifacts/pr-pattern-analyzer/pr_{}.json && \\
+   gh pr diff {} --repo \\"$REPO\\" > devorch/.state/artifacts/pr-pattern-analyzer/pr_{}.diff"
 \`\`\`
 
 **Why xargs instead of for loops:**
@@ -147,7 +147,7 @@ echo "$pr_numbers" | xargs -P 10 -I {} sh -c \\
 **Important:**
 - Always use the xargs pattern shown above for fetching PRs
 - Use \`--repo "$REPO"\` to ensure correct repository
-- Store both JSON metadata and diff files for analysis in spec-machine/.state/artifacts/pr-pattern-analyzer/
+- Store both JSON metadata and diff files for analysis in devorch/.state/artifacts/pr-pattern-analyzer/
 - Handle PRs with many files (100+ files) gracefully
 
 ### Step 3: Analyze File Patterns
@@ -157,7 +157,7 @@ Analyze the PR files to identify patterns:
 **File Organization:**
 \`\`\`bash
 # Extract file paths and group by directory
-jq -r '.files[].path' spec-machine/.state/artifacts/pr-pattern-analyzer/pr_*.json | \\
+jq -r '.files[].path' devorch/.state/artifacts/pr-pattern-analyzer/pr_*.json | \\
   cut -d/ -f1-2 | \\
   sort | uniq -c | sort -rn
 \`\`\`
@@ -165,7 +165,7 @@ jq -r '.files[].path' spec-machine/.state/artifacts/pr-pattern-analyzer/pr_*.jso
 **Import Patterns:**
 \`\`\`bash
 # For each changed file, extract imports
-for pr_json in spec-machine/.state/artifacts/pr-pattern-analyzer/pr_*.json; do
+for pr_json in devorch/.state/artifacts/pr-pattern-analyzer/pr_*.json; do
   jq -r '.files[].path' "$pr_json" | while read file; do
     # Fetch actual file content if needed
     echo "Analyzing: $file"
@@ -182,7 +182,7 @@ done
 **Store patterns:**
 \`\`\`bash
 # Create temporary analysis file
-cat > spec-machine/.state/artifacts/pr-pattern-analyzer/file_patterns.json <<EOF
+cat > devorch/.state/artifacts/pr-pattern-analyzer/file_patterns.json <<EOF
 {
   "directories": {
     "src/components": 45,
@@ -204,7 +204,7 @@ Analyze PR diffs to discover patterns naturally from the codebase:
 
 \`\`\`bash
 # Examine all diffs to find recurring patterns
-for pr_diff in spec-machine/.state/artifacts/pr-pattern-analyzer/pr_*.diff; do
+for pr_diff in devorch/.state/artifacts/pr-pattern-analyzer/pr_*.diff; do
   # Look at the actual code changes
   cat "$pr_diff"
 done
@@ -230,20 +230,20 @@ For each pattern you discover:
 3. Extract 2-3 concrete code examples from different PRs
 4. Calculate how frequently it appears (% of PRs)
 5. Note related libraries/tools used
-6. **Cross-reference with tech stack** - Check if this pattern/library is in spec-machine/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt
+6. **Cross-reference with tech stack** - Check if this pattern/library is in devorch/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt
 
 **Track Tech Stack Coverage:**
 
 As you analyze patterns, maintain two lists:
 \`\`\`bash
 # Create tracking files
-touch spec-machine/.state/artifacts/pr-pattern-analyzer/observed_tech_stack.txt
-touch spec-machine/.state/artifacts/pr-pattern-analyzer/not_observed_tech_stack.txt
+touch devorch/.state/artifacts/pr-pattern-analyzer/observed_tech_stack.txt
+touch devorch/.state/artifacts/pr-pattern-analyzer/not_observed_tech_stack.txt
 \`\`\`
 
 For each technology/library you find in the code:
-- Check if it's in spec-machine/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt
-- If yes, add to spec-machine/.state/artifacts/pr-pattern-analyzer/observed_tech_stack.txt
+- Check if it's in devorch/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt
+- If yes, add to devorch/.state/artifacts/pr-pattern-analyzer/observed_tech_stack.txt
 - At the end, diff to find what's in tech stack but NOT observed
 
 **Don't limit yourself to predefined categories** - discover patterns based on what's actually in the code. The domains will emerge naturally from the patterns you find.
@@ -274,7 +274,7 @@ For each domain you discover:
 **Calculate domain statistics:**
 \`\`\`bash
 # Count PRs for each domain based on patterns found
-total_prs=$(ls spec-machine/.state/artifacts/pr-pattern-analyzer/pr_*.json | wc -l)
+total_prs=$(ls devorch/.state/artifacts/pr-pattern-analyzer/pr_*.json | wc -l)
 
 # For each domain, count how many PRs have patterns in that domain
 # This will vary based on what domains you discovered
@@ -313,15 +313,15 @@ Now that you've extracted patterns, compare against the tech stack to identify w
 \`\`\`bash
 # Find tech stack items that were NOT observed in PRs
 comm -23 \\
-  <(cat spec-machine/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt | sort | uniq) \\
-  <(cat spec-machine/.state/artifacts/pr-pattern-analyzer/observed_tech_stack.txt | sort | uniq) \\
-  > spec-machine/.state/artifacts/pr-pattern-analyzer/not_observed_tech_stack.txt
+  <(cat devorch/.state/artifacts/pr-pattern-analyzer/tech_stack_items.txt | sort | uniq) \\
+  <(cat devorch/.state/artifacts/pr-pattern-analyzer/observed_tech_stack.txt | sort | uniq) \\
+  > devorch/.state/artifacts/pr-pattern-analyzer/not_observed_tech_stack.txt
 \`\`\`
 
 **Create tech stack coverage JSON:**
 
 \`\`\`bash
-cat > spec-machine/.state/artifacts/pr-pattern-analyzer/tech_stack_coverage.json <<'EOF'
+cat > devorch/.state/artifacts/pr-pattern-analyzer/tech_stack_coverage.json <<'EOF'
 {
   "observed": [
     "React Native",
@@ -357,7 +357,7 @@ EOF
 
 ### Step 7: Return Structured Analysis
 
-**⚠️ CRITICAL: Return the COMPLETE analysis as JSON in your response. DO NOT write to .spec-machine/ or spec-machine/ directories.**
+**⚠️ CRITICAL: Return the COMPLETE analysis as JSON in your response. DO NOT write to .devorch/ or devorch/ directories.**
 
 **Your output MUST include:**
 - ✅ ALL domains discovered (not just a count)
@@ -549,7 +549,7 @@ You have access to these tools:
 - **Return COMPLETE analysis as JSON** - include ALL domains, ALL patterns, ALL examples
 - **Expect output to be 1000+ lines** - that's normal for detailed pattern analysis
 - Validate your JSON has domains array with full pattern details before returning
-- Use spec-machine/.state/artifacts/pr-pattern-analyzer/ for temporary files if needed during processing
+- Use devorch/.state/artifacts/pr-pattern-analyzer/ for temporary files if needed during processing
 - Handle large PRs efficiently
 - Use parallel fetching with xargs (not manual for loops)
 
@@ -562,7 +562,7 @@ You have access to these tools:
 - Don't make assumptions without code evidence
 - Don't fetch unnecessary data
 - Don't overwhelm with too many micro-patterns
-- Don't write files to local project folders (like .spec-machine, spec-machine, or any other project directories)
+- Don't write files to local project folders (like .devorch, devorch, or any other project directories)
 - Don't save JSON output to disk (return it in your response)
 - Don't create manual for loops for fetching PRs (use the xargs pattern from Step 3)
 - **Don't return ONLY a summary** - must include full domains/patterns/examples

@@ -99,7 +99,7 @@ Please provide valid Jira ticket keys.
 
 Create artifacts directory:
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/jira-ticket-fetcher
+mkdir -p devorch/.state/artifacts/jira-ticket-fetcher
 \`\`\`
 
 For each ticket key, activate the skill for jira CLI commands:
@@ -112,7 +112,7 @@ for TICKET_KEY in $TICKET_KEYS; do
     echo "Fetching $TICKET_KEY..."
 
     # Fetch ticket with error handling (pattern from cli-tools-jira-cli skill)
-    if ! jira issue view "$TICKET_KEY" --json > "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}.json" 2>&1; then
+    if ! jira issue view "$TICKET_KEY" --json > "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}.json" 2>&1; then
         echo "❌ Failed to fetch $TICKET_KEY"
         continue
     fi
@@ -130,7 +130,7 @@ For each successfully fetched ticket, parse comment bodies from ADF to plain tex
 **Activate the \`cli-tools-jira-cli\` skill for ADF parsing with the \`[cli-tools-jira-cli]/scripts/parse-adf.js\` script:**
 
 \`\`\`bash
-for TICKET_FILE in spec-machine/.state/artifacts/jira-ticket-fetcher/*.json; do
+for TICKET_FILE in devorch/.state/artifacts/jira-ticket-fetcher/*.json; do
     TICKET_KEY=$(basename "$TICKET_FILE" .json)
 
     echo "Parsing comments for $TICKET_KEY..."
@@ -145,10 +145,10 @@ for TICKET_FILE in spec-machine/.state/artifacts/jira-ticket-fetcher/*.json; do
         BODY_TEXT=$(echo "$comment" | jq '.body' | node "[cli-tools-jira-cli]/scripts/parse-adf.js" 2>/dev/null)
 
         # Save parsed comment
-        echo "Comment by $AUTHOR ($CREATED):" >> "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
-        echo "$BODY_TEXT" >> "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
-        echo "---" >> "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
-        echo "" >> "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
+        echo "Comment by $AUTHOR ($CREATED):" >> "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
+        echo "$BODY_TEXT" >> "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
+        echo "---" >> "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
+        echo "" >> "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-comments.txt"
     done
 
     echo "✅ Parsed comments saved to \${TICKET_KEY}-comments.txt"
@@ -159,14 +159,14 @@ done
 
 For each ticket with parsed comments, analyze to identify Q&A patterns.
 
-**Task:** Read \`spec-machine/.state/artifacts/jira-ticket-fetcher/[TICKET-KEY]-comments.txt\` and:
+**Task:** Read \`devorch/.state/artifacts/jira-ticket-fetcher/[TICKET-KEY]-comments.txt\` and:
 1. Find questions in comments (often prefixed with "Clarifying Questions" or similar heading)
-   - Hint: Automated comments from spec-machine end with "📋 Posted by spec-machine"
+   - Hint: Automated comments from devorch end with "📋 Posted by devorch"
 2. Check if answers exist in subsequent comments (as replies or references to the questions)
 
 **Save analysis as JSON:**
 \`\`\`bash
-# Save to: spec-machine/.state/artifacts/jira-ticket-fetcher/[TICKET-KEY]-qa-analysis.json
+# Save to: devorch/.state/artifacts/jira-ticket-fetcher/[TICKET-KEY]-qa-analysis.json
 {
   "questions": ["Q1: ...", "Q2: ..."],  // Empty array [] if none found
   "answers": ["A1: ...", "A2: ..."],     // Empty array [] if none found
@@ -186,12 +186,12 @@ Create comprehensive structured output combining ticket data with Q&A analysis:
 
 \`\`\`bash
 # For each ticket, create a parsed JSON with ticket info + Q&A
-for TICKET_FILE in spec-machine/.state/artifacts/jira-ticket-fetcher/*.json; do
+for TICKET_FILE in devorch/.state/artifacts/jira-ticket-fetcher/*.json; do
     TICKET_KEY=$(basename "$TICKET_FILE" .json)
 
     # Check if Q&A analysis exists
-    if [ -f "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-qa-analysis.json" ]; then
-        QA_DATA=$(cat "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-qa-analysis.json")
+    if [ -f "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-qa-analysis.json" ]; then
+        QA_DATA=$(cat "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-qa-analysis.json")
     else
         QA_DATA='{"questions": [], "answers": [], "allAnswered": true, "unansweredIndices": []}'
     fi
@@ -216,13 +216,13 @@ for TICKET_FILE in spec-machine/.state/artifacts/jira-ticket-fetcher/*.json; do
             priority: $priority,
             qa: $qa,
             attachments: $attachments
-        }' > "spec-machine/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-parsed.json"
+        }' > "devorch/.state/artifacts/jira-ticket-fetcher/\${TICKET_KEY}-parsed.json"
 
     echo "✅ Generated structured output: \${TICKET_KEY}-parsed.json"
 done
 
 # Create consolidated summary
-jq -s '.' spec-machine/.state/artifacts/jira-ticket-fetcher/*-parsed.json > spec-machine/.state/artifacts/jira-ticket-fetcher/tickets-summary.json
+jq -s '.' devorch/.state/artifacts/jira-ticket-fetcher/*-parsed.json > devorch/.state/artifacts/jira-ticket-fetcher/tickets-summary.json
 \`\`\`
 
 ## Output
@@ -247,11 +247,11 @@ Return a structured summary message to the command:
     Unanswered: Q[indices from unansweredIndices]
 
 **Artifacts saved:**
-- Raw tickets: spec-machine/.state/artifacts/jira-ticket-fetcher/[KEY].json
-- Parsed comments: spec-machine/.state/artifacts/jira-ticket-fetcher/[KEY]-comments.txt
-- Q&A analysis: spec-machine/.state/artifacts/jira-ticket-fetcher/[KEY]-qa-analysis.json
-- Structured output: spec-machine/.state/artifacts/jira-ticket-fetcher/[KEY]-parsed.json
-- Summary: spec-machine/.state/artifacts/jira-ticket-fetcher/tickets-summary.json
+- Raw tickets: devorch/.state/artifacts/jira-ticket-fetcher/[KEY].json
+- Parsed comments: devorch/.state/artifacts/jira-ticket-fetcher/[KEY]-comments.txt
+- Q&A analysis: devorch/.state/artifacts/jira-ticket-fetcher/[KEY]-qa-analysis.json
+- Structured output: devorch/.state/artifacts/jira-ticket-fetcher/[KEY]-parsed.json
+- Summary: devorch/.state/artifacts/jira-ticket-fetcher/tickets-summary.json
 
 **Next steps:**
 [If all tickets have questions.length = 0 OR allAnswered = true:]

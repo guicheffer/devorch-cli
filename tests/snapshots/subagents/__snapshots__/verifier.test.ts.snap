@@ -53,7 +53,7 @@ You've been assigned these verification domains: [domain1, domain2, ...]
 For each domain, read the corresponding file using the Read tool (make these calls in parallel):
 
 \`\`\`
-Read: spec-machine/context-training//verifiers/[domain].md
+Read: devorch/context-training//verifiers/[domain].md
 \`\`\`
 
 **IMPORTANT:** Domain names do NOT end with \`-verifier\` - use the domain name as-is (e.g., \`testing.md\` not \`testing-verifier.md\`).
@@ -400,7 +400,7 @@ Based on the strict criteria defined in Step 6:
 The sections below are injected from your domain-specific verifier file(s) loaded in **Step 0.3**:
 
 \`\`\`
-spec-machine/context-training//verifiers/[domain].md
+devorch/context-training//verifiers/[domain].md
 \`\`\`
 
 These files contain:

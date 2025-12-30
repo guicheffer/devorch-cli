@@ -23,10 +23,10 @@ Before migrating, read the current expected schemas using the CLI:
 
 \`\`\`bash
 # Get implementer frontmatter schema
-spec-machine agent get-context-training-schema implementer
+devorch agent get-context-training-schema implementer
 
 # Get verifier frontmatter schema
-spec-machine agent get-context-training-schema verifier
+devorch agent get-context-training-schema verifier
 \`\`\`
 
 These schemas define the expected fields and their types. Use these as the target format for migration.
@@ -53,7 +53,7 @@ For each file in \`{context-training-path}/implementers/*.md\`:
 
 **1.1 Read target schema:**
 \`\`\`bash
-spec-machine agent get-context-training-schema implementer
+devorch agent get-context-training-schema implementer
 \`\`\`
 
 **1.2 Read the implementer file and extract current frontmatter**
@@ -80,7 +80,7 @@ For each file in \`{context-training-path}/verifiers/*.md\`:
 
 **2.1 Read target schema:**
 \`\`\`bash
-spec-machine agent get-context-training-schema verifier
+devorch agent get-context-training-schema verifier
 \`\`\`
 
 **2.2 Read the verifier file and extract current frontmatter**
@@ -157,7 +157,7 @@ Using fallback: "Implements {domain} patterns"
 ## Example Run
 
 \`\`\`
-Input: spec-machine/context-training/mobile-app/
+Input: devorch/context-training/mobile-app/
 
 Processing implementers/:
 ✅ ui-components.md - Removed 3 fields, added description

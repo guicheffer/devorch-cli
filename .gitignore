@@ -149,10 +149,10 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-spec-machine
+devorch
 
 # Test Docker binary
-test-docker/spec-machine
+test-docker/devorch
 
 worktreeslocal/
 
@@ -164,9 +164,9 @@ worktrees/
 
 # Test project (only track config and README)
 test-project/*
-!test-project/spec-machine/
-test-project/spec-machine/*
-!test-project/spec-machine/config.yml
+!test-project/devorch/
+test-project/devorch/*
+!test-project/devorch/config.yml
 !test-project/README.md
 
 # Test eval snapshots (session checkpoints)

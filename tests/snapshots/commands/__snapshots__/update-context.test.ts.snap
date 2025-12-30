@@ -22,7 +22,7 @@ Update existing context-training with format migration and optional PR ingestion
 
 This process follows 6 sequential phases:
 
-0. **Pre-checks** - Verify spec-machine version and required subagents
+0. **Pre-checks** - Verify devorch version and required subagents
 1. **Load Context Training** - Get context-training name from config
 2. **Migrate Format** - Update all files to match current schemas (always runs)
 3. **Ask About PR Ingestion** - User chooses whether to ingest new PRs
@@ -58,10 +58,10 @@ This process follows 6 sequential phases:
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /update-context
+devorch check-version --command /update-context
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -71,7 +71,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -143,12 +143,12 @@ Inform the user:
 **Pass to context-migrator in your prompt:**
 
 \`\`\`
-Context training path: spec-machine/context-training/
+Context training path: devorch/context-training/
 
 Please migrate all files to match the current schema format.
 
 The migrator will automatically:
-1. Read current schemas using: spec-machine agent get-context-training-schema
+1. Read current schemas using: devorch agent get-context-training-schema
 2. Migrate implementer files (implementers/*.md) to match implementer schema
 3. Migrate verifier files (verifiers/*.md) to match verifier schema
 4. Preserve all pattern content and examples
@@ -246,8 +246,8 @@ The calling command should save the PR JSON to its own artifacts directory for d
 
 **Save the artifact:**
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/commands/update-context
-echo "$PR_JSON" > spec-machine/.state/artifacts/commands/update-context/fetched-prs.json
+mkdir -p devorch/.state/artifacts/commands/update-context
+echo "$PR_JSON" > devorch/.state/artifacts/commands/update-context/fetched-prs.json
 \`\`\`
 
 #### Step 4b: Analyze New PRs
@@ -316,7 +316,7 @@ Invoke the \`context-training/pattern-reviewer\` subagent:
 
 \`\`\`
 Context training: 
-Existing patterns: spec-machine/context-training//
+Existing patterns: devorch/context-training//
 
 New patterns discovered:
 {Patterns from Step 4b}
@@ -342,7 +342,7 @@ Invoke the \`context-training/artifact-generator\` subagent:
 
 \`\`\`
 Context training: 
-Existing files: spec-machine/context-training//
+Existing files: devorch/context-training//
 
 Validated new patterns:
 {Patterns from Step 4c}

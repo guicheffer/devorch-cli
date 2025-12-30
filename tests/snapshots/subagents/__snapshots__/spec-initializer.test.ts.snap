@@ -49,7 +49,7 @@ SPEC_NAME="[kebab-case-name]"
 DATED_SPEC_NAME="\${TODAY}-\${SPEC_NAME}"
 
 # Store this path for output
-SPEC_FOLDER_PATH="spec-machine/specs/$DATED_SPEC_NAME"
+SPEC_FOLDER_PATH="devorch/specs/$DATED_SPEC_NAME"
 
 # Create folder structure following architecture
 mkdir -p $SPEC_FOLDER_PATH/planning

@@ -21,10 +21,10 @@ You orchestrate context training, context training is valuable for collecting ru
 Interactively we'll design the context for certain pieces of work, we value the input of the user as much as what's in the codebase. It's tantamount to review and discuss findings with the user before we implement them.
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /train-context
+devorch check-version --command /train-context
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -34,7 +34,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -85,8 +85,8 @@ This command requires these subagents to function properly. Please ensure your p
 Before continiuing context training we need to verify the following requirements:
 
 1. Required CLI tools
-2. \`spec-machine/tech-stack.md\`
-3. Context training location at \`spec-machine/context-training\`
+2. \`devorch/tech-stack.md\`
+3. Context training location at \`devorch/context-training\`
 
 ### Requirement 1: Check Required Tools
 
@@ -122,22 +122,22 @@ if ! gh auth status &> /dev/null; then
 fi
 \`\`\`
 
-### Requirement 2: \`spec-machine/tech-stack.md\` exists
+### Requirement 2: \`devorch/tech-stack.md\` exists
 
-Look for \`spec-machine/tech-stack.md\` in the project root:
+Look for \`devorch/tech-stack.md\` in the project root:
 
 \`\`\`bash
 # Check if file exists
-[ ! -e "spec-machine/tech-stack" ] && echo "Does not exist"
+[ ! -e "devorch/tech-stack" ] && echo "Does not exist"
 \`\`\`
 
-### Requirement 3: Verify spec-machine Directory
+### Requirement 3: Verify devorch Directory
 
-Ensure the \`spec-machine/context-training\` directory exists for storing context training:
+Ensure the \`devorch/context-training\` directory exists for storing context training:
 
 \`\`\`bash
 # Check directory exists
-[ ! -d "spec-machine/context-training" ] && echo "Directory does not exist"
+[ ! -d "devorch/context-training" ] && echo "Directory does not exist"
 \`\`\`
 
 ## Report missing requirements
@@ -157,7 +157,7 @@ Explain the user they need to run \`/analyze-tech-stack\` command to create the 
 **ALWAYS auto-create this directory** without asking. Run:
 
 \`\`\`bash
-mkdir -p spec-machine/context-training
+mkdir -p devorch/context-training
 \`\`\`
 
 Then tell the user you created it.
@@ -169,8 +169,8 @@ Launch the **context-training/tech-stack-reader** subagent using the Task tool:
 \`\`\`markdown
 Task tool parameters:
 - subagent_type: "context-training/tech-stack-reader"
-- description: "Parse spec-machine/tech-stack.md for platforms, libraries, and skills"
-- prompt: "Read and parse tech-stack.md at: spec-machine/tech-stack.md
+- description: "Parse devorch/tech-stack.md for platforms, libraries, and skills"
+- prompt: "Read and parse tech-stack.md at: devorch/tech-stack.md
 
 Extract:
 - Identify the type of application or system described (e.g., mobile app, web service, backend API, monorepo, etc.)
@@ -181,7 +181,7 @@ Return structured analysis for context-training generation."
 \`\`\`
 
 **What the subagent will do:**
-- Read spec-machine/tech-stack.md
+- Read devorch/tech-stack.md
 - Extract platforms and libraries
 - Return structured analysis as JSON **in its response message** (NOT written to disk)
 
@@ -191,8 +191,8 @@ Return structured analysis for context-training generation."
 
 **Save artifact for reference:**
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/commands/train-context-2
-echo "$TECH_STACK_JSON" > spec-machine/.state/artifacts/commands/train-context-2/tech-stack-analysis.json
+mkdir -p devorch/.state/artifacts/commands/train-context-2
+echo "$TECH_STACK_JSON" > devorch/.state/artifacts/commands/train-context-2/tech-stack-analysis.json
 \`\`\`
 
 Where \`$TECH_STACK_JSON\` is the JSON returned by the subagent. This artifact is for debugging/reference only and will be used as the baseline for tech stack coverage comparison in Step 4.
@@ -244,8 +244,8 @@ The calling command should save the PR JSON to its own artifacts directory for d
 
 **Save the artifact:**
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/commands/train-context-2
-echo "$PR_JSON" > spec-machine/.state/artifacts/commands/train-context-2/fetched-prs.json
+mkdir -p devorch/.state/artifacts/commands/train-context-2
+echo "$PR_JSON" > devorch/.state/artifacts/commands/train-context-2/fetched-prs.json
 \`\`\`
 
 ### Step 4: Analyze Patterns
@@ -254,10 +254,10 @@ echo "$PR_JSON" > spec-machine/.state/artifacts/commands/train-context-2/fetched
 
 \`\`\`bash
 # Read tech stack analysis from Step 2
-TECH_STACK_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/tech-stack-analysis.json)
+TECH_STACK_JSON=$(cat devorch/.state/artifacts/commands/train-context-2/tech-stack-analysis.json)
 
 # Read PR list from Step 3
-PR_LIST_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/fetched-prs.json)
+PR_LIST_JSON=$(cat devorch/.state/artifacts/commands/train-context-2/fetched-prs.json)
 \`\`\`
 
 Launch the **context-training/pr-pattern-analyzer** subagent using the Task tool to analyze patterns from the selected PRs and assess tech stack coverage.
@@ -292,7 +292,7 @@ Focus on objective pattern extraction - do not make recommendations yet."
 \`\`\`
 
 **What the subagent will do:**
-- Read spec-machine/tech-stack.md to establish baseline expectations
+- Read devorch/tech-stack.md to establish baseline expectations
 - Fetch complete PR details using \`gh pr view\` and \`gh pr diff\` (keep data in memory)
 - Analyze patterns across all files: components, state, APIs, testing, styling, file organization, imports
 - Compare found patterns against tech stack to identify:
@@ -307,8 +307,8 @@ Focus on objective pattern extraction - do not make recommendations yet."
 
 **Save artifact:**
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/commands/train-context-2
-echo "$PATTERN_JSON" > spec-machine/.state/artifacts/commands/train-context-2/pattern-analysis.json
+mkdir -p devorch/.state/artifacts/commands/train-context-2
+echo "$PATTERN_JSON" > devorch/.state/artifacts/commands/train-context-2/pattern-analysis.json
 \`\`\`
 
 Where \`$PATTERN_JSON\` is the COMPLETE JSON returned by the subagent, including:
@@ -430,7 +430,7 @@ This pattern analysis will be passed to Step 5 for interactive review with the u
 
 \`\`\`bash
 # Read pattern analysis from Step 4
-PATTERN_ANALYSIS_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/pattern-analysis.json)
+PATTERN_ANALYSIS_JSON=$(cat devorch/.state/artifacts/commands/train-context-2/pattern-analysis.json)
 \`\`\`
 
 Launch the **context-training/pattern-reviewer** subagent using the Task tool:
@@ -522,8 +522,8 @@ The subagent returns JSON with:
 
 **Save artifact for reference:**
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/commands/train-context-2
-echo "$VALIDATED_JSON" > spec-machine/.state/artifacts/commands/train-context-2/validated-patterns.json
+mkdir -p devorch/.state/artifacts/commands/train-context-2
+echo "$VALIDATED_JSON" > devorch/.state/artifacts/commands/train-context-2/validated-patterns.json
 \`\`\`
 
 Where \`$VALIDATED_JSON\` is the JSON returned by the subagent. This artifact is for debugging/reference only - the workflow uses the in-memory JSON.
@@ -537,7 +537,7 @@ This validated pattern set will be passed to Step 6 for artifact generation.
 
 \`\`\`bash
 # Read validated patterns from Step 5
-VALIDATED_PATTERNS_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/validated-patterns.json)
+VALIDATED_PATTERNS_JSON=$(cat devorch/.state/artifacts/commands/train-context-2/validated-patterns.json)
 \`\`\`
 
 Launch the **context-training/artifact-generator** subagent using the Task tool:
@@ -552,7 +552,7 @@ Validated Patterns JSON (from Step 5):
 $VALIDATED_PATTERNS_JSON
 
 Your job is to:
-1. Create context-training directory at spec-machine/context-training/{name}/
+1. Create context-training directory at devorch/context-training/{name}/
 2. Generate specification.md with patterns relevant to spec writing (API, data modeling, UI specs)
 3. Generate implementation.md with architectural and planning patterns
 4. Generate implementers/*.md files - one per domain (ui.md, state.md, api.md, testing.md, etc.)
@@ -567,7 +567,7 @@ If directory already exists, warn user and ask before overwriting."
 \`\`\`
 
 **What the subagent will do:**
-- Create directory structure: \`spec-machine/context-training/{name}/\` with subdirectories \`implementers/\` and \`verifiers/\`
+- Create directory structure: \`devorch/context-training/{name}/\` with subdirectories \`implementers/\` and \`verifiers/\`
 - Generate specification.md with patterns for spec writers (API, data modeling, UI specs)
 - Generate implementation.md with architectural patterns and file organization guidance
 - Generate one implementer file per domain:
@@ -587,7 +587,7 @@ The subagent returns JSON with:
 {
   "success": true,
   "context_training_name": "mobile-app",
-  "directory": "spec-machine/context-training/mobile-app",
+  "directory": "devorch/context-training/mobile-app",
   "files_generated": [
     {
       "path": "specification.md",
@@ -608,9 +608,9 @@ The subagent returns JSON with:
     "skill_references_count": 3
   },
   "next_steps": [
-    "Review generated files in spec-machine/context-training/mobile-app/",
-    "Create or edit spec-machine/config.local.yml with: profile.context_training: mobile-app",
-    "Run spec-machine install to activate the context training",
+    "Review generated files in devorch/context-training/mobile-app/",
+    "Create or edit devorch/config.local.yml with: profile.context_training: mobile-app",
+    "Run devorch install to activate the context training",
     "Test with a spec writing or implementation command"
   ]
 }
@@ -622,8 +622,8 @@ The subagent returns JSON with:
 
 **Save artifact for reference:**
 \`\`\`bash
-mkdir -p spec-machine/.state/artifacts/commands/train-context-2
-echo "$GENERATION_JSON" > spec-machine/.state/artifacts/commands/train-context-2/generation-summary.json
+mkdir -p devorch/.state/artifacts/commands/train-context-2
+echo "$GENERATION_JSON" > devorch/.state/artifacts/commands/train-context-2/generation-summary.json
 \`\`\`
 
 Where \`$GENERATION_JSON\` is the JSON returned by the subagent. This artifact documents what files were created and validates generation success.

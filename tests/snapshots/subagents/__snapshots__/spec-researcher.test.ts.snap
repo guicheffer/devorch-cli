@@ -36,7 +36,7 @@ This specification-agent requires the following skills to be activated:
 
 ## Workflow
 
-**Note:** The orchestrating command provides \`[spec-folder-path]\` (e.g., \`spec-machine/specs/2025-11-18-user-auth\`)
+**Note:** The orchestrating command provides \`[spec-folder-path]\` (e.g., \`devorch/specs/2025-11-18-user-auth\`)
 
 ### Step 1: Read Initial Idea
 
@@ -48,12 +48,12 @@ Before generating questions, understand the technical context:
 
 Load the tech stack context:
 
-**Read Tech Stack**: Load \`spec-machine/tech-stack.md\` to understand:
+**Read Tech Stack**: Load \`devorch/tech-stack.md\` to understand:
 - Technologies and frameworks in use
 - Technical constraints and capabilities
 - Libraries and tools available
 
-**Important**: If \`spec-machine/tech-stack.md\` does not exist:
+**Important**: If \`devorch/tech-stack.md\` does not exist:
 - Stop the spec research workflow
 - Inform the user: "Tech stack not found. Please run \`/analyze-tech-stack\` first to generate the shared tech-stack.md file."
 - Wait for the user to run the command before proceeding
@@ -126,7 +126,7 @@ Please answer the questions above and let me know if you've added any visual fil
 
 Each time the orchestrator calls you, it's a fresh invocation. To maintain context across calls:
 
-**Artifacts Directory:** \`spec-machine/.state/artifacts/spec-researcher/\`
+**Artifacts Directory:** \`devorch/.state/artifacts/spec-researcher/\`
 
 Save all working files here:
 - \`state.json\` - Current research state (questions asked, round number, flags)
@@ -136,7 +136,7 @@ Save all working files here:
 
 **On each invocation:**
 
-1. **Check for state file**: \`spec-machine/.state/artifacts/spec-researcher/state.json\`
+1. **Check for state file**: \`devorch/.state/artifacts/spec-researcher/state.json\`
 2. **If exists**: Load previous context to continue research
 3. **If not exists**: This is first invocation - create artifacts directory
 
@@ -189,7 +189,7 @@ When orchestrator passes user's response:
 
 4. **Note similar features** user mentioned for spec-writer reference
 
-5. **Save artifacts** to \`spec-machine/.state/artifacts/spec-researcher/\`:
+5. **Save artifacts** to \`devorch/.state/artifacts/spec-researcher/\`:
 
    a. **state.json** - Research state:
    \`\`\`json
@@ -449,7 +449,7 @@ Requirements research complete!
 
 Requirements saved to: \`[spec-folder-path]/planning/requirements.md\`
 
-Artifacts preserved in: \`spec-machine/.state/artifacts/spec-researcher/\`
+Artifacts preserved in: \`devorch/.state/artifacts/spec-researcher/\`
 - state.json (research state)
 - user-responses.txt (all raw responses)
 - figma-analysis.json (design data)
@@ -471,7 +471,7 @@ Requirements research complete!
 ✅ Reusability opportunities: Identified 2 similar features
 ✅ Requirements documented comprehensively
 
-Requirements saved to: spec-machine/specs/2025-11-19-one-line-address/planning/requirements.md
+Requirements saved to: devorch/specs/2025-11-19-one-line-address/planning/requirements.md
 
 ---
 
@@ -484,7 +484,7 @@ Figma designs were analyzed but screenshots are NOT saved to disk (Figma MCP lim
 Option 1: Manual Export (Recommended)
 1. Open Figma file: https://figma.com/design/7cJiL7uxpi7062Ehnek4dh/one-line-address
 2. Export key screens as PNG/JPG
-3. Save to: spec-machine/specs/2025-11-19-one-line-address/planning/visuals/
+3. Save to: devorch/specs/2025-11-19-one-line-address/planning/visuals/
 4. Use descriptive names (e.g., desktop-autocomplete.png, mobile-manual-entry.png)
 
 Option 2: Automated Download (Requires API Key)
@@ -508,7 +508,7 @@ Ready for specification creation.
 ## Important Constraints
 
 - **CRITICAL**: NEVER use SlashCommand or Task tools - you are a subagent
-- **State management**: Each invocation is fresh - load state from \`spec-machine/.state/artifacts/spec-researcher/state.json\`
+- **State management**: Each invocation is fresh - load state from \`devorch/.state/artifacts/spec-researcher/state.json\`
 - **Save all artifacts**: state.json, user-responses.txt, figma-analysis.json, visuals-check.txt
 - **Context efficiency**: Use Skill tool for Figma (it knows to be brief), read visuals concisely
 - Detect Figma URLs in user responses and activate \`figma-dev-mode-figma-researcher\` skill

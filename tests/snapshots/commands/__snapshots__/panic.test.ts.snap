@@ -19,10 +19,10 @@ dependencies:
 This command uses a multi-agent orchestration pattern to capture comprehensive context and create a GitHub issue for help or debugging.
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /panic
+devorch check-version --command /panic
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -32,7 +32,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -636,11 +636,11 @@ Use the GitHub CLI to create the issue:
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Create issue with body from file (handles special characters better)
-echo "[report markdown]" > spec-machine/.state/artifacts/panic/report-$$.md
+echo "[report markdown]" > devorch/.state/artifacts/panic/report-$$.md
 
 gh issue create \\
   --title "Panic Report - $TIMESTAMP" \\
-  --body-file spec-machine/.state/artifacts/panic/report-$$.md \\
+  --body-file devorch/.state/artifacts/panic/report-$$.md \\
   --label "panic"
 \`\`\`
 
