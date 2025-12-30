@@ -25,7 +25,7 @@ Load all context-training files into Claude's context for the current project. T
 
 This command follows a 3-phase workflow:
 
-0. **Pre-checks** - Verify spec-machine version
+0. **Pre-checks** - Verify devorch version
 1. **Check Configuration** - Verify context-training is configured
 2. **Load Files** - Either full load OR summarized load (based on arguments)
 3. **Provide Summary** - Show what was loaded
@@ -53,10 +53,10 @@ MAX_TOKENS: $ARGUMENTS[0]        # e.g., "50k", "100k" or empty (full load)
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /load-context-training
+devorch check-version --command /load-context-training
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -66,7 +66,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -137,7 +137,7 @@ Task tool parameters:
 - prompt: |
     Load the context-training files for .
 
-    Context training directory: spec-machine/context-training/
+    Context training directory: devorch/context-training/
 
     Read all files in the context-training directory and return them in full with semantic framing.
 \`\`\`
@@ -155,7 +155,7 @@ Task tool parameters:
 - prompt: |
     Summarize the context-training files for .
 
-    Context training directory: spec-machine/context-training/
+    Context training directory: devorch/context-training/
     Target token budget: [parsed token value] tokens
 
     Read all files and return a summarized version that fits within the token budget
@@ -170,7 +170,7 @@ Count the tokens and provide a detailed summary:
 
 1. **Count tokens** in the context-training directory:
    \`\`\`bash
-   spec-machine count-tokens spec-machine/context-training/ 2>/dev/null || echo ""
+   devorch count-tokens devorch/context-training/ 2>/dev/null || echo ""
    \`\`\`
 
 2. **Calculate percentage** of context window:
@@ -255,7 +255,7 @@ If the operation failed or was incomplete:
 
 If context-training directory doesn't exist:
 \`\`\`
-❌ Context training directory not found: spec-machine/context-training//
+❌ Context training directory not found: devorch/context-training//
 
 Please run \`/train-context\` to generate context training first.
 \`\`\`

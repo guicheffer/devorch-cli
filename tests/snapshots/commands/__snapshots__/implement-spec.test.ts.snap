@@ -20,10 +20,10 @@ Now that you have a spec and tasks list ready, this command will implement ALL t
 **Note:** This is a batch implementation command. For more control, use \`/implement-task [task-id]\` to implement tasks individually.
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /implement-spec
+devorch check-version --command /implement-spec
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -33,7 +33,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -105,7 +105,7 @@ Follow each of these phases IN SEQUENCE:
 **Get the active spec:**
 
 \`\`\`bash
-spec-machine get-spec
+devorch get-spec
 \`\`\`
 
 **Parse the output:**
@@ -114,7 +114,7 @@ spec-machine get-spec
 - Always extract \`NEWEST_SPEC=[path]\`, \`NEWEST_SPEC_NAME=[name]\`, and \`NEWEST_SPEC_FOLDER=[folder]\` from output
 - Check \`IS_STALE\` flag to determine if active spec is older than newest
 
-**Note:** If no active spec was previously set, \`spec-machine get-spec\` automatically sets the newest spec as active.
+**Note:** If no active spec was previously set, \`devorch get-spec\` automatically sets the newest spec as active.
 
 **Always ask the user to confirm or change the spec:**
 
@@ -140,7 +140,7 @@ Options:
 
 **Handle user's response:**
 - **Option 1 (Continue)**: Use \`CURRENT_SPEC\` path as-is
-- **Option 2 (Switch)**: Run \`spec-machine get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`spec-machine get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
+- **Option 2 (Switch)**: Run \`devorch get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`devorch get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
 - **Option 3 (Cancel)**: Stop execution and exit the command
 
 **Validate spec folder exists:**
@@ -154,7 +154,7 @@ fi
 
 **Store the selected spec path as \`[spec-folder-path]\`** for use in subsequent phases.
 
-The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`spec-machine/specs/2025-11-18-user-auth\`).
+The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`devorch/specs/2025-11-18-user-auth\`).
 
 
 ### PHASE 1: Load Tasks

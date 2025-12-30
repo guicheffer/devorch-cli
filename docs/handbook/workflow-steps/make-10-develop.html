@@ -220,17 +220,17 @@
 </ul>
 <h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Tools &amp; Techniques</h2>
 <blockquote>
-<p><strong>⚠️ PRE-ALPHA:</strong> <a href="https://github.com/hellofresh/spec-machine">spec-machine</a> is currently in pre-alpha development. Official release scheduled for the first week of November 2025.</p>
+<p><strong>⚠️ PRE-ALPHA:</strong> <a href="https://github.com/guicheffer/devorch">devorch</a> is currently in pre-alpha development. Official release scheduled for the first week of November 2025.</p>
 </blockquote>
 <h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">AI Development Assistants</h3>
-<p>Use <strong><a href="https://github.com/hellofresh/spec-machine">spec-machine</a></strong> to install AI workflow automation for Claude Code and Cursor:</p>
-<pre><code class="language-bash"># Install spec-machine (requires GitHub CLI: https://cli.github.com/)
-gh api repos/hellofresh/spec-machine/contents/installer/setup.sh \
+<p>Use <strong><a href="https://github.com/guicheffer/devorch">devorch</a></strong> to install AI workflow automation for Claude Code and Cursor:</p>
+<pre><code class="language-bash"># Install devorch (requires GitHub CLI: https://cli.github.com/)
+gh api repos/guicheffer/devorch/contents/installer/setup.sh \
   --jq '.content' | base64 -d | sh
 
 # Install development workflows
 cd your-project/
-spec-machine install
+devorch install
 </code></pre>
 <h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Development with Claude Code</h3>
 <p><strong>Commands for development:</strong></p>
@@ -260,7 +260,7 @@ spec-machine install
 <li><code>verifier/test-writer</code> - Comprehensive test generation</li>
 </ul>
 <h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Development with Cursor</h3>
-<p>Cursor Composer works with spec-machine commands. Use <code>@</code> to reference specs and files:</p>
+<p>Cursor Composer works with devorch commands. Use <code>@</code> to reference specs and files:</p>
 <pre><code>@implement-spec @specs/checkout-flow.md
 
 Implement the checkout flow using:
@@ -324,7 +324,7 @@ refactor: Extract validation to separate module
 test: Add coverage for payment processor
 docs: Update API documentation
 </code></pre>
-<p><strong>With spec-machine:</strong></p>
+<p><strong>With devorch:</strong></p>
 <pre><code class="language-bash"># AI assists with commit messages
 git add .
 # AI will analyze changes and suggest conventional commit message
@@ -376,9 +376,9 @@ git commit -m &quot;feat: Implement user profile management&quot;
 </ol>
 <h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Resources</h3>
 <ul style="margin-left: 0; padding-left: 30pt;">
-<li><strong>spec-machine</strong>: <a href="https://github.com/hellofresh/spec-machine">https://github.com/hellofresh/spec-machine</a></li>
-<li><strong>Documentation</strong>: <a href="https://github.com/hellofresh/spec-machine/tree/master/docs">https://github.com/hellofresh/spec-machine/tree/master/docs</a></li>
-<li><strong>Examples</strong>: <a href="https://github.com/hellofresh/spec-machine/tree/master/templates">https://github.com/hellofresh/spec-machine/tree/master/templates</a></li>
+<li><strong>devorch</strong>: <a href="https://github.com/guicheffer/devorch">https://github.com/guicheffer/devorch</a></li>
+<li><strong>Documentation</strong>: <a href="https://github.com/guicheffer/devorch/tree/master/docs">https://github.com/guicheffer/devorch/tree/master/docs</a></li>
+<li><strong>Examples</strong>: <a href="https://github.com/guicheffer/devorch/tree/master/templates">https://github.com/guicheffer/devorch/tree/master/templates</a></li>
 </ul>
 <h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Common Pitfalls</h2>
 <ul style="margin-left: 0; padding-left: 30pt;">

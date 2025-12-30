@@ -48,10 +48,10 @@ TICKET_KEY: $ARGUMENTS[0]   # Optional: Jira ticket key from command argument
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /jira-a11y-check
+devorch check-version --command /jira-a11y-check
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -61,7 +61,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -170,7 +170,7 @@ cat >> "$COMMENT_FILE" <<'EOF'
 
 ---
 
-*Posted by spec-machine*
+*Posted by devorch*
 
 **For designers:** Review the accessibility issues above and fix them in Figma before handoff
 **For developers:** Use this audit as a reference - designs should be updated before implementation

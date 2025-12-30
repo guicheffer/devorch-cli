@@ -10,7 +10,7 @@ Your objective is to master two core AI-powered methodologies: **Agentic Develop
 
 ### Key Tools and Services
 
-* [**`devorch`](https://github.com/guicheffer/devorch)**: This is HelloTech's internal framework for AI-first development. It is your primary tool for orchestrating AI agents and managing the context they need to perform their work. Here we collect context training and train subagents on our ways of working. Spec-machine will help you get the right context for your task\!
+* [**`devorch`](https://github.com/guicheffer/devorch)**: This is HelloTech's internal framework for AI-first development. It is your primary tool for orchestrating AI agents and managing the context they need to perform their work. Here we collect context training and train subagents on our ways of working. devorch will help you get the right context for your task\!
 * **The Project Configuration ([`devorch.config.yml`](https://github.com/guicheffer/devorch/blob/master/docs/user-guide/configuration.md))**: This file is the true source of truth for your project. It contains your team's specific context training, skills, and specialized AI agents (Implementers and Verifiers). This configuration is what provides the deep, specific context to the AI.
 * **Context Training**: Repository-specific customizations that guide how devorch works for your project. Context training includes specification guidelines, implementation patterns, and verification rules. Run `/analyze-tech-stack` and `/train-context` to generate customized guidelines for your repository.  
 * **AI Assistants**: Cursor and Claude Code are your primary environments for interacting with AI agents to write, test, and deploy code by using `devorch` commands.

@@ -1,5 +1,5 @@
-SPEC-MACHINE INSTALLATION
-=========================
+DEVORCH INSTALLATION
+====================
 
 QUICK START (macOS)
 -------------------

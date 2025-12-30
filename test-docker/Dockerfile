@@ -43,10 +43,10 @@ ENV HOME=/home/testuser
 ENV SHELL=/bin/bash
 
 # Copy the pre-compiled Linux binary and verification script
-COPY --chown=testuser:testuser test-docker/spec-machine /home/testuser/spec-machine/spec-machine
-COPY --chown=testuser:testuser test-docker/verify-setup.ts /home/testuser/spec-machine/verify-setup.ts
+COPY --chown=testuser:testuser test-docker/devorch /home/testuser/devorch/devorch
+COPY --chown=testuser:testuser test-docker/verify-setup.ts /home/testuser/devorch/verify-setup.ts
 
-WORKDIR /home/testuser/spec-machine
+WORKDIR /home/testuser/devorch
 
 # Create a test script that runs setup-bedrock
 RUN echo '#!/bin/bash\n\
@@ -65,13 +65,13 @@ which brew 2>/dev/null && echo "✓ brew" || echo "✗ brew"\n\
 which claude 2>/dev/null && echo "✓ claude" || echo "✗ claude"\n\
 which aws 2>/dev/null && echo "✓ aws" || echo "✗ aws"\n\
 echo ""\n\
-echo "Running: ./spec-machine setup-bedrock --help"\n\
-./spec-machine setup-bedrock --help\n\
+echo "Running: ./devorch setup-bedrock --help"\n\
+./devorch setup-bedrock --help\n\
 echo ""\n\
 echo "=== Setup complete ==="\n\
 echo ""\n\
 echo "To run setup-bedrock interactively:"\n\
-echo "  ./spec-machine setup-bedrock"\n\
+echo "  ./devorch setup-bedrock"\n\
 ' > /home/testuser/test-setup.sh && chmod +x /home/testuser/test-setup.sh
 
 # Default command shows help and status

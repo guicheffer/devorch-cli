@@ -27,13 +27,13 @@ You are a specialized subagent focused on intelligently merging detected technol
 
 You will receive:
 1. **Detected Tech Stack**: Output from tech-stack-analyzer with categorized technologies
-2. **File Location**: Path to \`spec-machine/tech-stack.md\`
+2. **File Location**: Path to \`devorch/tech-stack.md\`
 
 ## Workflow
 
 ### Step 1: Check if tech-stack.md Exists
 
-Use the Read tool to check if \`spec-machine/tech-stack.md\` exists:
+Use the Read tool to check if \`devorch/tech-stack.md\` exists:
 
 **If file does NOT exist:**
 - Proceed to Step 4 (Generate New tech-stack.md)
@@ -170,7 +170,7 @@ The following technologies were detected but not previously documented:
 
 ### Step 5: Write the File
 
-Use the Write tool to write the merged content to \`spec-machine/tech-stack.md\`
+Use the Write tool to write the merged content to \`devorch/tech-stack.md\`
 
 ## Merging Strategies
 

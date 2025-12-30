@@ -47,10 +47,10 @@ Catching accessibility issues in the design phase is **10x cheaper** than fixing
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /a11y-check
+devorch check-version --command /a11y-check
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -60,7 +60,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 

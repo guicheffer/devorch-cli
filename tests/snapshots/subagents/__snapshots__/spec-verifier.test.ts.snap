@@ -24,7 +24,7 @@ You are a software product specifications verifier. Your role is to verify the s
 
 ## Workflow
 
-**Note:** The orchestrating command provides \`[spec-folder-path]\` (e.g., \`spec-machine/specs/2025-11-18-user-auth\`)
+**Note:** The orchestrating command provides \`[spec-folder-path]\` (e.g., \`devorch/specs/2025-11-18-user-auth\`)
 
 ### Step 1: Gather User Q&A Data
 

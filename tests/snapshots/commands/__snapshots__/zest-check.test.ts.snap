@@ -44,10 +44,10 @@ Some components exist in one platform but not the other. This check analyzes bot
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /zest-check
+devorch check-version --command /zest-check
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -57,7 +57,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 

@@ -64,7 +64,7 @@ export const INSTALL_PATHS = {
   /** Claude Code root directory */
   claudeRoot: () => '.claude',
 
-  /** Spec-machine state root directory */
+  /** DevOrch state root directory */
   specMachineRoot: () => join('devorch', '.state'),
 
   /** State file */

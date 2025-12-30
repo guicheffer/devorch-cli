@@ -3,30 +3,30 @@
 exports[`command snapshot: /help should match snapshot 1`] = `
 "---
 name: "/help"
-description: "Interactive help system for spec-machine commands and workflows"
+description: "Interactive help system for devorch commands and workflows"
 mode: "multi-agent"
 dependencies:
   subagents: []
 ---
 
-# Spec Machine Help
+# DevOrch Help
 
 ## Purpose
 
-Provide interactive guidance on spec-machine commands, workflows, and best practices by reading from the spec-machine repository documentation using the GitHub CLI.
+Provide interactive guidance on devorch commands, workflows, and best practices by reading from the devorch repository documentation using the GitHub CLI.
 
 ## Instructions
 
 1. Present a help menu with 6 topic options
 2. Wait for user to select a topic number (1-6) or ask a specific question
-3. Use \`gh api\` to read documentation files from the hellofresh/spec-machine repository
+3. Use \`gh api\` to read documentation files from the hellofresh/devorch repository
 4. For the workflow diagram, convert the mermaid diagram from README.md to ASCII
 5. Offer to help with additional topics or answer follow-up questions
 
 **Note:** Use the GitHub CLI to fetch docs:
 \`\`\`bash
-gh api repos/hellofresh/spec-machine/contents/README.md --jq '.content' | base64 -d
-gh api repos/hellofresh/spec-machine/contents/docs/user-guide/quickstart.md --jq '.content' | base64 -d
+gh api repos/hellofresh/devorch/contents/README.md --jq '.content' | base64 -d
+gh api repos/hellofresh/devorch/contents/docs/user-guide/quickstart.md --jq '.content' | base64 -d
 \`\`\`
 
 
@@ -35,10 +35,10 @@ gh api repos/hellofresh/spec-machine/contents/docs/user-guide/quickstart.md --jq
 
 ### PHASE 0: Pre-checks
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /help
+devorch check-version --command /help
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -48,7 +48,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -65,7 +65,7 @@ IF \`blocked\` == true:
 
 ### PHASE 1: Present Help Menu
 
-🔧 Spec Machine Help
+🔧 DevOrch Help
 
 What would you like help with?
 
@@ -90,7 +90,7 @@ Based on the user's selection, read the appropriate documentation file and provi
 
 **If user selects 1 (Spec-Driven Development Workflow):**
 
-1. Fetch \`README.md\` using: \`gh api repos/hellofresh/spec-machine/contents/README.md --jq '.content' | base64 -d\`
+1. Fetch \`README.md\` using: \`gh api repos/hellofresh/devorch/contents/README.md --jq '.content' | base64 -d\`
 2. Locate the "Spec-Driven Development Workflow" section
 3. Extract the mermaid diagram
 4. Convert it to a clean ASCII flowchart that displays well in the terminal (use box-drawing characters, arrows, and preserve the emojis)
@@ -100,7 +100,7 @@ Based on the user's selection, read the appropriate documentation file and provi
 
 **If user selects 2 (Available Commands Reference):**
 
-1. Fetch \`docs/user-guide/command-reference.md\` using: \`gh api repos/hellofresh/spec-machine/contents/docs/user-guide/command-reference.md --jq '.content' | base64 -d\`
+1. Fetch \`docs/user-guide/command-reference.md\` using: \`gh api repos/hellofresh/devorch/contents/docs/user-guide/command-reference.md --jq '.content' | base64 -d\`
 2. Summarize all available commands organized by category
 3. Point to the full documentation for details
 
@@ -172,10 +172,10 @@ After helping the user, summarize what was covered:
 - [Recommend relevant command or documentation based on their question]
 
 **Quick reference:**
-- CLI help: \`spec-machine --help\`
-- Health check: \`spec-machine diagnose\`
+- CLI help: \`devorch --help\`
+- Health check: \`devorch diagnose\`
 - All docs: \`docs/\` directory
-- Issues: https://github.com/hellofresh/spec-machine/issues
+- Issues: https://github.com/hellofresh/devorch/issues
 
 Need more help? Just ask!
 \`\`\`

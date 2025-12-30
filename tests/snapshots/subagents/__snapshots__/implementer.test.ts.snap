@@ -39,7 +39,7 @@ You've been assigned these implementer domains: [domain1, domain2, ...]
 Read each domain file using the Read tool (make these calls in parallel):
 
 \`\`\`
-Read: spec-machine/context-training//implementers/[domain].md
+Read: devorch/context-training//implementers/[domain].md
 \`\`\`
 
 **IMPORTANT:** Domain names do NOT end with \`-implementer\` - use the domain name as-is (e.g., \`ui.md\` not \`ui-implementer.md\`).
@@ -158,7 +158,7 @@ Create \`[spec-folder-path]/implementation/task-{task-id}-report.md\`
 The sections below are injected from your domain-specific implementer file(s) loaded in **Step 0.3**:
 
 \`\`\`
-spec-machine/context-training//implementers/[domain].md
+devorch/context-training//implementers/[domain].md
 \`\`\`
 
 These files contain:

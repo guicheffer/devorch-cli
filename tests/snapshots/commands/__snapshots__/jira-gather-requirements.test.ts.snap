@@ -26,10 +26,10 @@ Fetch Jira ticket(s), gather requirements through clarifying questions, and post
 
 This process follows 5 sequential phases:
 
-0. **Pre-checks** - Verify spec-machine version and jira CLI setup
+0. **Pre-checks** - Verify devorch version and jira CLI setup
 1. **Get Ticket Keys** - Collect Jira ticket keys from user
 2. **Fetch Tickets** - Use specification/jira-ticket-fetcher to get ticket details
-3. **Check for Existing Questions** - Verify if spec-machine already posted questions
+3. **Check for Existing Questions** - Verify if devorch already posted questions
 4. **Gather Requirements** - Research and post clarifying questions to Jira
 
 **Important:**
@@ -47,10 +47,10 @@ TICKET_KEYS: $ARGUMENTS[0]  # Optional: ticket key(s) from command argument
 ### PHASE 0: Pre-checks
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /jira-gather-requirements
+devorch check-version --command /jira-gather-requirements
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -60,7 +60,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
@@ -171,22 +171,22 @@ Continue to Phase 3 with successfully fetched ticket(s).
 
 ### PHASE 3: Check for Existing Questions
 
-For each successfully fetched ticket, check if spec-machine has already posted questions.
+For each successfully fetched ticket, check if devorch has already posted questions.
 
 **Load ticket data:**
 \`\`\`bash
-TICKET_SUMMARY=$(cat spec-machine/.state/artifacts/specification/jira-ticket-fetcher/tickets-summary.json)
+TICKET_SUMMARY=$(cat devorch/.state/artifacts/specification/jira-ticket-fetcher/tickets-summary.json)
 \`\`\`
 
 **For each ticket:**
 
-Check comments for spec-machine questions:
+Check comments for devorch questions:
 \`\`\`bash
 TICKET_KEY="[TICKET-KEY]"
-SPEC_MACHINE_COMMENTS=$(jq -r '.comments[]? | select(.body | contains("## Clarifying Questions")) | .body' spec-machine/.state/artifacts/specification/jira-ticket-fetcher/\${TICKET_KEY}.json)
+SPEC_MACHINE_COMMENTS=$(jq -r '.comments[]? | select(.body | contains("## Clarifying Questions")) | .body' devorch/.state/artifacts/specification/jira-ticket-fetcher/\${TICKET_KEY}.json)
 \`\`\`
 
-**If spec-machine questions found:**
+**If devorch questions found:**
 \`\`\`
 ⚠️  Questions already posted to $TICKET_KEY
 
@@ -200,7 +200,7 @@ Existing questions found in ticket comments. Waiting for answers.
 
 STOP processing this ticket and continue to next ticket (if any).
 
-**If no spec-machine questions found:**
+**If no devorch questions found:**
 Continue to Phase 4 to gather requirements.
 
 ### PHASE 4: Gather Requirements and Post Questions
@@ -251,7 +251,7 @@ Once you have the questions from the spec-researcher output, post them to the Ji
 
 **Step 1: Create a temporary file with the comment content:**
 
-Use the Write tool to create a file at \`spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md\`:
+Use the Write tool to create a file at \`devorch/.state/artifacts/jira/comment-[TICKET-KEY].md\`:
 
 \`\`\`markdown
 ## Clarifying Questions for Implementation Planning
@@ -259,7 +259,7 @@ Use the Write tool to create a file at \`spec-machine/.state/artifacts/jira/comm
 [Insert the numbered questions from spec-researcher output here]
 
 ---
-*📋 Posted by spec-machine*
+*📋 Posted by devorch*
 *Please answer these questions so we can create a detailed implementation spec.*
 *Once answered, run: \`/jira-create-spec [TICKET-KEY]\`*
 \`\`\`
@@ -274,7 +274,7 @@ if [ -z "$JIRA_API_TOKEN" ]; then
 fi
 
 # Post comment using file (avoids HEREDOC escaping issues)
-jira issue comment add [TICKET-KEY] --body-file spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md
+jira issue comment add [TICKET-KEY] --body-file devorch/.state/artifacts/jira/comment-[TICKET-KEY].md
 
 # Check result
 if [ $? -eq 0 ]; then
@@ -299,7 +299,7 @@ Post summary to Jira ticket using the same Write + --body-file pattern:
 
 **Step 1: Create a temporary file:**
 
-Use the Write tool to create a file at \`spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md\`:
+Use the Write tool to create a file at \`devorch/.state/artifacts/jira/comment-[TICKET-KEY].md\`:
 
 \`\`\`markdown
 ## Requirements Gathering Complete
@@ -307,14 +307,14 @@ Use the Write tool to create a file at \`spec-machine/.state/artifacts/jira/comm
 No clarifying questions needed - the ticket provides sufficient information for implementation planning.
 
 ---
-*📋 Posted by spec-machine*
+*📋 Posted by devorch*
 *Requirements are clear. Run: \`/jira-create-spec [TICKET-KEY]\` to generate the implementation spec.*
 \`\`\`
 
 **Step 2: Post using --body-file:**
 
 \`\`\`bash
-jira issue comment add [TICKET-KEY] --body-file spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md
+jira issue comment add [TICKET-KEY] --body-file devorch/.state/artifacts/jira/comment-[TICKET-KEY].md
 \`\`\`
 
 Inform user:
@@ -357,7 +357,7 @@ Display which tickets failed and why, provide suggestions for resolution.
 
 **DO:**
 - ✅ Check jira CLI prerequisites at start
-- ✅ Check for existing spec-machine questions before posting new ones
+- ✅ Check for existing devorch questions before posting new ones
 - ✅ Post questions to Jira via jira CLI
 - ✅ Post summary if no questions needed
 - ✅ Handle multiple tickets sequentially (one at a time)

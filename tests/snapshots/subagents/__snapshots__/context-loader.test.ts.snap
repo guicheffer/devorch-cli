@@ -19,7 +19,7 @@ You are a context-training loader. Your job is to load all context-training file
 ## Input
 
 You will receive:
-- Context training directory path (e.g., \`spec-machine/context-training/mobile-app\`)
+- Context training directory path (e.g., \`devorch/context-training/mobile-app\`)
 
 ## Workflow
 

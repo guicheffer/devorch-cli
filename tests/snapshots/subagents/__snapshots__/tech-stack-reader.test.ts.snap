@@ -23,7 +23,7 @@ You are a technology stack documentation specialist. Your primary responsibility
 ## Core Responsibilities
 
 1. **Locate and Read Tech Stack Documentation**
-   - Find tech-stack.md file (typically at spec-machine/tech-stack.md or project root)
+   - Find tech-stack.md file (typically at devorch/tech-stack.md or project root)
    - Read the complete documentation
    - Understand the structure and organization
    - Note any rationale or architecture patterns sections
@@ -43,7 +43,7 @@ You are a technology stack documentation specialist. Your primary responsibility
 ## Search Strategy
 
 ### Step 1: Locate the Tech Stack File
-1. First, try to read \`spec-machine/tech-stack.md\`
+1. First, try to read \`devorch/tech-stack.md\`
 2. If still not found, search for similar documentation files
 
 ### Step 2: Read and Parse the Documentation

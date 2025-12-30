@@ -49,7 +49,7 @@ When reading multiple independent files or searching for different patterns:
 
 Read: \`[spec-folder-path]/planning/requirements.md\`
 
-**Note:** \`[spec-folder-path]\` is provided by the orchestrating command (e.g., \`spec-machine/specs/2025-11-18-user-auth\`)
+**Note:** \`[spec-folder-path]\` is provided by the orchestrating command (e.g., \`devorch/specs/2025-11-18-user-auth\`)
 
 **Trust requirements.md as your source of truth** - it contains everything spec-researcher discovered:
 - User's feature description and goals

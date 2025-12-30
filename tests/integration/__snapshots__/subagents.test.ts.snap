@@ -50,17 +50,17 @@ When reading multiple independent files or searching for different patterns:
 **Load all required context files in parallel using the Read tool:**
 
 Make these Read tool calls **in parallel** (in a single response):
-- Read: \`spec-machine/specs/[current-spec]/planning/initialization.md\`
-- Read: \`spec-machine/specs/[current-spec]/planning/requirements.md\`
-- Read: \`spec-machine/tech-stack.md\`
-- Read: \`spec-machine/agents-registry.yml\` (if it exists)
+- Read: \`devorch/specs/[current-spec]/planning/initialization.md\`
+- Read: \`devorch/specs/[current-spec]/planning/requirements.md\`
+- Read: \`devorch/tech-stack.md\`
+- Read: \`devorch/agents-registry.yml\` (if it exists)
 
 Also check for visual assets:
-- Bash: \`ls -la spec-machine/specs/[current-spec]/planning/visuals/ 2>/dev/null | grep -v "^total" | grep -v "^d"\`
+- Bash: \`ls -la devorch/specs/[current-spec]/planning/visuals/ 2>/dev/null | grep -v "^total" | grep -v "^d"\`
 
 **Parse and analyze:**
 
-- Tech stack from \`spec-machine/tech-stack.md\`
+- Tech stack from \`devorch/tech-stack.md\`
 - User's feature description and goals
 - Requirements gathered by spec-researcher
 - Visual mockups or screenshots (if present in visuals directory)
@@ -141,7 +141,7 @@ Then **move on to Step 3**. Don't spend more than 30% of your time searching.
 
 ### Step 3: Create Core Specification
 
-Write the main specification to \`spec-machine/specs/[current-spec]/spec.md\`:
+Write the main specification to \`devorch/specs/[current-spec]/spec.md\`:
 
 \`\`\`markdown
 ---

@@ -19,7 +19,7 @@ You are a context training artifact generator. Your primary responsibility is to
 - DO NOT deviate from the standard structure
 - DO NOT skip required files (specification.md, implementation.md, implementers/*.md, verifiers/*.md)
 - DO NOT create files outside the context-training directory
-- ONLY create files in \`spec-machine/context-training/{name}/\`
+- ONLY create files in \`devorch/context-training/{name}/\`
 - ONLY use validated patterns from previous workflow
 - ONLY follow markdown template format
 
@@ -88,14 +88,14 @@ Create the context-training directory:
 CT_NAME="mobile-app"  # From input
 
 # Create main directory
-mkdir -p "spec-machine/context-training/\${CT_NAME}"
+mkdir -p "devorch/context-training/\${CT_NAME}"
 
 # Create subdirectories
-mkdir -p "spec-machine/context-training/\${CT_NAME}/implementers"
-mkdir -p "spec-machine/context-training/\${CT_NAME}/verifiers"
+mkdir -p "devorch/context-training/\${CT_NAME}/implementers"
+mkdir -p "devorch/context-training/\${CT_NAME}/verifiers"
 
 # Verify creation
-ls -la "spec-machine/context-training/\${CT_NAME}"
+ls -la "devorch/context-training/\${CT_NAME}"
 \`\`\`
 
 **If directory already exists:**
@@ -106,9 +106,9 @@ ls -la "spec-machine/context-training/\${CT_NAME}"
 
 \`\`\`bash
 # Backup existing directory
-if [ -d "spec-machine/context-training/\${CT_NAME}" ]; then
-  mv "spec-machine/context-training/\${CT_NAME}" \\
-     "spec-machine/context-training/\${CT_NAME}.backup.$(date +%Y%m%d-%H%M%S)"
+if [ -d "devorch/context-training/\${CT_NAME}" ]; then
+  mv "devorch/context-training/\${CT_NAME}" \\
+     "devorch/context-training/\${CT_NAME}.backup.$(date +%Y%m%d-%H%M%S)"
 fi
 \`\`\`
 
@@ -392,7 +392,7 @@ required_files=(
 
 # Check each required file exists
 for file in "\${required_files[@]}"; do
-  if [ ! -f "spec-machine/context-training/\${CT_NAME}/\${file}" ]; then
+  if [ ! -f "devorch/context-training/\${CT_NAME}/\${file}" ]; then
     echo "❌ Missing required file: \${file}"
   else
     echo "✅ Created: \${file}"
@@ -401,14 +401,14 @@ done
 
 # List implementer files
 echo "Implementer files:"
-ls -1 "spec-machine/context-training/\${CT_NAME}/implementers/"
+ls -1 "devorch/context-training/\${CT_NAME}/implementers/"
 
 # List verifier files
 echo "Verifier files:"
-ls -1 "spec-machine/context-training/\${CT_NAME}/verifiers/"
+ls -1 "devorch/context-training/\${CT_NAME}/verifiers/"
 
 # Count total files
-total_files=$(find "spec-machine/context-training/\${CT_NAME}" -type f | wc -l)
+total_files=$(find "devorch/context-training/\${CT_NAME}" -type f | wc -l)
 echo "Total files generated: \${total_files}"
 \`\`\`
 
@@ -419,7 +419,7 @@ Present a summary to the user and return structured output:
 \`\`\`
 ✅ Context Training Artifacts Generated
 
-**Location:** spec-machine/context-training/mobile-app/
+**Location:** devorch/context-training/mobile-app/
 
 **Generated Files:**
 - specification.md (spec writing guidance)
@@ -441,14 +441,14 @@ Present a summary to the user and return structured output:
 - Total files: 12
 
 **Next Steps:**
-1. Review generated files in spec-machine/context-training/mobile-app/
-2. Create or edit spec-machine/config.local.yml with:
+1. Review generated files in devorch/context-training/mobile-app/
+2. Create or edit devorch/config.local.yml with:
    \`\`\`yaml
    profile:
      context_training: mobile-app
    \`\`\`
    (Note: config.local.yml is automatically gitignored for per-developer settings)
-3. Run \`spec-machine install\` to activate the context training
+3. Run \`devorch install\` to activate the context training
 4. Test with a spec writing or implementation command
 \`\`\`
 
@@ -457,7 +457,7 @@ Return JSON summary:
 \`\`\`json
 {
   "context_training_name": "mobile-app",
-  "directory": "spec-machine/context-training/mobile-app",
+  "directory": "devorch/context-training/mobile-app",
   "files_generated": [
     {
       "path": "specification.md",
@@ -485,8 +485,8 @@ Return JSON summary:
   },
   "next_steps": [
     "Review generated files",
-    "Create or edit spec-machine/config.local.yml with context_training setting",
-    "Run spec-machine install",
+    "Create or edit devorch/config.local.yml with context_training setting",
+    "Run devorch install",
     "Test with commands"
   ]
 }
@@ -500,7 +500,7 @@ Your final output should be a summary and next steps for the user:
 {
   "success": true,
   "context_training_name": "string",
-  "directory": "spec-machine/context-training/{name}",
+  "directory": "devorch/context-training/{name}",
   "files_generated": [
     {
       "path": "relative/path/to/file.md",

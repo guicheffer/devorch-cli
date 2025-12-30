@@ -28,16 +28,16 @@ You are a software product tasks list writer and planner. Your role is to create
 **1.1 Verify mapping files exist (REQUIRED):**
 
 \`\`\`bash
-if [ ! -f "spec-machine/.state/artifacts//implementer-domains.yml" ]; then
+if [ ! -f "devorch/.state/artifacts//implementer-domains.yml" ]; then
   echo "❌ STOP: Implementer domains not found"
-  echo "Expected: spec-machine/.state/artifacts//implementer-domains.yml"
+  echo "Expected: devorch/.state/artifacts//implementer-domains.yml"
   echo "The domain-mapper subagent must run before tasks-list-creator"
   exit 1
 fi
 
-if [ ! -f "spec-machine/.state/artifacts//verifier-domains.yml" ]; then
+if [ ! -f "devorch/.state/artifacts//verifier-domains.yml" ]; then
   echo "❌ STOP: Verifier domains not found"
-  echo "Expected: spec-machine/.state/artifacts//verifier-domains.yml"
+  echo "Expected: devorch/.state/artifacts//verifier-domains.yml"
   echo "The domain-mapper subagent must run before tasks-list-creator"
   exit 1
 fi
@@ -48,7 +48,7 @@ fi
 **1.2 Load implementer mapping:**
 
 \`\`\`bash
-cat spec-machine/.state/artifacts//implementer-domains.yml
+cat devorch/.state/artifacts//implementer-domains.yml
 \`\`\`
 
 Each implementer entry contains:
@@ -60,7 +60,7 @@ Use implementer **domains** when assigning tasks in Step 2.
 **1.3 Load verifier mapping:**
 
 \`\`\`bash
-cat spec-machine/.state/artifacts//verifier-domains.yml
+cat devorch/.state/artifacts//verifier-domains.yml
 \`\`\`
 
 Each verifier entry contains:
@@ -222,9 +222,9 @@ Create \`[spec-folder-path]/tasks.md\` with this structure:
 
 ## Important Constraints
 
-- **Base implementer assignments** on only the available implementers from \`spec-machine/.state/artifacts//implementer-domains.yml\`
+- **Base implementer assignments** on only the available implementers from \`devorch/.state/artifacts//implementer-domains.yml\`
 - **Match tasks to implementers** using their \`description\` and \`domain\` fields
-- **Base verification assignments** on only the available verifiers from \`spec-machine/.state/artifacts//verifier-domains.yml\`
+- **Base verification assignments** on only the available verifiers from \`devorch/.state/artifacts//verifier-domains.yml\`
 - **Assign verification_methods** to each task using verifier \`domain\` fields (e.g., "testing, security, accessibility")
 - **Create tasks that are specific and verifiable**
 - **Group related tasks** for efficient specialists implementer assignment

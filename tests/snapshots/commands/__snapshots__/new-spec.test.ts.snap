@@ -15,13 +15,13 @@ dependencies:
 
 You are initiating a new spec for a new feature.  This process will follow 3 main phases, each with their own workflow steps.
 
-## Verify spec-machine Version
+## Verify devorch Version
 
-**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+**CRITICAL**: Run \`devorch check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
 
-**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+**If \`needsUpdate: true\`**: STOP and tell user to run \`devorch update\`, then retry this command.
 
-**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+**If \`needsReinstall: true\`**: STOP and tell user to run \`devorch install\`, then retry this command.
 
 **If both are false**: Continue with the command workflow.
 

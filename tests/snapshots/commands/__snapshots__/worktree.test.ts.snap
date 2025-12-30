@@ -12,10 +12,10 @@ mode: "multi-agent"
 Create one or more git worktrees in \`./worktrees/\` with new branches and automatically copy the \`.claude\` folder to maintain your local configuration.
 
 
-#### Check spec-machine Version
+#### Check devorch Version
 
 \`\`\`bash
-spec-machine check-version --command /worktree
+devorch check-version --command /worktree
 \`\`\`
 
 The command outputs JSON to stdout:
@@ -25,7 +25,7 @@ The command outputs JSON to stdout:
   "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
   "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
   "blocked": false,
-  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+  "message": "CLI update available (v1.1.0). Run \`devorch update\` after this task."
 }
 \`\`\`
 
