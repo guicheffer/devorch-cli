@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>make-10-develop</title>
+  <style>
+    /* Google Docs-friendly styling */
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 1in;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 20pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    h2 {
+      font-size: 16pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    h3 {
+      font-size: 14pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    h4 {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 10pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    p {
+      margin: 0 0 10pt 0;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10pt;
+      background: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    pre {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10pt;
+      background: #f5f5f5;
+      padding: 12pt;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      overflow-x: auto;
+      margin: 10pt 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
+    ul, ol {
+      margin: 0 0 10pt 0;
+      padding-left: 30pt;
+      list-style-position: outside;
+    }
+
+    li {
+      margin-bottom: 4pt;
+      margin-left: 0;
+    }
+
+    /* Task list items */
+    li input[type="checkbox"] {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    blockquote {
+      margin: 10pt 0;
+      padding: 8pt 12pt;
+      border-left: 4px solid #ddd;
+      background: #f9f9f9;
+      color: #666;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10pt 0;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8pt;
+      text-align: left;
+    }
+
+    th {
+      background: #f5f5f5;
+      font-weight: bold;
+    }
+
+    a {
+      color: #1155cc;
+      text-decoration: underline;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 12pt 0;
+    }
+
+    /* Copy instructions banner */
+    .copy-instructions {
+      background: #e8f5e9;
+      border: 2px solid #4caf50;
+      padding: 12pt;
+      margin-bottom: 20pt;
+      border-radius: 4px;
+    }
+
+    .copy-instructions h3 {
+      margin-top: 0;
+      color: #2e7d32;
+    }
+
+    .copy-instructions p {
+      margin: 4pt 0;
+    }
+
+    .copy-instructions code {
+      background: #fff;
+    }
+
+    /* Print-friendly */
+    @media print {
+      .copy-instructions {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="copy-instructions">
+    <h3>📋 How to Copy to Google Docs</h3>
+    <p><strong>1.</strong> Press <code>Cmd+A</code> (Mac) or <code>Ctrl+A</code> (Windows) to select all content</p>
+    <p><strong>2.</strong> Press <code>Cmd+C</code> (Mac) or <code>Ctrl+C</code> (Windows) to copy</p>
+    <p><strong>3.</strong> Open Google Docs and press <code>Cmd+V</code> (Mac) or <code>Ctrl+V</code> (Windows) to paste</p>
+    <p><strong>Note:</strong> Formatting will be preserved! You can also right-click and select "Paste".</p>
+  </div>
+
+  <h1 style="margin-left: 0; padding-left: 0; text-indent: 0;">10. Develop</h1>
+<p><strong>Cycle:</strong> MAKE (1 Sprint)
+<strong>Phase:</strong> Creation</p>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Purpose</h2>
+<p>Build the solution according to specs and designs. Use AI as a development partner to write high-quality, tested code faster.</p>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">AI-Native Approach</h2>
+<p>Use AI to:</p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Generate code from specifications</li>
+<li>Implement components and features</li>
+<li>Write tests alongside code</li>
+<li>Refactor and optimize</li>
+<li>Debug and fix issues</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Key Activities</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Implement features per spec</li>
+<li>Write unit and integration tests</li>
+<li>Follow coding standards</li>
+<li>Conduct code reviews</li>
+<li>Maintain documentation</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Inputs</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Engineering Spec</li>
+<li>UX Spec and designs</li>
+<li>Design system/component library</li>
+<li>Technical architecture</li>
+<li>API contracts</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Outputs</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><strong>Working code</strong>: Implemented features</li>
+<li><strong>Tests</strong>: Unit, integration, E2E</li>
+<li><strong>Documentation</strong>: Technical docs, comments</li>
+<li><strong>Pull requests</strong>: Reviewed and approved</li>
+<li><strong>Demo-ready feature</strong>: Testable functionality</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Tools &amp; Techniques</h2>
+<blockquote>
+<p><strong>⚠️ PRE-ALPHA:</strong> <a href="https://github.com/hellofresh/spec-machine">spec-machine</a> is currently in pre-alpha development. Official release scheduled for the first week of November 2025.</p>
+</blockquote>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">AI Development Assistants</h3>
+<p>Use <strong><a href="https://github.com/hellofresh/spec-machine">spec-machine</a></strong> to install AI workflow automation for Claude Code and Cursor:</p>
+<pre><code class="language-bash"># Install spec-machine (requires GitHub CLI: https://cli.github.com/)
+gh api repos/hellofresh/spec-machine/contents/installer/setup.sh \
+  --jq '.content' | base64 -d | sh
+
+# Install development workflows
+cd your-project/
+spec-machine install
+</code></pre>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Development with Claude Code</h3>
+<p><strong>Commands for development:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><code>/implement-spec</code> - Implement features from engineering specs</li>
+<li><code>/fix-bug</code> - Debug and fix issues systematically</li>
+<li><code>/refactor</code> - Refactor code with safety checks</li>
+<li><code>/write-tests</code> - Generate test coverage for code</li>
+</ul>
+<p><strong>Example workflow:</strong></p>
+<pre><code class="language-bash"># 1. Start with a spec
+# Have your Engineering Spec ready (e.g., @specs/feature-name.md)
+
+# 2. Implement the feature
+/implement-spec @specs/user-authentication.md
+
+# 3. Write tests
+/write-tests src/auth/user-service.ts
+
+# 4. Refactor if needed
+/refactor src/auth/user-service.ts &quot;Extract validation logic&quot;
+</code></pre>
+<p><strong>Subagents for specialized tasks:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><code>implementer/ui-implementer</code> - React/React Native UI components</li>
+<li><code>implementer/backend-implementer</code> - API and backend logic</li>
+<li><code>verifier/test-writer</code> - Comprehensive test generation</li>
+</ul>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Development with Cursor</h3>
+<p>Cursor Composer works with spec-machine commands. Use <code>@</code> to reference specs and files:</p>
+<pre><code>@implement-spec @specs/checkout-flow.md
+
+Implement the checkout flow using:
+- @src/components/Cart.tsx
+- @src/api/payment.ts
+</code></pre>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Testing Frameworks</h3>
+<p><strong>Unit &amp; Integration Tests:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Jest / Vitest for JavaScript/TypeScript</li>
+<li>React Testing Library for components</li>
+<li>Supertest for API testing</li>
+</ul>
+<p><strong>E2E Tests:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Playwright / Cypress for web</li>
+<li>Detox for React Native</li>
+</ul>
+<p><strong>AI-Assisted Testing:</strong></p>
+<pre><code class="language-bash"># Generate tests for a module
+/write-tests src/payment/payment-processor.ts
+
+# Generate E2E test scenarios
+/implement-spec @specs/e2e-checkout.md --test-focus
+</code></pre>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Code Review Practices</h3>
+<p><strong>AI-Enhanced Reviews:</strong></p>
+<ol style="margin-left: 0; padding-left: 30pt;">
+<li><p><strong>Pre-review:</strong> Have AI review your code first</p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><code>@review-code</code> before creating PR</li>
+<li>Fix obvious issues before human review</li>
+</ul>
+</li>
+<li><p><strong>PR Creation:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m &quot;feat: Add user authentication&quot;
+/create-pr
+</code></pre>
+</li>
+<li><p><strong>Review Checklist:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><input disabled="" type="checkbox"> Code matches spec requirements</li>
+<li><input disabled="" type="checkbox"> Tests cover happy path and edge cases</li>
+<li><input disabled="" type="checkbox"> No hardcoded values or secrets</li>
+<li><input disabled="" type="checkbox"> Error handling is robust</li>
+<li><input disabled="" type="checkbox"> Documentation is updated</li>
+</ul>
+</li>
+</ol>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Git Workflow</h3>
+<p><strong>Branch naming:</strong></p>
+<pre><code class="language-bash">feature/user-authentication
+fix/login-validation
+refactor/payment-service
+</code></pre>
+<p><strong>Commit conventions:</strong></p>
+<pre><code class="language-bash">feat: Add password reset flow
+fix: Resolve race condition in checkout
+refactor: Extract validation to separate module
+test: Add coverage for payment processor
+docs: Update API documentation
+</code></pre>
+<p><strong>With spec-machine:</strong></p>
+<pre><code class="language-bash"># AI assists with commit messages
+git add .
+# AI will analyze changes and suggest conventional commit message
+git commit
+
+# Create PR with AI-generated description
+/create-pr
+</code></pre>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Example Development Flow</h3>
+<p><strong>Full feature implementation:</strong></p>
+<ol style="margin-left: 0; padding-left: 30pt;">
+<li><p><strong>Start with spec:</strong></p>
+<pre><code class="language-bash"># Review the Engineering Spec
+cat @specs/user-profile.md
+</code></pre>
+</li>
+<li><p><strong>Implement core logic:</strong></p>
+<pre><code class="language-bash">/implement-spec @specs/user-profile.md
+# AI implements UserProfileService, validation, DB models
+</code></pre>
+</li>
+<li><p><strong>Build UI components:</strong></p>
+<pre><code class="language-bash"># Use UI implementer subagent
+&quot;Implement the user profile screen with form validation&quot;
+# References design system, follows patterns
+</code></pre>
+</li>
+<li><p><strong>Write tests:</strong></p>
+<pre><code class="language-bash">/write-tests src/profile/user-profile-service.ts
+# Generates unit tests with mocks and edge cases
+</code></pre>
+</li>
+<li><p><strong>Integration testing:</strong></p>
+<pre><code class="language-bash">/write-tests src/profile/user-profile-api.test.ts --integration
+# Tests API endpoints with real requests
+</code></pre>
+</li>
+<li><p><strong>Code review and refinement:</strong></p>
+<pre><code class="language-bash">@review-code src/profile/
+# AI provides feedback on patterns, performance, security
+</code></pre>
+</li>
+<li><p><strong>Create PR:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m &quot;feat: Implement user profile management&quot;
+/create-pr
+</code></pre>
+</li>
+</ol>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Resources</h3>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><strong>spec-machine</strong>: <a href="https://github.com/hellofresh/spec-machine">https://github.com/hellofresh/spec-machine</a></li>
+<li><strong>Documentation</strong>: <a href="https://github.com/hellofresh/spec-machine/tree/master/docs">https://github.com/hellofresh/spec-machine/tree/master/docs</a></li>
+<li><strong>Examples</strong>: <a href="https://github.com/hellofresh/spec-machine/tree/master/templates">https://github.com/hellofresh/spec-machine/tree/master/templates</a></li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Common Pitfalls</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Deviating from specs without discussion</li>
+<li>Skipping tests to &quot;save time&quot;</li>
+<li>Not reviewing AI-generated code</li>
+<li>Poor git hygiene</li>
+<li>Building in isolation without daily check-ins</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Success Criteria</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><input disabled="" type="checkbox"> All spec requirements are implemented</li>
+<li><input disabled="" type="checkbox"> Code has test coverage</li>
+<li><input disabled="" type="checkbox"> Code reviews are complete</li>
+<li><input disabled="" type="checkbox"> Follows coding standards</li>
+<li><input disabled="" type="checkbox"> Feature is demo-ready</li>
+</ul>
+
+</body>
+</html>

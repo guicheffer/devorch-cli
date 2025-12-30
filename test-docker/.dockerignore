@@ -1,0 +1,9 @@
+node_modules
+.git
+.claude
+*.log
+.DS_Store
+coverage
+.vscode
+.idea
+test-docker

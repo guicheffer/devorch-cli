@@ -1,0 +1,230 @@
+name: Issue Review with Claude Code
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+# Prevent concurrent runs for the same issue
+concurrency:
+  group: issue-review-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  check-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      should_review: ${{ steps.check.outputs.should_review }}
+      is_refinement: ${{ steps.check.outputs.is_refinement }}
+    steps:
+      - name: Check if review should run
+        id: check
+        run: |
+          # Check if this is a label event with "for-review" label
+          if [[ "${{ github.event_name }}" == "issues" ]]; then
+            if [[ "${{ github.event.label.name }}" == "for-review" ]]; then
+              echo "should_review=true" >> $GITHUB_OUTPUT
+              echo "is_refinement=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          # Check if this is a comment on an issue with "for-review" label
+          if [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            LABELS=$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r '.[].name')
+            if echo "$LABELS" | grep -q "for-review"; then
+              echo "should_review=true" >> $GITHUB_OUTPUT
+              echo "is_refinement=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          echo "should_review=false" >> $GITHUB_OUTPUT
+          echo "is_refinement=false" >> $GITHUB_OUTPUT
+
+  review-issue:
+    needs: check-trigger
+    if: needs.check-trigger.outputs.should_review == 'true'
+    runs-on: self-hosted
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Generate review prompt
+        id: prompt
+        run: |
+          cat > /tmp/review-prompt.md << 'EOF'
+          You are reviewing GitHub issue #${{ github.event.issue.number }}: "${{ github.event.issue.title }}"
+
+          **Issue Description:**
+          ${{ github.event.issue.body }}
+
+          ${{ needs.check-trigger.outputs.is_refinement == 'true' && format('**Latest Comment:**\n{0}\n', github.event.comment.body) || '' }}
+
+          **Your Task:**
+          ${{ needs.check-trigger.outputs.is_refinement == 'true' && '1. Read the issue description and all previous comments to understand the current plan\n2. Refine the plan based on the latest comment\n3. Output the complete updated plan to stdout\n4. Focus on addressing the feedback while maintaining plan structure' || '1. Explore the codebase to understand the architecture and relevant code\n2. Identify the files that will need to be changed\n3. Create a detailed implementation plan with phases and specific tasks\n4. Include concrete code examples showing how the implementation would look\n5. Work backwards from the final state - show what the code will look like after changes\n6. Output the complete plan to stdout as markdown' }}
+
+          **Plan Format:**
+          Output your plan in this markdown structure:
+
+          ```markdown
+          # ${{ github.event.issue.title }}
+
+          ## Context
+          [Brief explanation of what needs to be done and why]
+
+          ## Architecture Analysis
+          [Relevant files, patterns, and architectural decisions]
+
+          ## Phase 1: [Phase Name]
+          - [ ] Task 1: [Specific action with file:line reference]
+          - [ ] Task 2: [Specific action with file:line reference]
+
+          **Example code for Phase 1:**
+          \`\`\`typescript
+          // src/example.ts:123
+          // Current implementation:
+          function oldCode() { ... }
+
+          // After changes:
+          function newCode() { ... }
+          \`\`\`
+
+          ## Phase 2: [Phase Name]
+          - [ ] Task 1
+          - [ ] Task 2
+
+          [Continue with more phases...]
+          ```
+
+          **Guidelines:**
+          - Be specific: reference exact files and line numbers
+          - Show concrete examples of what code will look like
+          - Break down into logical phases that can be executed sequentially
+          - Each task should be actionable and testable
+          - Consider error handling, edge cases, and testing
+
+          **Important:**
+          - DO NOT create or modify any files
+          - DO NOT commit anything
+          - ONLY output the plan as text to stdout
+          - The plan will be captured and posted as a GitHub comment
+          EOF
+
+          echo "prompt_file=/tmp/review-prompt.md" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::951719175506:role/github-actions-invoke-model
+          aws-region: eu-west-1
+          role-chaining: true
+
+      - name: Run Claude Code review
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          use_bedrock: "true"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt_file: ${{ steps.prompt.outputs.prompt_file }}
+          claude_args: |
+            --max-turns 30
+            --model eu.anthropic.claude-sonnet-4-5-20250929-v1:0
+            --allowedTools Read,Glob,Grep,Bash,Task
+            --output-format text
+
+      - name: Capture plan output
+        id: plan
+        run: |
+          # The claude-code-action outputs to a file or we capture from logs
+          # For now, we'll use a placeholder - this needs to be adjusted based on actual action output
+          PLAN_CONTENT="Plan generation in progress. Check workflow logs for details."
+
+          # Save to file for artifact
+          echo "$PLAN_CONTENT" > /tmp/plan.md
+
+          # Set output (handle multiline)
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$PLAN_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload plan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-issue-${{ github.event.issue.number }}
+          path: /tmp/plan.md
+          retention-days: 30
+
+      - name: Post plan to issue
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const issueNumber = ${{ github.event.issue.number }};
+            const isRefinement = ${{ needs.check-trigger.outputs.is_refinement == 'true' }};
+
+            // Read plan from artifact file
+            let planContent = 'Plan generation failed. Check workflow logs for details.';
+            if (fs.existsSync('/tmp/plan.md')) {
+              planContent = fs.readFileSync('/tmp/plan.md', 'utf8');
+            }
+
+            const commentBody = `## 🤖 ${isRefinement ? 'Refined ' : ''}Implementation Plan
+
+            ${isRefinement ? '✨ Plan has been refined based on feedback.\n\n' : ''}
+            <details>
+            <summary>📋 Click to view ${isRefinement ? 'updated ' : ''}plan</summary>
+
+            ${planContent}
+
+            </details>
+
+            ---
+
+            **Next steps:**
+            - Review the plan and add comments for refinements
+            - When ready, add the \`ready-for-dev\` label to start implementation
+            `;
+
+            // Check if there's an existing bot comment to update
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body.includes('Implementation Plan')
+            );
+
+            if (botComment && isRefinement) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: commentBody
+              });
+            }

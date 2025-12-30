@@ -1,0 +1,8 @@
+# Import folder for Google Docs exports
+import/
+
+# Backup files
+*.backup
+
+# Mac OS
+.DS_Store

@@ -1,0 +1,405 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /update-context should match snapshot 1`] = `
+"---
+name: "/update-context"
+description: "Update existing context training with new PRs or migrate to new metadata format"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "context-training/context-migrator"
+    - "context-training/pr-fetcher"
+    - "context-training/pr-pattern-analyzer"
+    - "context-training/pattern-reviewer"
+    - "context-training/artifact-generator"
+---
+
+# Purpose
+
+Update existing context-training with format migration and optional PR ingestion.
+
+## Instructions
+
+This process follows 6 sequential phases:
+
+0. **Pre-checks** - Verify spec-machine version and required subagents
+1. **Load Context Training** - Get context-training name from config
+2. **Migrate Format** - Update all files to match current schemas (always runs)
+3. **Ask About PR Ingestion** - User chooses whether to ingest new PRs
+4. **Ingest New PRs** - Analyze PRs and add patterns (if selected)
+5. **Report** - Summarize results
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+## Error Handling Strategy
+
+**If any subagent fails:**
+1. Report the error clearly to the user
+2. Offer options:
+   - Retry the failed step
+   - Skip this step and continue
+   - Abort the entire operation
+3. Log the error for debugging
+4. Don't leave the context-training in an inconsistent state
+
+**Common failure scenarios:**
+- **Migrator fails:** Some files may be partially migrated - report which succeeded/failed
+- **PR fetcher fails:** GitHub API issues or auth problems - offer to skip PR ingestion
+- **Pattern analyzer fails:** Can't parse PRs - offer to retry with different PRs
+- **Pattern reviewer fails:** User cancellation - save progress and exit gracefully
+- **Artifact generator fails:** Disk write errors - rollback or report incomplete files
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /update-context
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- context-training/context-migrator
+- context-training/pr-fetcher
+- context-training/pr-pattern-analyzer
+- context-training/pattern-reviewer
+- context-training/artifact-generator
+
+
+### PHASE 1: Load Context Training from Config
+
+⚠️ **STOP HERE - No context-training configured**
+
+This command requires context-training to be configured in your project.
+
+Context training provides:
+- Repository-specific specification guidelines
+- Domain-specific implementation patterns
+- Available implementers and verifiers
+
+**To set up context training:**
+1. Run \`/analyze-tech-stack\` to analyze your codebase
+2. Run \`/train-context\` to generate context training
+3. Run this command again
+
+**Cannot proceed without context training.**
+
+
+
+### PHASE 2: Migrate Format (Always Runs)
+
+**This step always runs automatically to ensure files are in the correct format.**
+
+Inform the user:
+
+"🔄 **Migrating  to latest format...** This may take a moment. ⏳"
+
+**Now use the context-migrator subagent** to migrate all files to the current schema format.
+
+**Pass to context-migrator in your prompt:**
+
+\`\`\`
+Context training path: spec-machine/context-training/
+
+Please migrate all files to match the current schema format.
+
+The migrator will automatically:
+1. Read current schemas using: spec-machine agent get-context-training-schema
+2. Migrate implementer files (implementers/*.md) to match implementer schema
+3. Migrate verifier files (verifiers/*.md) to match verifier schema
+4. Preserve all pattern content and examples
+
+Return in your final response:
+- Total count of implementer files migrated
+- Total count of verifier files migrated
+- Complete list of all files you updated (with paths)
+- Any issues encountered or warnings
+\`\`\`
+
+The migrator will update all frontmatter to match current schemas and report what was changed.
+
+**After the migrator completes, check if it reported any failures or errors. If so, ask the user:**
+
+Use AskUserQuestion with:
+- question: "Migration encountered issues with some files. How would you like to proceed?"
+- header: "Migration Issues"
+- multiSelect: false
+- options:
+  1. label: "Continue anyway", description: "Proceed with PR ingestion (you can fix migration issues manually)"
+  2. label: "Retry failed files", description: "Re-run migrator on files that failed"
+  3. label: "Abort", description: "Stop and review errors"
+
+Based on user selection, either continue to Step 3, retry migration, or exit gracefully.
+
+### PHASE 3: Ask About PR Ingestion
+
+Ask the user if they want to ingest new PRs using AskUserQuestion:
+
+Use the AskUserQuestion tool with:
+- **question**: "Would you like to ingest new PRs to add fresh patterns?"
+- **header**: "Ingest PRs?"
+- **multiSelect**: false
+- **options**:
+  1. **label**: "Yes", **description**: "Analyze recent PRs and add new patterns to context training"
+  2. **label**: "No", **description**: "Skip PR ingestion and finish"
+
+**CRITICAL: STOP HERE and wait for the user's response.**
+
+**Parse user selection:**
+- If "Yes" selected: Set \`INGEST_PRS = true\` and continue to Step 4
+- If "No" selected: Set \`INGEST_PRS = false\` and skip to Step 5
+
+### PHASE 4: Ingest New PRs (if selected)
+
+**IF \`INGEST_PRS = false\`:** Skip to Step 5
+
+**IF \`INGEST_PRS = true\`:**
+
+#### Step 4a: Fetch New PRs
+
+Launch the **context-training/pr-fetcher** subagent using the Task tool:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/pr-fetcher"
+- description: "Fetch merged PRs for context training analysis"
+- prompt: "Fetch merged pull requests from this repository for context training.
+
+Follow your workflow to:
+1. Verify gh CLI prerequisites
+2. Fetch and display repository labels
+3. Ask user to select labels for filtering
+4. Fetch and categorize PRs by size
+5. Ask user to select PR count, timeframe, and size distribution
+6. Return filtered PR list with structured JSON output
+
+The user will select which labels and how many PRs to analyze based on what context they want to capture."
+\`\`\`
+
+**What the subagent will do:**
+- Verify gh CLI and jq are available
+- Fetch all repository labels and group them (squad/tribe vs type labels)
+- Interactively ask user which labels to filter by
+- Fetch merged PRs and categorize by size
+- Filter out PRs with >50% net negative changes
+- Ask user for PR count (10/25/50/all), timeframe (1/3/6/12 months, all), and size distribution (balanced/favor large/favor medium/proportional)
+- Return filtered PR list as structured JSON for downstream analysis
+
+**Output format:**
+The subagent returns JSON **in its response message** (NOT written to disk) with:
+- \`selection_criteria\`: labels, count, timeframe
+- \`prs\`: array of PR objects with metadata
+- \`summary\`: counts by size category
+
+**After the subagent completes:**
+
+**IMPORTANT: The subagent returns the PR list as JSON in the Task tool result. Parse the JSON from the Task tool response.**
+
+**Save artifact for reference (commands should specify their own artifact directory):**
+
+The calling command should save the PR JSON to its own artifacts directory for debugging/reference. The workflow uses the in-memory JSON returned by the subagent.
+
+
+**Save the artifact:**
+\`\`\`bash
+mkdir -p spec-machine/.state/artifacts/commands/update-context
+echo "$PR_JSON" > spec-machine/.state/artifacts/commands/update-context/fetched-prs.json
+\`\`\`
+
+#### Step 4b: Analyze New PRs
+
+Invoke the \`context-training/pr-pattern-analyzer\` subagent:
+
+\`\`\`
+Analyze these PRs for patterns:
+{List of PR numbers from Step 4a}
+
+Focus on discovering:
+- New implementation patterns not in existing context training
+- Changes to existing patterns
+- New verification/testing approaches
+- Updated conventions or best practices
+
+Return patterns organized by domain.
+\`\`\`
+
+The analyzer will:
+- Analyze PR diffs and code changes
+- Identify new patterns or pattern changes
+- Organize by domain (matching existing domains when possible)
+- Flag potential new domains
+
+**If analyzer fails (can't parse PRs, rate limits, etc.):**
+\`\`\`
+❌ Pattern analysis failed: {error message}
+
+PRs that failed to analyze:
+- {List of PR numbers that failed}
+
+What would you like to do?
+1. Retry analysis with all PRs
+2. Skip failed PRs and continue with successful ones
+3. Try analyzing fewer PRs at a time
+4. Abort PR ingestion
+
+Your choice:
+\`\`\`
+
+**CRITICAL: STOP HERE and wait for user's response if analysis failed.**
+
+**If no patterns discovered:**
+\`\`\`
+ℹ️ No new patterns discovered in the analyzed PRs.
+
+The PRs may contain:
+- Only bug fixes with no new patterns
+- Changes to files outside the context-training scope
+- Refactoring that doesn't introduce new patterns
+
+What would you like to do?
+1. Try analyzing different PRs
+2. Complete without adding patterns
+3. Abort
+
+Your choice:
+\`\`\`
+
+**CRITICAL: STOP HERE and wait for user's response.**
+
+#### Step 4c: Review New Patterns
+
+Invoke the \`context-training/pattern-reviewer\` subagent:
+
+\`\`\`
+Context training: 
+Existing patterns: spec-machine/context-training//
+
+New patterns discovered:
+{Patterns from Step 4b}
+
+Please review these new patterns with the user:
+1. Show patterns domain by domain
+2. For existing domains: ask if patterns should be added or replace existing
+3. For new domains: follow standard domain review process (Steps 3a-3e)
+4. Collect user feedback and priorities
+
+Return validated patterns ready for integration.
+\`\`\`
+
+The reviewer will:
+- Present new patterns alongside existing ones for comparison
+- Ask user whether to add, replace, or skip patterns
+- Collect verification method updates if new domains
+- Return validated pattern set
+
+#### Step 4d: Integrate New Patterns
+
+Invoke the \`context-training/artifact-generator\` subagent:
+
+\`\`\`
+Context training: 
+Existing files: spec-machine/context-training//
+
+Validated new patterns:
+{Patterns from Step 4c}
+
+Please integrate the new patterns:
+
+1. **For existing domains:**
+   - Append new patterns to existing implementer files
+   - Maintain existing pattern structure
+   - Add note: "Added: {date} from PRs {PR numbers}"
+
+2. **For new domains:**
+   - Create new implementer files following standard template
+   - Create new verifier files if specified
+
+3. **Update specification.md and implementation.md:**
+   - If new patterns affect general guidance, update those files
+   - Maintain consistency with domain-specific files
+
+Return list of files created/updated.
+\`\`\`
+
+**Extract actual results from artifact-generator's response:**
+- Count of files created vs updated
+- Specific file paths
+- Pattern counts (new vs updated)
+- PR numbers that were analyzed
+
+**Display results to user:**
+\`\`\`
+✅ New patterns integrated!
+
+Updated:
+- [actual count] existing implementer files
+- [actual count] new implementer files created
+- [actual count] verifier files updated/created
+[Only include if actually updated:]
+- specification.md
+- implementation.md
+
+Summary:
+- [actual count] new patterns added
+- [actual count] patterns updated
+- From [actual count] PRs analyzed: #[PR numbers]
+\`\`\`
+
+### PHASE 5: Report
+
+After all operations complete, summarize the results to the user.
+
+Report the migration results (count of files updated) that the context-migrator returned.
+
+If PR ingestion was run, also report:
+- Number of new patterns added
+- Number of PRs analyzed
+- Which domains were updated
+
+Include next steps for the user.
+"
+`;

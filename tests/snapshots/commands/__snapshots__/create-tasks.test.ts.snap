@@ -1,0 +1,275 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /create-tasks should match snapshot 1`] = `
+"---
+name: "/create-tasks"
+description: "Create task breakdown with pre-discovered context for efficient implementation"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "implementation/domain-mapper"
+    - "implementation/tasks-list-creator"
+    - "implementation/tasks-verifier"
+---
+
+# Create Tasks
+
+## Purpose
+
+Create a detailed task breakdown for the specification with implementer assignments based on available domains from context-training.
+
+## Instructions
+
+This process follows 5 sequential phases:
+
+0. **Pre-checks** - Verify spec-machine version and required subagents
+1. **Select Spec** - Choose active spec with stale detection
+2. **Map Roles** - Discover implementers and verifiers from context-training
+3. **Create Tasks** - Break down spec into actionable tasks with assignments
+4. **Verify Tasks** - Validate task breakdown for accuracy and completeness
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+⚠️ **STOP HERE - No context-training configured**
+
+This command requires context-training to be configured in your project.
+
+Context training provides:
+- Repository-specific specification guidelines
+- Domain-specific implementation patterns
+- Available implementers and verifiers
+
+**To set up context training:**
+1. Run \`/analyze-tech-stack\` to analyze your codebase
+2. Run \`/train-context\` to generate context training
+3. Run this command again
+
+**Cannot proceed without context training.**
+
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /create-tasks
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- implementation/domain-mapper
+- implementation/tasks-list-creator
+- implementation/tasks-verifier
+
+
+### PHASE 1: Select Spec
+
+**Get the active spec:**
+
+\`\`\`bash
+spec-machine get-spec
+\`\`\`
+
+**Parse the output:**
+- If \`NO_ACTIVE_SPEC=true\` and \`NO_SPECS_FOUND=true\`: Exit with error - no specs to work with
+- Otherwise: Extract \`CURRENT_SPEC=[path]\`, \`SPEC_NAME=[name]\`, and \`FOLDER_NAME=[folder]\`
+- Always extract \`NEWEST_SPEC=[path]\`, \`NEWEST_SPEC_NAME=[name]\`, and \`NEWEST_SPEC_FOLDER=[folder]\` from output
+- Check \`IS_STALE\` flag to determine if active spec is older than newest
+
+**Note:** If no active spec was previously set, \`spec-machine get-spec\` automatically sets the newest spec as active.
+
+**Always ask the user to confirm or change the spec:**
+
+Use the AskUserQuestion tool to prompt the user:
+
+\`\`\`
+Question: "Active spec is '[active-folder-name]' ([active-date]). Which spec would you like to use?"
+
+Header: "Select Spec"
+
+Options:
+1. Continue with '[active-folder-name]'
+   Description: Use the currently active spec
+
+2. Switch to '[newest-folder-name]'
+   Description: Switch to the newest spec ([newest-date])
+
+3. Cancel
+   Description: Abort this command
+\`\`\`
+
+**Note:** If the active spec is stale (\`IS_STALE=true\`), modify the question to: "Active spec '[active-folder-name]' ([active-date]) is older than '[newest-folder-name]' ([newest-date]). Which spec would you like to use?"
+
+**Handle user's response:**
+- **Option 1 (Continue)**: Use \`CURRENT_SPEC\` path as-is
+- **Option 2 (Switch)**: Run \`spec-machine get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`spec-machine get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
+- **Option 3 (Cancel)**: Stop execution and exit the command
+
+**Validate spec folder exists:**
+
+\`\`\`bash
+if [ ! -d "[spec-path]" ]; then
+  echo "ERROR: Spec folder not found at [spec-path]"
+  exit 1
+fi
+\`\`\`
+
+**Store the selected spec path as \`[spec-folder-path]\`** for use in subsequent phases.
+
+The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`spec-machine/specs/2025-11-18-user-auth\`).
+
+
+### PHASE 2: Map Domains
+
+Inform the user: **"Discovering implementers and verifiers from context-training folder: \`\`"**
+
+Use the \`implementation/domain-mapper\` subagent to discover and map available implementer and verifier domains.
+
+The domain-mapper will:
+- Discover all implementer domains from \`spec-machine/context-training//implementers/\`
+- Discover all verifier domains from \`spec-machine/context-training//verifiers/\`
+- Extract \`domain\` and \`description\` from frontmatter
+- Generate mapping files in \`spec-machine/.state/artifacts//\`:
+  - \`implementer-domains.yml\`
+  - \`verifier-domains.yml\`
+
+These mappings will be used to assign tasks to appropriate implementer domains.
+
+### PHASE 3: Create Task Breakdown
+
+Use the **tasks-list-creator** subagent to break down the spec into actionable tasks with pre-discovered context.
+
+Provide the tasks-list-creator with:
+
+- The spec folder path (from Phase 1)
+- The \`[spec-folder-path]/spec.md\` file
+- The original requirements from \`[spec-folder-path]/planning/requirements.md\`
+- Any visual assets in \`[spec-folder-path]/planning/visuals/\`
+- The domain mappings from:
+  - \`spec-machine/.state/artifacts//implementer-domains.yml\`
+  - \`spec-machine/.state/artifacts//verifier-domains.yml\`
+
+The tasks-list-creator will:
+
+1. **Break down the spec** into logical tasks with subtasks
+2. **Assign implementers** to each task based on their \`domain\` and \`description\`
+3. **Assign verification methods** to each task based on available verifier domains
+4. **Create \`tasks.md\`** - A detailed task breakdown with:
+   - Organized tasks
+   - Subtasks with acceptance criteria
+   - Implementer assignments
+   - Verification method assignments
+   - Dependencies noted
+
+### PHASE 4: Verify Task Breakdown
+
+Use the **tasks-verifier** subagent to verify the task breakdown for accuracy and completeness.
+
+**Pass to tasks-verifier in your prompt:**
+
+\`\`\`
+Verify the task breakdown for accuracy and completeness.
+
+**Spec folder path:** [spec-folder-path]
+
+Example path: spec-machine/specs/2025-11-18-user-auth
+
+The tasks.md file has been created with [X] major tasks and [Y] subtasks. Please verify:
+- All spec requirements have corresponding tasks
+- Tasks are specific and actionable
+- Implementer assignments are appropriate based on domain expertise
+- Visual elements are referenced (if visuals exist)
+- TDD principles are followed (tests written first)
+- Dependencies are properly identified
+- Acceptance criteria are clear and measurable
+
+**Available domain mappings:**
+- Implementers: spec-machine/.state/artifacts//implementer-domains.yml
+- Verifiers: spec-machine/.state/artifacts//verifier-domains.yml
+
+Use these mappings to validate that assigned implementer and verifier domains actually exist.
+
+Create a verification report at \`[spec-folder-path]/verification/tasks-verification.md\`
+\`\`\`
+
+The tasks-verifier will:
+1. Verify task completeness against spec
+2. Check task quality and structure
+3. Validate implementer/verifier assignments
+4. Check visual alignment (if visuals exist)
+5. Verify TDD compliance
+6. Create verification report in \`verification/tasks-verification.md\`
+
+## Report
+
+**Note:** The tasks-verifier subagent will produce its own formatted output following one of three scenarios (passed, passed with recommendations, or issues fixed). You should let that output show through to the user as-is.
+
+After the tasks-verifier completes, you may optionally add a brief summary of domain mappings discovered:
+
+"**Domain Mappings Discovered:**
+-  implementer domains available
+-  verifier domains available
+
+**Artifacts created:**
+\`\`\`
+spec-machine/specs/[date-spec-name]/
+├── planning/
+│   ├── initialization.md
+│   ├── requirements.md
+│   └── visuals/
+├── verification/
+│   ├── spec-verification.md
+│   └── tasks-verification.md  # NEW: Task verification
+├── spec.md
+└── tasks.md                   # NEW: Task breakdown
+
+spec-machine/.state/artifacts//
+├── implementer-domains.yml  # NEW: Domain mappings
+└── verifier-domains.yml     # NEW: Domain mappings
+\`\`\`"
+"
+`;

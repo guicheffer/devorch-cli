@@ -1,0 +1,1048 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /analyze-tech-stack should match snapshot 1`] = `
+"---
+name: "/analyze-tech-stack"
+description: "Analyze project dependencies and generate/update shared tech-stack.md"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "analysis/dependency-scanner"
+    - "analysis/tech-stack-analyzer"
+    - "analysis/tech-stack-merger"
+---
+
+# Analyze Tech Stack (Multi-Agent Orchestrator)
+
+You are the orchestrator for tech stack analysis. You will coordinate three specialized subagents to efficiently analyze the project's dependencies and generate or update \`spec-machine/tech-stack.md\`.
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /analyze-tech-stack
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- analysis/dependency-scanner
+- analysis/tech-stack-analyzer
+- analysis/tech-stack-merger
+
+
+---
+
+## Overview
+
+This command uses a multi-agent approach for context window efficiency:
+1. **dependency-scanner**: Scans filesystem for dependency and config files
+2. **tech-stack-analyzer**: Parses files and categorizes technologies
+3. **tech-stack-merger**: Intelligently merges with existing tech-stack.md
+
+## Workflow
+
+### Phase 1: Scan for Dependencies
+
+Launch the **dependency-scanner** subagent using the Task tool:
+
+\`\`\`
+Task tool parameters:
+- subagent_type: "analysis/dependency-scanner"
+- description: "Scan project for dependency files"
+- prompt: "# Detect Project Dependencies
+
+This workflow scans the project filesystem to detect dependency manifests, infrastructure configs, and framework configuration files.
+
+## Step 1: Scan for Dependency Manifests
+
+Use the Glob tool to search for common dependency files:
+
+### JavaScript/TypeScript
+Search for:
+- \`**/package.json\`
+- \`**/bun.lockb\`
+- \`**/package-lock.json\`
+- \`**/yarn.lock\`
+- \`**/pnpm-lock.yaml\`
+
+### Python
+Search for:
+- \`**/requirements.txt\`
+- \`**/pyproject.toml\`
+- \`**/Pipfile\`
+- \`**/setup.py\`
+- \`**/poetry.lock\`
+
+### Go
+Search for:
+- \`**/go.mod\`
+- \`**/go.sum\`
+
+### Rust
+Search for:
+- \`**/Cargo.toml\`
+- \`**/Cargo.lock\`
+
+### Ruby
+Search for:
+- \`**/Gemfile\`
+- \`**/Gemfile.lock\`
+
+### PHP
+Search for:
+- \`**/composer.json\`
+- \`**/composer.lock\`
+
+### Java
+Search for:
+- \`**/pom.xml\`
+- \`**/build.gradle\`
+- \`**/build.gradle.kts\`
+
+### C#/.NET
+Search for:
+- \`**/*.csproj\`
+- \`**/*.sln\`
+- \`**/packages.config\`
+
+## Step 2: Scan for Infrastructure Configs
+
+### Docker
+Search for:
+- \`**/Dockerfile\`
+- \`**/docker-compose.yml\`
+- \`**/docker-compose.yaml\`
+- \`**/.dockerignore\`
+
+### Kubernetes
+Search for:
+- \`k8s/**/*.yaml\`
+- \`k8s/**/*.yml\`
+- \`kubernetes/**/*.yaml\`
+- \`kubernetes/**/*.yml\`
+
+### Infrastructure as Code
+Search for:
+- \`**/*.tf\` (Terraform)
+- \`pulumi/**/*\`
+- \`cloudformation/**/*.yaml\`
+
+## Step 3: Scan for Framework/Tool Configs
+
+### Build Tools
+Search for:
+- \`**/vite.config.ts\`
+- \`**/vite.config.js\`
+- \`**/webpack.config.js\`
+- \`**/rollup.config.js\`
+- \`**/esbuild.config.js\`
+
+### Framework Configs
+Search for:
+- \`**/next.config.js\`
+- \`**/next.config.mjs\`
+- \`**/nuxt.config.js\`
+- \`**/nuxt.config.ts\`
+- \`**/svelte.config.js\`
+- \`**/astro.config.mjs\`
+- \`**/remix.config.js\`
+
+### TypeScript/JavaScript
+Search for:
+- \`**/tsconfig.json\`
+- \`**/jsconfig.json\`
+
+### Linting/Formatting
+Search for:
+- \`**/.eslintrc.js\`
+- \`**/.eslintrc.json\`
+- \`**/eslint.config.js\`
+- \`**/.prettierrc\`
+- \`**/.prettierrc.json\`
+- \`**/biome.json\`
+
+### Testing
+Search for:
+- \`**/jest.config.js\`
+- \`**/vitest.config.ts\`
+- \`**/playwright.config.ts\`
+- \`**/cypress.config.js\`
+
+## Step 4: Read Detected Files
+
+For each detected file:
+1. Use the Read tool to read the file contents
+2. Store the file path and contents for analysis
+
+## Step 5: Report Findings
+
+Organize findings into categories:
+
+\`\`\`markdown
+### Dependency Manifests Found
+- path/to/package.json (JavaScript/Node.js)
+- path/to/go.mod (Go)
+
+### Infrastructure Configs Found
+- Dockerfile (Docker)
+- docker-compose.yml (Docker Compose)
+
+### Framework/Tool Configs Found
+- next.config.js (Next.js)
+- tsconfig.json (TypeScript)
+\`\`\`
+
+## Important Notes
+
+- Use Glob tool for efficient file discovery
+- Use Read tool to get file contents
+- Focus on detection, not analysis (analysis comes in next step)
+- Include full file paths relative to project root
+- If no files found in a category, note "None found"
+"
+\`\`\`
+
+**What the subagent will do:**
+- Search for dependency manifests (package.json, go.mod, requirements.txt, etc.)
+- Search for infrastructure configs (Dockerfile, docker-compose.yml, k8s)
+- Search for framework/tool configs (next.config.js, tsconfig.json, etc.)
+- Return list of detected files with their contents
+
+**Wait for subagent completion**
+
+---
+
+**WHEN NO DEPENDENCIES FOUND**: Stop here, we don't need to analyze tech stack further. **REPORT** to the user what you find, but especially did not find.
+**IF DEPENDENCIES FOUND**: Proceed to Phase 2.
+
+### Phase 2: Analyze Technologies
+
+Launch the **tech-stack-analyzer** subagent using the Task tool:
+
+\`\`\`
+Task tool parameters:
+- subagent_type: "analysis/tech-stack-analyzer"
+- description: "Analyze and categorize detected technologies"
+- prompt: "
+# Analyze Tech Stack
+
+This workflow parses detected dependency files, extracts technology information, and categorizes the tech stack.
+
+## Step 1: Parse Dependency Manifests
+
+For each detected dependency file, parse and extract technologies with their versions.
+
+### package.json (JavaScript/TypeScript)
+
+Parse the JSON file and extract from \`dependencies\`, \`devDependencies\`, and \`engines\`:
+
+\`\`\`json
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "next": "^14.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+\`\`\`
+
+Extract:
+- React 18.2.0 (dependency)
+- Next.js 14.0.0 (dependency)
+- TypeScript 5.0.0 (dev dependency)
+- Node.js 20.x (required runtime)
+
+### pyproject.toml (Python)
+
+Parse TOML format and extract from \`[project.dependencies]\` or \`[tool.poetry.dependencies]\`:
+
+\`\`\`toml
+[project]
+dependencies = [
+    "fastapi>=0.100.0",
+    "sqlalchemy>=2.0.0"
+]
+\`\`\`
+
+Extract: FastAPI 0.100.0+, SQLAlchemy 2.0.0+
+
+### go.mod (Go)
+
+Parse Go module format:
+
+\`\`\`
+module example.com/myapp
+go 1.21
+
+require (
+    github.com/gin-gonic/gin v1.9.1
+    github.com/lib/pq v1.10.9
+)
+\`\`\`
+
+Extract:
+- Go 1.21 (language version)
+- Gin 1.9.1 (web framework)
+- lib/pq 1.10.9 (PostgreSQL driver)
+
+### Cargo.toml (Rust)
+
+Parse TOML format:
+
+\`\`\`toml
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+axum = "0.6"
+\`\`\`
+
+Extract: Tokio 1.0, Axum 0.6
+
+### Gemfile (Ruby)
+
+Parse Ruby DSL:
+
+\`\`\`ruby
+gem 'rails', '~> 7.0.0'
+gem 'pg', '~> 1.4'
+\`\`\`
+
+Extract: Rails 7.0.0, PostgreSQL (pg gem)
+
+### composer.json (PHP)
+
+Parse JSON:
+
+\`\`\`json
+{
+  "require": {
+    "laravel/framework": "^10.0",
+    "php": "^8.1"
+  }
+}
+\`\`\`
+
+Extract: Laravel 10.0, PHP 8.1
+
+### pom.xml (Java/Maven)
+
+Parse XML for dependencies and plugins:
+
+\`\`\`xml
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <version>3.1.0</version>
+  </dependency>
+</dependencies>
+\`\`\`
+
+Extract: Spring Boot 3.1.0
+
+### build.gradle (Java/Kotlin)
+
+Parse Groovy/Kotlin DSL:
+
+\`\`\`gradle
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.1.0'
+}
+\`\`\`
+
+Extract: Spring Boot 3.1.0
+
+## Step 2: Infer Technologies from Configs
+
+Certain configuration files indicate specific frameworks or tools are in use:
+
+### Framework Detection
+- \`next.config.js\` or \`next.config.mjs\` → Next.js (get version from package.json)
+- \`nuxt.config.js\` or \`nuxt.config.ts\` → Nuxt.js
+- \`vite.config.ts\` or \`vite.config.js\` → Vite build tool
+- \`astro.config.mjs\` → Astro framework
+- \`svelte.config.js\` → SvelteKit
+- \`remix.config.js\` → Remix framework
+
+### TypeScript/JavaScript Config
+- \`tsconfig.json\` → TypeScript is configured (get version from package.json)
+- \`jsconfig.json\` → JavaScript with JSDoc/type checking
+
+### Infrastructure
+- \`Dockerfile\` → Docker containerization
+- \`docker-compose.yml\` → Docker Compose orchestration
+- \`k8s/**/*.yaml\` → Kubernetes deployment
+
+### Testing Frameworks
+- \`jest.config.js\` → Jest testing
+- \`vitest.config.ts\` → Vitest testing
+- \`playwright.config.ts\` → Playwright E2E testing
+- \`cypress.config.js\` → Cypress E2E testing
+
+### Code Quality Tools
+- \`.eslintrc.*\` or \`eslint.config.js\` → ESLint
+- \`.prettierrc\` or \`.prettierrc.json\` → Prettier
+- \`biome.json\` → Biome
+
+## Step 3: Categorize Technologies
+
+Organize all extracted technologies into these standardized categories:
+
+### Frontend
+- **UI Libraries**: React, Vue, Angular, Svelte, Solid
+- **Meta-frameworks**: Next.js, Nuxt, SvelteKit, Astro, Remix
+- **Styling**: Tailwind CSS, Styled Components, CSS Modules, Sass, PostCSS
+- **State Management**: Redux, Zustand, Pinia, MobX, Jotai, Recoil
+
+### Backend
+- **Frameworks**: Express, Fastify, NestJS, FastAPI, Django, Flask, Rails, Laravel, Gin, Actix, Axum
+- **Runtime/Language**: Node.js, Bun, Deno, Python, Go, Rust, Ruby, PHP, Java, C#
+- **Database**: PostgreSQL, MySQL, MongoDB, Redis, SQLite, Cassandra
+- **ORM/Query Builders**: Prisma, TypeORM, Drizzle, SQLAlchemy, Sequelize, ActiveRecord, Eloquent, GORM
+
+### AI/ML
+- **Language Models**: OpenAI, Anthropic Claude, HuggingFace, Cohere
+- **ML Frameworks**: TensorFlow, PyTorch, scikit-learn, JAX
+- **Vector Databases**: Pinecone, Weaviate, Qdrant, ChromaDB, Milvus
+
+### Infrastructure
+- **Containerization**: Docker, Docker Compose, Podman
+- **Orchestration**: Kubernetes, Docker Swarm, Nomad
+- **CI/CD**: GitHub Actions, GitLab CI, CircleCI, Jenkins
+- **Cloud Providers**: AWS, GCP, Azure, Vercel, Netlify, Railway, Fly.io
+- **Monitoring**: Sentry, Datadog, New Relic, Prometheus, Grafana
+
+### Development Tools
+- **Build Tools**: Vite, Webpack, esbuild, Rollup, Turbopack, Parcel
+- **Package Managers**: npm, Yarn, pnpm, Bun, Poetry, Cargo, Bundler
+- **Testing**: Jest, Vitest, Playwright, Cypress, pytest, RSpec, JUnit
+- **Code Quality**: ESLint, Prettier, Biome, Ruff, Clippy, Rubocop
+- **Type Systems**: TypeScript, Flow, PropTypes
+
+### Security
+- **Authentication**: Auth0, NextAuth.js, Passport.js, Devise, Clerk
+- **Secrets Management**: dotenv, Vault, AWS Secrets Manager
+- **Security Tools**: Helmet.js, CORS middleware, rate-limiters
+
+## Step 4: Extract Version Information
+
+For each technology, record:
+- **Name**: Full technology name
+- **Version**: Specific version or version range
+- **Category**: Primary category
+- **Source**: Where detected (filename)
+- **Type**: dependency, devDependency, config, inferred
+
+## Step 5: Format Analysis Results
+
+Return structured analysis in this format:
+
+\`\`\`markdown
+## Tech Stack Analysis
+
+### Frontend
+- **React** (v18.2.0)
+  - Source: package.json (dependency)
+  - Type: UI Library
+
+- **Next.js** (v14.0.0)
+  - Source: package.json (dependency), next.config.js detected
+  - Type: Meta-framework
+
+- **Tailwind CSS** (v3.3.0)
+  - Source: package.json (devDependency)
+  - Type: Styling Framework
+
+### Backend
+- **Node.js** (v20.x)
+  - Source: package.json (engines field)
+  - Type: Runtime
+
+- **Express** (v4.18.0)
+  - Source: package.json (dependency)
+  - Type: Web Framework
+
+- **PostgreSQL** (version inferred)
+  - Source: package.json (pg v8.11.0 detected)
+  - Type: Database
+
+### Infrastructure
+- **Docker** (detected)
+  - Source: Dockerfile, docker-compose.yml
+  - Type: Containerization
+
+- **Kubernetes** (detected)
+  - Source: k8s/*.yaml configs
+  - Type: Orchestration
+
+### Development Tools
+- **TypeScript** (v5.0.0)
+  - Source: package.json (devDependency), tsconfig.json detected
+  - Type: Type System
+
+- **Vite** (v4.5.0)
+  - Source: package.json (devDependency), vite.config.ts detected
+  - Type: Build Tool
+
+- **Jest** (v29.5.0)
+  - Source: package.json (devDependency), jest.config.js detected
+  - Type: Testing Framework
+
+### Summary
+- **Primary Language**: TypeScript/JavaScript
+- **Runtime**: Node.js 20.x
+- **Frontend Stack**: React + Next.js + Tailwind CSS
+- **Backend Stack**: Node.js + Express + PostgreSQL
+- **Infrastructure**: Docker + Kubernetes
+- **Testing**: Jest
+- **Build Tool**: Vite
+\`\`\`
+
+## Important Notes
+
+- Include version information whenever available
+- Note the source file for each detection
+- Mark technologies as "inferred" when not explicitly declared
+- If the same technology appears in multiple places, consolidate into one entry
+- For database drivers (pg, mysql2, mongodb), infer the actual database
+- For cloud SDKs (aws-sdk, @google-cloud, @azure), infer cloud provider usage
+- DO NOT make recommendations or suggest changes
+- Focus on factual analysis of what exists in the project
+
+
+Here are the detected files from the dependency-scanner:
+[Include the full output from Phase 1]
+"
+\`\`\`
+
+**What the subagent will do:**
+- Parse each detected dependency file
+- Extract technology names and versions
+- Categorize into Frontend, Backend, Infrastructure, etc.
+- Infer technologies from configs
+- Return structured tech stack analysis
+
+**Wait for subagent completion**, then proceed to Phase 3.
+
+### Phase 3: Merge and Generate
+
+Launch the **tech-stack-merger** subagent using the Task tool:
+
+\`\`\`
+Task tool parameters:
+- subagent_type: "analysis/tech-stack-merger"
+- description: "Merge detected tech with existing tech-stack.md"
+- prompt: "
+# Merge Tech Stack
+
+This workflow intelligently merges detected technologies with existing tech-stack.md documentation, preserving rationale while adding new discoveries.
+
+## Step 1: Check if tech-stack.md Exists
+
+Check if \`spec-machine/tech-stack.md\` exists using the Read tool:
+
+**If file does NOT exist:**
+- Skip to Step 4 (Generate New tech-stack.md)
+- No merge required
+
+**If file exists:**
+- Read the current contents
+- Proceed to Step 2
+
+## Step 2: Parse Existing tech-stack.md
+
+Extract information from the existing file:
+
+### Extract Declared Technologies
+
+Parse each section (Frontend, Backend, Infrastructure, etc.) and extract:
+- Technology name (e.g., "React", "PostgreSQL")
+- Version if specified (e.g., "v18.2.0", ">=14")
+- Any inline notes or context
+
+Example:
+\`\`\`markdown
+### Frontend
+- **React** (v18.x)
+  - Using for component-based UI
+- **Tailwind CSS** (v3.0)
+\`\`\`
+
+Extracted: React v18.x, Tailwind CSS v3.0
+
+### Extract Rationale Sections
+
+Identify and preserve sections containing explanations:
+- Sections titled "Rationale", "Why we chose X", "Technical Decision Records"
+- Paragraphs explaining technology choices
+- Architecture decision records (ADRs)
+- Any custom explanatory sections
+
+### Extract Custom Sections
+
+Identify user-added sections that don't fit standard categories:
+- Custom organization
+- Project-specific notes
+- Migration plans
+- Deprecation notes
+
+## Step 3: Compare Detected vs Declared
+
+Compare the analyzed tech stack (from previous step) against declared technologies:
+
+### ✅ Confirmed Technologies
+
+**Criteria:** Declared in tech-stack.md AND detected in project
+
+**Action:** Keep as-is with existing rationale
+
+**Example:**
+- tech-stack.md says: "React (v18.x)"
+- Detected: "React (v18.2.0)" in package.json
+- Result: Confirmed ✅, keep with rationale
+
+### 🔄 Version Updates
+
+**Criteria:** Same technology but different version
+
+**Action:** Update version, note the change
+
+**Example:**
+- tech-stack.md says: "Next.js (v13.0.0)"
+- Detected: "Next.js (v14.0.0)" in package.json
+- Result: Update to v14.0.0, add update note
+
+### ➕ New Technologies
+
+**Criteria:** Detected in project but NOT in tech-stack.md
+
+**Action:** Add to appropriate section with "(auto-detected)" marker
+
+**Example:**
+- tech-stack.md: No mention of Redis
+- Detected: Redis in docker-compose.yml
+- Result: Add "Redis (auto-detected from docker-compose.yml)"
+
+### ⚠️ Discrepancies
+
+**Criteria:** Declared in tech-stack.md but NOT detected in project
+
+**Possible reasons:**
+- Planned but not yet implemented
+- External service (not in local configs)
+- Recently removed (docs not updated)
+- Infrastructure managed separately
+
+**Action:** Flag in "Review Needed" section with context
+
+**Example:**
+- tech-stack.md says: "MongoDB"
+- Detected: No MongoDB dependencies or configs
+- Result: Flag for review
+
+## Step 4: Generate or Update tech-stack.md
+
+### Structure for New File (First Generation)
+
+\`\`\`markdown
+# Tech Stack
+
+> Generated on: [YYYY-MM-DD]
+> This document is automatically maintained by the \`/analyze-tech-stack\` command
+
+## Overview
+
+This document describes the technology stack used in this project. Technologies are auto-detected from dependency files and configuration. Add rationale sections to explain key technology choices.
+
+## Frontend
+
+[List frontend technologies by subcategory]
+
+## Backend
+
+[List backend technologies by subcategory]
+
+## Infrastructure
+
+[List infrastructure technologies]
+
+## Development Tools
+
+[List development tools]
+
+## Rationale
+
+Please add rationale for your technology choices by editing this document.
+
+**Note:** The \`/analyze-tech-stack\` command will preserve your rationale during updates.
+
+---
+
+*Last analyzed: [YYYY-MM-DD HH:MM]*
+\`\`\`
+
+### Structure for Updated File (Intelligent Merge)
+
+\`\`\`markdown
+# Tech Stack
+
+> Last updated: [YYYY-MM-DD]
+> This document is automatically maintained by the \`/analyze-tech-stack\` command
+
+## Overview
+
+[Preserve existing overview if present, otherwise use default]
+
+## Frontend
+
+### UI Library
+- **React** (v18.2.0)
+  [Preserve existing rationale]
+
+### Meta-framework
+- **Next.js** (v14.0.0) 🔄 *Updated from v13.0.0 on [date]*
+  [Preserve existing rationale]
+
+### Styling
+- **Tailwind CSS** (v3.3.0)
+  [Preserve existing rationale]
+
+## Backend
+
+### Runtime
+- **Node.js** (v20.x)
+  [Preserve existing rationale]
+
+### Framework
+- **Express** (v4.18.0)
+  [Preserve existing rationale]
+
+### Database
+- **PostgreSQL** (inferred from pg v8.11.0)
+  [Preserve existing rationale]
+
+## Infrastructure
+
+### Containerization
+- **Docker** *(auto-detected on [date])*
+  - Detected from: Dockerfile, docker-compose.yml
+  - *Please add rationale when convenient*
+
+### Cache/Queue
+- **Redis** *(auto-detected on [date])*
+  - Detected from: docker-compose.yml
+  - *Please add rationale when convenient*
+
+## Development Tools
+
+### Build Tools
+- **Vite** (v4.5.0)
+  [Preserve existing rationale]
+
+### Testing
+- **Jest** (v29.5.0)
+  [Preserve existing rationale]
+
+- **Playwright** *(auto-detected on [date])*
+  - Detected from: playwright.config.ts
+  - *Please add rationale when convenient*
+
+## Rationale for Key Choices
+
+[Preserve ALL existing rationale sections]
+
+### New Auto-Detected Technologies
+
+The following technologies were detected during the latest analysis:
+
+- **Docker** (detected [date]): Containerization platform
+  - Source: Dockerfile, docker-compose.yml
+  - *Please document why Docker was chosen*
+
+- **Redis** (detected [date]): In-memory data store
+  - Source: docker-compose.yml
+  - *Please document the use case for Redis*
+
+## Review Needed ⚠️
+
+The following technologies are documented but were not detected in the project:
+
+- **MongoDB**
+  - Last mentioned in tech-stack.md
+  - Not found in: dependencies, docker-compose, or configs
+  - **Action required:** Verify if still in use or remove from documentation
+  - Possible reasons: External service, recently removed, or managed separately
+
+---
+
+*Last analyzed: [YYYY-MM-DD HH:MM]*
+*Previous analysis: [YYYY-MM-DD HH:MM]*
+\`\`\`
+
+## Merge Strategy Guidelines
+
+### 1. Preserve User Content
+- **NEVER** delete user-written rationale
+- **NEVER** rewrite explanations
+- **ALWAYS** keep custom sections and organization
+
+### 2. Update Intelligently
+- Update version numbers when detected
+- Add update timestamp and note: 🔄 *Updated from vX to vY on [date]*
+- Preserve surrounding context
+
+### 3. Mark New Additions
+- Use "(auto-detected on [date])" marker
+- Include source information
+- Prompt for rationale addition
+
+### 4. Flag Discrepancies
+- Create "Review Needed" section
+- Explain what's missing
+- Suggest possible actions
+- Include helpful context
+
+### 5. Use Consistent Formatting
+- Use standard emoji markers: ✅ 🔄 ➕ ⚠️
+- Keep professional, technical documentation style
+- Maintain markdown formatting consistency
+- Use clear section hierarchy
+
+### 6. Add Metadata
+- Include "Last analyzed" timestamp
+- Track update history
+- Note which command generated/updated the file
+
+## Step 5: Write the File
+
+Use the Write tool to write the merged content to \`spec-machine/tech-stack.md\`.
+
+After writing, generate a summary:
+
+\`\`\`markdown
+## Update Summary
+
+**✅ Confirmed Technologies** (already documented and detected):
+- React, Next.js, Express, PostgreSQL, Jest
+
+**🔄 Version Updates**:
+- Next.js: v13.0.0 → v14.0.0
+- Tailwind CSS: v3.0.0 → v3.3.0
+
+**➕ New Technologies Added**:
+- Docker (detected from Dockerfile, docker-compose.yml)
+- Redis (detected from docker-compose.yml)
+- Playwright (detected from playwright.config.ts)
+
+**⚠️ Flagged for Review**:
+- MongoDB (declared but not detected)
+
+**📝 Preserved**:
+- All existing rationale sections
+- Custom organization and notes
+- Architecture decision records
+
+**File location:** \`spec-machine/tech-stack.md\`
+\`\`\`
+
+## Important Notes
+
+- This workflow produces the FINAL tech-stack.md file
+- All user content must be preserved
+- New additions should prompt for documentation
+- Discrepancies should be flagged, not auto-resolved
+- The file should be human-readable and maintainable
+- Timestamps help track evolution over time
+
+
+Here is the analyzed tech stack:
+[Include the full output from Phase 2]
+
+File location: spec-machine/tech-stack.md
+"
+\`\`\`
+
+**What the subagent will do:**
+- Check if spec-machine/tech-stack.md exists
+- If exists: Parse existing content, compare with detected tech
+- Intelligently merge: preserve rationale, add new tech, flag discrepancies
+- If not exists: Generate new file from detected tech
+- Write the final tech-stack.md file
+- Return summary of changes
+
+**Wait for subagent completion**, then proceed to Final Steps.
+
+## Coordination Notes
+
+### Data Flow Between Subagents
+
+\`\`\`
+dependency-scanner → [file list + contents]
+                  ↓
+tech-stack-analyzer → [categorized tech with versions]
+                    ↓
+tech-stack-merger → [final tech-stack.md file]
+\`\`\`
+
+### Context Efficiency Benefits
+
+**Single-Agent Approach:**
+- All logic loaded: ~3000+ tokens
+- All detection + parsing + merging in one context
+
+**Multi-Agent Approach:**
+- dependency-scanner: ~800 tokens (scanning logic only)
+- tech-stack-analyzer: ~900 tokens (parsing logic only)
+- tech-stack-merger: ~700 tokens (merge logic only)
+- **Total: ~2400 tokens + parallel potential**
+
+### Error Handling Between Phases
+
+**If Phase 1 (scanner) finds no files:**
+- Do NOT proceed to Phase 2
+- Inform user: "No dependency files detected. See error handling below."
+
+**If Phase 2 (analyzer) fails to parse files:**
+- Log the error
+- Proceed to Phase 3 with partial results
+- Note parsing failures in final summary
+
+**If Phase 3 (merger) fails:**
+- Provide error details to user
+- Suggest manual creation of tech-stack.md
+
+## Final Steps
+
+After all subagents complete, synthesize the results and inform the user:
+
+\`\`\`markdown
+✅ Tech stack analysis complete!
+
+**File:** spec-machine/tech-stack.md
+
+**Phase Results:**
+- **Scanning**: [X] dependency files, [Y] config files detected
+- **Analysis**: [Z] technologies identified across [N] categories
+- **Merge**: File successfully updated
+
+**Summary:**
+- New technologies added: [list]
+- Version updates: [list]
+- Flagged for review: [list]
+
+📝 **Next steps:**
+- Review spec-machine/tech-stack.md
+- Add rationale for key technology choices
+- Your rationale will be preserved during future updates
+\`\`\`
+
+## Parallelization Opportunities
+
+**Current implementation:** Sequential (Phase 1 → 2 → 3)
+
+**Future optimization potential:**
+- If project has multiple directories (frontend/, backend/), scanner could parallelize
+- Multiple parsers could run in parallel (package.json parser + go.mod parser simultaneously)
+
+**Current sequential approach is chosen for:**
+- Simpler orchestration logic
+- Clear data dependencies (each phase needs previous output)
+- Sufficient performance for most projects
+
+## Error Handling
+
+**If no dependency files are found:**
+\`\`\`
+⚠️ No dependency files detected in this project.
+
+The dependency-scanner subagent searched for:
+- JavaScript/TypeScript: package.json
+- Python: requirements.txt, pyproject.toml
+- Go: go.mod
+- [etc.]
+
+Possible reasons:
+- New project without dependencies yet
+- Unsupported project type
+- Unusual project structure
+
+Would you like to create a basic tech-stack.md manually?
+\`\`\`
+
+**If spec-machine/ directory doesn't exist:**
+\`\`\`
+❌ Error: spec-machine/ directory not found.
+
+The tech-stack.md file should be created at: spec-machine/tech-stack.md
+
+Please initialize spec-machine first:
+- Run \`/plan-product\` to create a product
+- Or create spec-machine/ directory manually
+\`\`\`
+
+**If a subagent fails:**
+\`\`\`
+❌ Subagent failure in Phase [N]: [subagent name]
+
+Error: [error message]
+
+Recovery options:
+- Try running the command again
+- Check file permissions for the subagent
+- Report issue if error persists
+\`\`\`
+
+## Success Criteria
+
+- ✅ All three subagents complete successfully
+- ✅ All relevant dependency files detected and parsed
+- ✅ Technologies correctly categorized
+- ✅ Version information extracted when available
+- ✅ Existing rationale preserved (if file already exists)
+- ✅ New technologies clearly marked
+- ✅ Discrepancies flagged for review
+- ✅ File is well-formatted and human-readable
+- ✅ User receives clear summary and next steps
+"
+`;

@@ -1,0 +1,104 @@
+name: Test setup-bedrock in Docker
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/cli/commands/setup/**'
+      - 'src/cli/lib/bedrock/**'
+      - 'test-docker/**'
+      - '.github/workflows/test-setup-bedrock.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'src/cli/commands/setup/**'
+      - 'src/cli/lib/bedrock/**'
+      - 'test-docker/**'
+      - '.github/workflows/test-setup-bedrock.yml'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  test-docker:
+    name: Test setup-bedrock --ci in Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Compile Linux binary
+        run: bun build src/cli/index.ts --compile --target=bun-linux-x64 --outfile test-docker/devorch
+
+      - name: Build Docker image
+        run: docker build -f test-docker/Dockerfile -t devorch-test-setup .
+
+      - name: Run setup-bedrock in CI mode
+        run: |
+          docker run --rm devorch-test-setup bash -c './devorch setup-bedrock --ci' > output.log 2>&1
+          cat output.log
+
+      - name: Verify installation success
+        run: |
+          # Check that Homebrew was installed
+          if ! grep -q "Homebrew installed" output.log; then
+            echo "❌ Homebrew installation failed"
+            exit 1
+          fi
+
+          # Check that Claude Code was installed
+          if ! grep -q "Claude Code installed" output.log; then
+            echo "❌ Claude Code installation failed"
+            exit 1
+          fi
+
+          # Check that AWS CLI was installed
+          if ! grep -q "AWS CLI installed" output.log; then
+            echo "❌ AWS CLI installation failed"
+            exit 1
+          fi
+
+          # Check that AWS config was created
+          if ! grep -q "AWS config created" output.log; then
+            echo "❌ AWS config creation failed"
+            exit 1
+          fi
+
+          # Check that setup completed
+          if ! grep -q "Setup complete! 🎉" output.log; then
+            echo "❌ Setup did not complete"
+            exit 1
+          fi
+
+          # Check that it skipped AWS SSO login (expected in CI)
+          if ! grep -q "Skipping AWS SSO login and model selection" output.log; then
+            echo "❌ Did not skip AWS SSO login in CI mode"
+            exit 1
+          fi
+
+          echo "✅ All checks passed!"
+
+      - name: Run verification tests
+        run: |
+          echo "🧪 Running verification tests..."
+          docker run --rm devorch-test-setup bash -c '
+            # First run setup
+            ./devorch setup-bedrock --ci > /tmp/setup.log 2>&1
+
+            # Then run verification
+            bun run verify-setup.ts
+          '
+
+      - name: Upload output log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-bedrock-output
+          path: output.log

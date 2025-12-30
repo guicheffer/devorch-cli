@@ -1,0 +1,20 @@
+# This workflow is centrally managed in
+# https://github.com/hellofresh/github-automation/blob/master/modules/repository/shared-workflows/pr-dependabot-auto-approve.yml
+---
+name: 'PR: Dependabot'
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-approve:
+    if: github.actor == 'dependabot[bot]'
+    uses: hellofresh/jetstream-ci-scripts/.github/workflows/reusable-dependabot-auto-approve.yml@master

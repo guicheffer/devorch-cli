@@ -1,0 +1,525 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /create-ux-spec-rn should match snapshot 1`] = `
+"---
+name: "/create-ux-spec-rn"
+description: "Generate detailed React Native development instructions from a Figma design using Zest design system tokens and components."
+mode: "multi-agent"
+dependencies:
+  skills:
+    - "figma-dev-mode-figma-researcher"
+    - "ui-design-system-rn-zest-integration"
+    - "ui-design-system-rn-zest-components"
+    - "ui-design-system-rn-styling-patterns"
+    - "ui-design-system-rn-responsive-design"
+    - "ui-design-system-rn-images"
+---
+
+# Create UX Spec (React Native)
+
+## Purpose
+
+Generate a detailed development specification document from a Figma design for React Native. This document maps all design tokens to Zest RN tokens (global.* and alias.*), identifies required components with their exact props, and provides implementation code with useZestStyles patterns.
+
+**Use this command when:**
+- A designer hands off a Figma design for React Native implementation
+- You need to understand exactly how to build a design with Zest RN
+- You want a reference document before starting implementation
+
+## Instructions
+
+1. Check prerequisites (Figma MCP installed)
+2. Collect Figma URL from user
+3. Extract design using Figma researcher skill
+4. Map all tokens to Zest RN equivalents
+5. Generate UX Spec document
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /create-ux-spec-rn
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Skills
+
+This command-multi-agent requires the following skills to be activated:
+
+- Activate skill **\`figma-dev-mode-figma-researcher\`**
+- Activate skill **\`ui-design-system-rn-zest-integration\`**
+- Activate skill **\`ui-design-system-rn-zest-components\`**
+- Activate skill **\`ui-design-system-rn-styling-patterns\`**
+- Activate skill **\`ui-design-system-rn-responsive-design\`**
+- Activate skill **\`ui-design-system-rn-images\`**
+
+
+User needs to have the Figma dev mode MCP installed.
+
+**STOP** if Figma MCP is not installed. Tell the user:
+
+"Install the Figma MCP first: \`claude mcp add --transport http figma https://mcp.figma.com/mcp\`"
+
+
+### PHASE 1: Collect Figma Input [INTERACTIVE]
+
+Ask the user for the Figma design URL.
+
+The URL should look like: \`https://www.figma.com/design/FILE_KEY/Design-Name?node-id=123-456\`
+
+**Important:** Ensure the user selects a **specific frame**, not the entire file. A full file will have too much content for effective analysis.
+
+If the URL lacks a \`node-id\` parameter, ask the user to select a specific frame in Figma and copy that link.
+
+
+### PHASE 2: Extract Design
+
+Use the \`figma-dev-mode-figma-researcher\` skill to extract design information:
+
+1. Get file metadata to understand structure
+2. Extract design tokens:
+   - Colors (fills, strokes)
+   - Spacing (padding, margins, gaps)
+   - Typography (font family, size, weight, line height)
+   - Border radii
+   - Shadows/effects
+3. Extract component structure and hierarchy
+4. Get 1-2 targeted screenshots for visual reference
+
+
+### PHASE 3: Map to Zest RN Tokens
+
+Map extracted values to Zest React Native tokens:
+
+**Spacing tokens (global.spacing.*):**
+| Figma Value | Zest Token |
+|-------------|------------|
+| 0px | global.spacing.none |
+| 4px | global.spacing.xs |
+| 8px | global.spacing.sm |
+| 12px | global.spacing.md |
+| 16px | global.spacing.lg |
+| 24px | global.spacing.xl |
+| 32px | global.spacing.xxl |
+
+**Border radius tokens (global.borderRadius.*):**
+| Figma Value | Zest Token |
+|-------------|------------|
+| 0px | global.borderRadius.none |
+| 4px | global.borderRadius.sm |
+| 8px | global.borderRadius.md |
+| 12px | global.borderRadius.lg |
+| 9999px | global.borderRadius.full |
+
+**Color tokens (alias.color.*):**
+| Figma Value | Zest Token |
+|-------------|------------|
+| Brand primary | alias.color.brand.background.default |
+| Brand text | alias.color.brand.foreground.default |
+| Neutral background | alias.color.neutral.background.default |
+| Neutral text | alias.color.neutral.foreground.default |
+| Error | alias.color.semantic.error.background |
+| Success | alias.color.semantic.success.background |
+| Warning | alias.color.semantic.warning.background |
+
+**Typography tokens:**
+| Figma Style | Zest Text Type |
+|-------------|----------------|
+| Headline XL | headline-xl |
+| Headline LG | headline-lg |
+| Headline MD | headline-md |
+| Body LG Regular | body-lg-regular |
+| Body MD Regular | body-md-regular |
+| Body SM Regular | body-sm-regular |
+| Body LG Bold | body-lg-bold |
+| Body MD Bold | body-md-bold |
+| Body SM Bold | body-sm-bold |
+
+**Components mapping:**
+| Figma Element | Zest Component |
+|---------------|----------------|
+| Primary button | Button (variant="primary") |
+| Secondary button | Button (variant="secondary") |
+| Text button | Button (variant="text") |
+| Text styles | Text (type prop) |
+| Icon | Icon (Name+Variant+Size format) |
+| Icon button | IconButton / IconButtonToggle |
+| Card | Card (variant: static/navigational/selectable) |
+| Badge | Badge |
+| Input | InputField |
+| Text area | TextArea |
+| Loading | Spinner |
+| Message | InlineMessage |
+| Tag | Tag / TagStatic / TagFilter |
+| Image | ImageCloudinary |
+
+### PHASE 4: Generate UX Spec Document
+
+Create a markdown document with the following structure:
+
+\`\`\`markdown
+# UX Spec: [Design Name]
+
+**Figma:** [FIGMA_URL]
+**Generated:** [DATE]
+**Platform:** React Native (Zest)
+
+---
+
+## Component Tree
+
+Generate a visual tree diagram showing the component hierarchy. This provides a quick overview of the screen structure.
+
+### Tree Format
+
+\`\`\`
+[ScreenName]
+├── [ComponentName]
+│   ├── ScrollView (horizontal)
+│   ├── Pressable "Label"
+│   └── ChildComponent[]
+│       ├── Text (description)
+│       └── Icon [IconName]
+└── [AnotherComponent]
+    └── Button "CTA Text"
+\`\`\`
+
+### Notation
+
+| Symbol | Meaning |
+|--------|---------|
+| \`ComponentName[]\` | Array/list of repeated components |
+| \`"Label"\` | Static text content |
+| \`(description)\` | Purpose/role of element |
+| \`[IconName]\` | Specific icon used |
+
+### Construction Rules
+
+**Include:**
+- Named custom components (ProductCard, WeekNavigation, etc.)
+- Zest components (Button, Text, Icon, Card, ImageCloudinary, Badge, etc.)
+- Key structural elements when semantically meaningful (ScrollView, FlatList)
+
+**Skip:**
+- Plain View/Box wrappers used just for layout
+- Container elements without semantic meaning
+- Intermediate layout divs
+
+### Example
+
+For a storefront screen:
+
+\`\`\`
+StorefrontScreen
+├── WeekNavigation
+│   ├── ScrollView (horizontal)
+│   ├── Pressable "Past Orders"
+│   └── WeekItem[]
+│       ├── Text (day)
+│       └── Text (date)
+├── Categories
+│   └── ScrollView (horizontal)
+│       └── TabItem[]
+│           └── Text (label)
+├── Filters
+│   ├── Pressable (sort)
+│   │   └── Icon [SortFilled16]
+│   └── TagFilter[]
+├── FlatList
+│   └── ProductCard[]
+│       ├── ImageCloudinary
+│       ├── Pressable (add button)
+│       │   └── Icon [PlusOutline16]
+│       ├── Text (title)
+│       ├── Text (subtitle)
+│       └── Text (price)
+└── StickyFooter
+    ├── Pressable (cart)
+    │   ├── Icon [CartOutline24]
+    │   └── Badge
+    └── Button "Checkout"
+\`\`\`
+
+
+---
+
+## Design Tokens
+
+### Colors
+| Usage | Figma Value | Zest Token |
+|-------|-------------|------------|
+| Background | #FFFFFF | alias.color.neutral.background.default |
+| Primary action | #1A73E8 | alias.color.brand.background.default |
+| ... | ... | ... |
+
+### Spacing
+| Usage | Figma Value | Zest Token |
+|-------|-------------|------------|
+| Container padding | 24px | global.spacing.xl |
+| Element gap | 16px | global.spacing.lg |
+| ... | ... | ... |
+
+### Typography
+| Usage | Figma Style | Zest Text Type |
+|-------|-------------|----------------|
+| Heading | 24px Bold | headline-lg |
+| Body | 16px Regular | body-md-regular |
+| ... | ... | ... |
+
+### Border Radius
+| Usage | Figma Value | Zest Token |
+|-------|-------------|------------|
+| Card corners | 8px | global.borderRadius.md |
+| Button corners | 4px | global.borderRadius.sm |
+| ... | ... | ... |
+
+---
+
+## Components
+
+### [Component Name]
+
+**Zest Component:** \`Button\`
+
+**Props:**
+- variant: "primary"
+- size: "md"
+- appearance: "brand"
+- testID: "component-button"
+
+**Code:**
+\`\`\`tsx
+<Button
+  variant="primary"
+  size="md"
+  appearance="brand"
+  testID="component-button"
+  onPress={handlePress}
+>
+  Button Label
+</Button>
+\`\`\`
+
+### [Icon Example]
+
+**Zest Component:** \`Icon\`
+
+**Props:**
+- icon: HeartOutline24
+- altText: "Like"
+
+**Code:**
+\`\`\`tsx
+import { HeartOutline24 } from '@zest/react-native';
+
+<Icon icon={HeartOutline24} altText="Like" />
+\`\`\`
+
+[Repeat for each component]
+
+---
+
+## Layout Structure with useZestStyles
+
+\`\`\`tsx
+// Extract styles config OUTSIDE component for performance
+const stylesConfig = createStylesConfig((theme) => ({
+  container: {
+    flex: 1,
+    padding: theme.global.spacing.lg,
+    backgroundColor: theme.alias.color.neutral.background.default,
+  },
+  header: {
+    marginBottom: theme.global.spacing.md,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: theme.global.spacing.sm,
+  },
+  card: {
+    padding: theme.global.spacing.md,
+    borderRadius: theme.global.borderRadius.md,
+  },
+}));
+
+// Inside component
+const Component = () => {
+  const styles = useZestStyles(stylesConfig);
+
+  return (
+    <View style={styles.container}>
+      <Text type="headline-lg" style={styles.header}>Title</Text>
+      <View style={styles.row}>
+        <Button variant="primary" testID="primary-btn">Primary</Button>
+        <Button variant="secondary" testID="secondary-btn">Secondary</Button>
+      </View>
+      <Card variant="static" style={styles.card}>
+        <Text type="body-md-regular">Card content</Text>
+      </Card>
+    </View>
+  );
+};
+\`\`\`
+
+---
+
+## Responsive Considerations
+
+Use \`useWindowDimensions\` for responsive layouts:
+
+\`\`\`tsx
+import { useWindowDimensions } from 'react-native';
+
+const Component = () => {
+  const { width, height } = useWindowDimensions();
+  const isTablet = width >= 768;
+
+  const stylesConfig = createStylesConfig((theme) => ({
+    container: {
+      padding: isTablet ? theme.global.spacing.xl : theme.global.spacing.md,
+      flexDirection: isTablet ? 'row' : 'column',
+    },
+  }));
+
+  const styles = useZestStyles(stylesConfig);
+  // ...
+};
+\`\`\`
+
+**Device size support:**
+- iPhone SE (375px) to iPad (1024px+)
+- Portrait and landscape orientation
+- fontScale awareness for accessibility
+
+---
+
+## Image Handling
+
+Use \`ImageCloudinary\` for all images:
+
+\`\`\`tsx
+<ImageCloudinary
+  src="https://res.cloudinary.com/hellofresh/image/upload/..."
+  quality="auto:eco"
+  width={width}
+  height={Math.round(width * 0.5625)} // 16:9 aspect ratio
+  alt="Description"
+  testID="hero-image"
+/>
+\`\`\`
+
+**Never use:**
+- \`require()\` for images (causes bundle bloat)
+- Non-Cloudinary URLs
+
+---
+
+## Accessibility Requirements
+
+All components MUST include:
+- \`testID\` for testing
+- \`altText\` for icons
+- \`accessibilityLabel\` for interactive elements
+- \`accessibilityRole\` for semantic elements (tab, button)
+- \`accessibilityState\` for selection states
+
+**Examples:**
+
+\`\`\`tsx
+<Pressable
+  testID="product-card-123"
+  accessibilityLabel="Cheesy Spinach-Stuffed Turkey Breasts, $8.99 per serving"
+  accessibilityRole="button"
+/>
+
+<Icon icon={PlusOutline16} altText="Add to cart" />
+
+<Pressable
+  accessibilityRole="tab"
+  accessibilityState=
+/>
+\`\`\`
+
+
+---
+
+## Implementation Notes
+
+- [Any custom styling requirements]
+- [Components not available in Zest RN]
+- [Platform-specific considerations]
+
+\`\`\`
+
+Save this document to \`spec-machine/.state/artifacts/ux-specs/[design-name]-rn.md\`
+
+## Report
+
+After generating the spec:
+
+\`\`\`
+UX Spec Generated Successfully
+
+**File:** spec-machine/.state/artifacts/ux-specs/[design-name]-rn.md
+
+**Summary:**
+- X design tokens mapped
+- Y components identified
+- Z custom implementations needed
+
+**Next Steps:**
+1. Review the generated spec document
+2. Implement using the provided code patterns
+3. Reference the spec during code review
+\`\`\`
+
+## Critical Rules
+
+**DO:**
+- Extract ALL design tokens from the Figma design
+- Map tokens to nearest Zest equivalent
+- Provide complete code snippets
+- Include testID and altText in all examples
+- Note any values that don't have Zest equivalents
+- Include responsive considerations
+- Generate Component Tree diagram
+
+**DON'T:**
+- Use hardcoded color/spacing values in code examples
+- Skip accessibility props (testID, altText)
+- Ignore responsive breakpoints
+- Generate partial specs
+- Use StyleSheet.create() (RN) - use createStylesConfig instead
+
+"
+`;

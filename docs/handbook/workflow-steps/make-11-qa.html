@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>make-11-qa</title>
+  <style>
+    /* Google Docs-friendly styling */
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 1in;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 20pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    h2 {
+      font-size: 16pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    h3 {
+      font-size: 14pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    h4 {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 10pt;
+      margin-bottom: 6pt;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      color: #000;
+    }
+
+    p {
+      margin: 0 0 10pt 0;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10pt;
+      background: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    pre {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10pt;
+      background: #f5f5f5;
+      padding: 12pt;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      overflow-x: auto;
+      margin: 10pt 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
+    ul, ol {
+      margin: 0 0 10pt 0;
+      padding-left: 30pt;
+      list-style-position: outside;
+    }
+
+    li {
+      margin-bottom: 4pt;
+      margin-left: 0;
+    }
+
+    /* Task list items */
+    li input[type="checkbox"] {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    blockquote {
+      margin: 10pt 0;
+      padding: 8pt 12pt;
+      border-left: 4px solid #ddd;
+      background: #f9f9f9;
+      color: #666;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10pt 0;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8pt;
+      text-align: left;
+    }
+
+    th {
+      background: #f5f5f5;
+      font-weight: bold;
+    }
+
+    a {
+      color: #1155cc;
+      text-decoration: underline;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 12pt 0;
+    }
+
+    /* Copy instructions banner */
+    .copy-instructions {
+      background: #e8f5e9;
+      border: 2px solid #4caf50;
+      padding: 12pt;
+      margin-bottom: 20pt;
+      border-radius: 4px;
+    }
+
+    .copy-instructions h3 {
+      margin-top: 0;
+      color: #2e7d32;
+    }
+
+    .copy-instructions p {
+      margin: 4pt 0;
+    }
+
+    .copy-instructions code {
+      background: #fff;
+    }
+
+    /* Print-friendly */
+    @media print {
+      .copy-instructions {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="copy-instructions">
+    <h3>📋 How to Copy to Google Docs</h3>
+    <p><strong>1.</strong> Press <code>Cmd+A</code> (Mac) or <code>Ctrl+A</code> (Windows) to select all content</p>
+    <p><strong>2.</strong> Press <code>Cmd+C</code> (Mac) or <code>Ctrl+C</code> (Windows) to copy</p>
+    <p><strong>3.</strong> Open Google Docs and press <code>Cmd+V</code> (Mac) or <code>Ctrl+V</code> (Windows) to paste</p>
+    <p><strong>Note:</strong> Formatting will be preserved! You can also right-click and select "Paste".</p>
+  </div>
+
+  <h1 style="margin-left: 0; padding-left: 0; text-indent: 0;">11. QA</h1>
+<p><strong>Cycle:</strong> MAKE (1 Sprint)
+<strong>Phase:</strong> Validation</p>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Purpose</h2>
+<p>Verify that the implementation meets all requirements, works as designed, and is ready for production. QA is continuous throughout development, not just at the end.</p>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">AI-Native Approach</h2>
+<p>Use AI to:</p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Generate test cases from specifications</li>
+<li>Automate repetitive testing</li>
+<li>Identify edge cases</li>
+<li>Analyze test coverage</li>
+<li>Generate bug reports</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Key Activities</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Execute test plans</li>
+<li>Verify specs are met</li>
+<li>Test edge cases and error states</li>
+<li>Validate accessibility</li>
+<li>Performance testing</li>
+<li>Document bugs and issues</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Inputs</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>All three specs (Product, UX, Engineering)</li>
+<li>Developed feature</li>
+<li>Test plans</li>
+<li>Acceptance criteria</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Outputs</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><strong>QA sign-off</strong>: Feature is ready for demo/deploy</li>
+<li><strong>Bug reports</strong>: Issues found and documented</li>
+<li><strong>Test results</strong>: Coverage and pass/fail</li>
+<li><strong>Edge case validation</strong>: All scenarios tested</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Tools &amp; Techniques</h2>
+<h3 style="margin-left: 0; padding-left: 0; text-indent: 0;">Automated QA Testing with <code>/qa-test</code></h3>
+<p>The <code>/qa-test</code> command provides automated browser testing with comprehensive evidence collection. This tool is perfect for PMs and QA engineers who want systematic testing with visual documentation.</p>
+<p><strong>Command format:</strong></p>
+<pre><code class="language-bash">/qa-test [-skip-console] [-skip-network] &lt;test description&gt;
+</code></pre>
+<p><strong>Example commands:</strong></p>
+<pre><code class="language-bash"># Full test with all evidence
+/qa-test &quot;Test login flow with valid credentials on staging.example.com&quot;
+
+# Skip console logs for faster testing
+/qa-test -skip-console &quot;Test checkout flow on production&quot;
+
+# Screenshot-only testing
+/qa-test -skip-console -skip-network &quot;Visual regression test for mobile homepage&quot;
+</code></pre>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Two-Phase Workflow</h4>
+<p><strong>Phase 1: Setup</strong> (Automatic)</p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Creates organized test directory structure</li>
+<li>Generates test plan based on your description</li>
+<li>Saves configuration for execution</li>
+<li><strong>Stops and waits for your approval</strong></li>
+</ul>
+<p><strong>Phase 2: Execution</strong> (Manual trigger)</p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>You review the test plan</li>
+<li>Say &quot;Execute the test&quot; when ready</li>
+<li>Automated browser interactions run</li>
+<li>Evidence collected systematically</li>
+<li>Reports generated automatically</li>
+</ul>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">What It Collects</h4>
+<p><strong>Always:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Screenshots at every test step</li>
+<li>Organized folder structure</li>
+<li>PM-friendly test reports</li>
+<li>Bug reports for issues found</li>
+</ul>
+<p><strong>Optional</strong> (via flags):</p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Console logs (browser errors/warnings)</li>
+<li>Network logs (API requests/responses)</li>
+</ul>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Test Types Supported</h4>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><strong>Login/Authentication</strong>: Valid/invalid credentials, OAuth, password reset</li>
+<li><strong>Checkout/Purchase</strong>: Complete flows, promo codes, payment validation</li>
+<li><strong>Form Validation</strong>: Valid/invalid inputs, required fields, error messages</li>
+<li><strong>Visual/Responsive</strong>: Desktop, tablet, mobile breakpoints</li>
+<li><strong>User Journeys</strong>: End-to-end flows, friction points</li>
+<li><strong>Search/Filter</strong>: Search functionality, filtering, pagination</li>
+</ul>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Example: Login Test</h4>
+<pre><code class="language-bash"># Step 1: Run setup
+/qa-test &quot;Test login with invalid password on staging.app.com&quot;
+
+# Output shows test plan and folder created
+# Review: qa-tests/2025-10-30-14-30-test-login-invalid/test-plan/test-scenarios.md
+
+# Step 2: Execute
+&quot;Execute the test&quot;
+
+# Automated browser testing runs:
+# - Navigates to login page
+# - Fills in credentials
+# - Submits form
+# - Captures screenshots
+# - Documents results
+# - Generates report
+</code></pre>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Output Structure</h4>
+<pre><code>qa-tests/YYYY-MM-DD-HH-MM-{test-slug}/
+├── context/          # Test data, credentials
+├── output/           # Reports and bug reports
+├── thoughts/         # Analysis and decisions
+├── test-plan/        # Test scenarios
+├── evidence/         # All captured evidence
+│   └── run-YYYY-MM-DD-HH-MM/
+│       ├── screenshots/
+│       ├── console-logs/
+│       └── network-logs/
+└── qa-test.md        # Test specification
+</code></pre>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Benefits</h4>
+<p><strong>For PMs:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Visual evidence of every step</li>
+<li>Plain-language reports ready to share</li>
+<li>Clear bug reproduction steps</li>
+<li>No technical knowledge required</li>
+</ul>
+<p><strong>For Developers:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Complete technical logs</li>
+<li>Reproducible test scenarios</li>
+<li>Console errors captured</li>
+<li>Network requests documented</li>
+</ul>
+<p><strong>For QA:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Systematic test coverage</li>
+<li>Reusable test scenarios</li>
+<li>Regression testing ready</li>
+<li>Professional documentation</li>
+</ul>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Best Practices</h4>
+<ol style="margin-left: 0; padding-left: 30pt;">
+<li><strong>Start with happy path</strong>: Test successful flows first</li>
+<li><strong>Use descriptive test names</strong>: Makes reports easy to find</li>
+<li><strong>Review test plan before execution</strong>: Catch issues early</li>
+<li><strong>Skip logs when not needed</strong>: Faster testing with <code>-skip-console -skip-network</code></li>
+<li><strong>Rerun for regressions</strong>: Use same command to verify fixes</li>
+</ol>
+<h4 style="margin-left: 0; padding-left: 0; text-indent: 0;">Testing Frameworks</h4>
+<p><strong>Unit &amp; Integration Tests:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Jest / Vitest for JavaScript/TypeScript</li>
+<li>React Testing Library for components</li>
+<li>Supertest for API testing</li>
+</ul>
+<p><strong>E2E Tests:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Playwright for web automation</li>
+<li>Cypress for interactive testing</li>
+<li>Detox for React Native</li>
+</ul>
+<p><strong>Accessibility Testing:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>axe-core for automated checks</li>
+<li>WAVE browser extension</li>
+<li>Lighthouse audits</li>
+</ul>
+<p><strong>Performance Testing:</strong></p>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>Lighthouse for web vitals</li>
+<li>Chrome DevTools for profiling</li>
+<li>WebPageTest for real-world metrics</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Common Pitfalls</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li>QA only at the end (too late to fix easily)</li>
+<li>Testing only happy paths</li>
+<li>Not testing on real devices/browsers</li>
+<li>Ignoring accessibility</li>
+<li>Not documenting issues clearly</li>
+</ul>
+<h2 style="margin-left: 0; padding-left: 0; text-indent: 0;">Success Criteria</h2>
+<ul style="margin-left: 0; padding-left: 30pt;">
+<li><input disabled="" type="checkbox"> All acceptance criteria are met</li>
+<li><input disabled="" type="checkbox"> Edge cases have been tested</li>
+<li><input disabled="" type="checkbox"> Bugs are documented or fixed</li>
+<li><input disabled="" type="checkbox"> Accessibility is validated</li>
+<li><input disabled="" type="checkbox"> Performance is acceptable</li>
+<li><input disabled="" type="checkbox"> Feature is ready for demo</li>
+</ul>
+
+</body>
+</html>

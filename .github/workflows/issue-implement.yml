@@ -1,0 +1,218 @@
+name: Issue Implementation with Claude Code
+
+on:
+  issues:
+    types: [labeled]
+
+# Prevent concurrent runs for the same issue
+concurrency:
+  group: issue-implement-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  check-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      should_implement: ${{ steps.check.outputs.should_implement }}
+    steps:
+      - name: Check if implementation should run
+        id: check
+        run: |
+          if [[ "${{ github.event.label.name }}" == "ready-for-dev" ]]; then
+            echo "should_implement=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_implement=false" >> $GITHUB_OUTPUT
+          fi
+
+  implement-plan:
+    needs: check-trigger
+    if: needs.check-trigger.outputs.should_implement == 'true'
+    runs-on: self-hosted
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    outputs:
+      branch_name: ${{ steps.branch.outputs.branch_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Determine feature branch
+        id: branch
+        run: |
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+
+          # Sanitize branch name
+          ISSUE_SLUG=$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9-]/-/g' -e 's/--*/-/g' -e 's/^-//' -e 's/-$//' | cut -c1-50)
+          BRANCH_NAME="feature/${ISSUE_NUMBER}-${ISSUE_SLUG}"
+
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+          # Check if branch exists, create if not
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "Branch exists, will use it for implementation"
+            git fetch origin "$BRANCH_NAME"
+            git checkout "$BRANCH_NAME"
+          else
+            echo "Creating new branch for implementation"
+            git checkout -b "$BRANCH_NAME"
+            git push -u origin "$BRANCH_NAME"
+          fi
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plan-issue-${{ github.event.issue.number }}
+          path: /tmp/
+
+      - name: Setup plan for execution
+        run: |
+          if [[ ! -f /tmp/plan.md ]]; then
+            echo "::error::Plan artifact not found. Please run review workflow first."
+            exit 1
+          fi
+
+          # Copy plan to PLAN.md for /execute-plan to read
+          cp /tmp/plan.md PLAN.md
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::951719175506:role/github-actions-invoke-model
+          aws-region: eu-west-1
+          role-chaining: true
+
+      - name: Execute implementation plan
+        uses: anthropics/claude-code-action@v1
+        with:
+          use_bedrock: "true"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: /execute-plan
+          claude_args: |
+            --max-turns 50
+            --model eu.anthropic.claude-sonnet-4-5-20250929-v1:0
+            --allowedTools Read,Write,Edit,Glob,Grep,Bash,Task
+            --output-format text
+
+      - name: Comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ github.event.issue.number }},
+              body: `## ⚠️ Implementation Failed
+
+              Execution encountered a blocker while implementing the plan.
+
+              **Next steps:**
+              - Review the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              - Fix any issues manually if needed
+              - Re-trigger by removing and re-adding the \`ready-for-dev\` label
+              `
+            });
+
+  create-pr:
+    needs: implement-plan
+    runs-on: self-hosted
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.implement-plan.outputs.branch_name }}
+          fetch-depth: 0
+
+      - name: Create Pull Request
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = ${{ github.event.issue.number }};
+            const branchName = '${{ needs.implement-plan.outputs.branch_name }}';
+
+            // Check if PR already exists
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branchName}`,
+              state: 'open'
+            });
+
+            let prUrl;
+            if (prs.length > 0) {
+              prUrl = prs[0].html_url;
+              console.log(`PR already exists: ${prUrl}`);
+              return prUrl;
+            }
+
+            // Create new PR
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: issue.title,
+              head: branchName,
+              base: 'master',
+              body: `Implements #${issueNumber}
+
+            ## Changes
+            This PR implements the plan created by Claude Code for issue #${issueNumber}.
+
+            ## Implementation Details
+            Each commit represents one phase of the implementation plan. See individual commits for details.
+
+            ## Testing
+            [Add testing details here]
+
+            ---
+
+            🤖 This PR was automatically generated by Claude Code.
+            `
+            });
+
+            prUrl = pr.html_url;
+            console.log(`Created PR: ${prUrl}`);
+            return prUrl;
+
+      - name: Comment on issue with PR link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prUrl = ${{ steps.pr.outputs.result }};
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ github.event.issue.number }},
+              body: `## ✅ Implementation Complete
+
+            Implementation has been completed and a pull request has been created:
+
+            **PR**: ${prUrl}
+
+            All phases have been executed successfully. Please review the changes and merge when ready.
+
+            ---
+
+            🤖 Automated by Claude Code
+            `
+            });

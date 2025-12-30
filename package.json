@@ -1,0 +1,65 @@
+{
+  "name": "devorch",
+  "version": "2.1.0",
+  "description": "DevOrch (pronounced 'dev-orch') - A development orchestrator for AI workflow automation",
+  "type": "module",
+  "bin": {
+    "devorch": "./dist/index.js"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "dev": "bun run src/cli/index.ts",
+    "build": "bun build src/cli/index.ts --outdir dist --target bun",
+    "compile": "bun build src/cli/index.ts --compile --outfile devorch",
+    "compile:linux": "bun build src/cli/index.ts --compile --target=bun-linux-arm64 --outfile test-docker/devorch",
+    "test": "bun test ./src/cli/lib ./src/utils ./tests/integration",
+    "test:watch": "bun test ./src/cli/lib ./src/utils ./tests/integration --watch",
+    "test:unit": "bun test ./src/cli/lib ./src/utils",
+    "test:integration": "bun test ./tests/integration",
+    "typecheck": "bun tsc --noEmit",
+    "export:html": "bun run scripts/md-to-html.ts",
+    "sync-repos": "bun run src/updater/sync-repositories.ts",
+    "generate-matrix": "bun run src/updater/generate-update-matrix.ts",
+    "lint": "bunx @biomejs/biome check .",
+    "lint:fix": "bunx @biomejs/biome check --write .",
+    "format": "bunx @biomejs/biome format --write ."
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md}": "bunx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.30",
+    "@clack/prompts": "^0.7.0",
+    "@sentry/node": "^10.26.0",
+    "claude-pretty-printer": "^1.3.0",
+    "deepmerge": "^4.3.1",
+    "fast-glob": "^3.3.3",
+    "fs-extra": "^11.3.2",
+    "glob": "^11.0.3",
+    "gpt-tokenizer": "^3.2.0",
+    "gray-matter": "^4.0.3",
+    "ini": "^6.0.0",
+    "marked": "^16.4.1",
+    "minimist": "^1.2.8",
+    "mustache": "4.2.0",
+    "picocolors": "^1.0.0",
+    "semver": "^7.7.3",
+    "yaml": "^2.7.0",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.25.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.0",
+    "@tsconfig/bun": "^1.0.9",
+    "@types/bun": "latest",
+    "@types/ini": "^4.1.1",
+    "@types/minimist": "^1.2.5",
+    "@types/mustache": "4.2.6",
+    "@types/node": "^20.10.0",
+    "@types/semver": "^7.7.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "promptfoo": "^0.119.4",
+    "typescript": "^5.9.3"
+  }
+}

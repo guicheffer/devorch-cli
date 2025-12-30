@@ -1,0 +1,537 @@
+---
+schema: command-multi-agent
+name: /implement-task
+argument-hint: [task-id]
+description: Implement a specific task or subtask from tasks.md
+mode: multi-agent
+dependencies:
+  subagents:
+    - implementation/task-parser
+    - implementation/implementer
+    - implementation/verifier
+partials:
+  setup: common/partials/commands/command-setup.md
+  context-training-check: common/partials/commands/check-context-training.md
+  select-spec: common/partials/commands/select-spec.md
+  instructions-footer: common/partials/commands/standard-instructions-footer.md
+---
+
+# Implement Task
+
+## Purpose
+
+Implement a specific task or subtask from the task breakdown in `tasks.md` using domain-specialized implementers and optional verification.
+
+{{partials.setup}}
+
+## Instructions
+
+This process follows 5 sequential phases:
+
+0. **Select Spec** - Choose active spec with stale detection
+1. **Parse and Load Subtasks** - Parse tasks.md and validate subtask selection with dependencies
+2. **Implement Each Subtask** - Invoke domain-specific implementer for each subtask
+3. **Verify Each Subtask** - Verify implementation (if verification methods configured)
+4. **Mark Each Subtask Complete** - Mark subtask complete after successful verification
+
+{{partials.instructions-footer}}
+
+{{^context-training-name}}
+{{partials.context-training-check}}
+{{/context-training-name}}
+
+## Variables
+
+TASK_ID: $ARGUMENTS[0]
+
+## Context
+
+**Understanding tasks.md structure:**
+
+```markdown
+## Task 1: User Authentication System          ← Task (ID: "1")
+**Assigned implementer domains:** backend, security
+**Verification methods:** testing, security-audit
+**Dependencies:** None
+
+### Subtasks:
+- [ ] 1.1 Create user model and schema          ← Subtask (ID: "1.1")
+  - Acceptance criteria:
+    • User model with email, password, name fields
+    • Password hashing with bcrypt
+  - Pattern reference: src/models/admin.ts
+
+- [ ] 1.2 Implement authentication endpoints    ← Subtask (ID: "1.2")
+  - Acceptance criteria:
+    • POST /auth/register
+    • POST /auth/login
+    • Returns JWT token
+
+- [ ] 1.3 Add JWT middleware                    ← Subtask (ID: "1.3")
+  - Acceptance criteria:
+    • Validates JWT tokens
+    • Attaches user to request object
+
+## Task 2: User Profile Management              ← Task (ID: "2")
+**Assigned implementer domains:** backend, frontend
+**Verification methods:** testing
+**Dependencies:** Task 1                        ← Depends on all subtasks in Task 1
+
+### Subtasks:
+- [ ] 2.1 Create profile API endpoints
+  ...
+```
+
+**Key concepts:**
+- **Task** (e.g., "1", "2"): Container for related subtasks, has implementer domains and verification methods
+- **Subtask** (e.g., "1.1", "2.3"): Specific implementation unit with acceptance criteria
+- **Sequential order**: Subtasks within a task must be completed in order (1.1 → 1.2 → 1.3)
+- **Dependencies**: Some tasks depend on others being fully completed first
+
+## Usage
+
+```bash
+/implement-task [task-id]
+```
+
+**Terminology:**
+- **Task:** Top-level task (e.g., "1", "2") containing multiple subtasks
+- **Subtask:** Individual implementation unit (e.g., "1.1", "2.3") within a task
+
+**Examples:**
+- `/implement-task 1` - Implements all subtasks in task 1 (e.g., 1.1, 1.2, 1.3)
+- `/implement-task 1.1` - Implements single subtask 1.1
+- `/implement-task 1.1-1.3` - Implements subtasks 1.1, 1.2, and 1.3
+- `/implement-task 2-3` - Implements all subtasks in tasks 2 and 3
+
+**Note:** All subtasks are implemented ONE AT A TIME sequentially, regardless of how many are selected.
+
+## Workflow
+
+### PHASE 0: Select Spec
+
+{{partials.select-spec}}
+
+### PHASE 1: Parse and Load Subtasks
+
+**If TASK_ID is empty**, ask the user: "Which task or subtask would you like to implement? (e.g., 1, 1.1, 1.1-1.4, 2-3)"
+
+**Invoke the `implementation/task-parser` subagent:**
+
+```
+Spec folder path: [spec-folder-path]
+
+User input: [TASK_ID]
+
+Please parse tasks.md and return the matching tasks to implement.
+
+Supported formats:
+- Single task: 1, 1.1, 2.3
+- Task ranges: 1.1-1.4, 2-3
+- Be flexible with input parsing
+
+Validate dependencies and return task details with:
+- Task IDs and descriptions
+- Implementer domains
+- Verification methods
+- Acceptance criteria
+- Pattern references
+
+Return error if dependencies are not met.
+```
+
+The task-parser will:
+1. Parse tasks.md into structured format
+2. Match user input to tasks (supporting ranges like 1.1-1.4 or 2-3)
+3. Validate sequential order and dependencies
+4. Return task details or validation errors
+
+**If task-parser returns error:**
+
+The task-parser will return clear error messages for common issues:
+
+1. **Task not found:**
+   ```
+   ❌ Task [TASK_ID] not found in tasks.md
+
+   Available tasks can be viewed in: [spec-folder-path]/tasks.md
+   Please check the task ID and try again (e.g., 1, 1.1, 2.3, 1.1-1.4)
+   ```
+   **STOP** - User must provide valid task ID
+
+2. **Dependencies not met:**
+   ```
+   ❌ Cannot implement task 1.3 - previous tasks not completed
+
+   Task 1.3 requires these tasks to be completed first:
+   - [ ] 1.1: Task description
+   - [ ] 1.2: Task description
+
+   Complete previous tasks first or choose different tasks.
+   ```
+   **STOP** - User must complete blocking tasks or select different tasks
+
+3. **tasks.md missing:**
+   ```
+   ❌ No tasks file found at [spec-folder-path]/tasks.md
+
+   Run /create-tasks first to generate the task breakdown.
+   ```
+   **STOP** - User must create tasks file first
+
+**If task-parser returns success:**
+- Continue to Phase 2 with the matched tasks
+
+### PHASE 2: Implement Each Subtask (One at a Time)
+
+**CRITICAL: Phase 1 may return multiple subtasks, but you must implement them ONE AT A TIME sequentially.**
+
+Examples of what Phase 1 might return:
+- Single subtask: `1.1`
+- Multiple subtasks from range: `1.1, 1.2, 1.3` (from input `1.1-1.3`)
+- All subtasks in task: `2.1, 2.2, 2.3, 2.4` (from input `2`)
+- Multiple tasks: `2.1, 2.2, 3.1, 3.2, 3.3` (from input `2-3`)
+
+**Implementation loop:**
+
+```
+FOR EACH individual subtask in [list-of-subtasks-from-phase-1]:
+  1. Invoke implementation/implementer subagent for THIS ONE SUBTASK
+  2. Wait for implementer to complete and return status
+  3. Continue to Phase 3 (Verification) for THIS ONE SUBTASK
+  4. After verification, continue to next subtask in loop
+```
+
+**Before invoking implementer, prepare context summary:**
+
+1. Read `[spec-folder-path]/spec.md`
+2. Extract a brief summary (2-3 sentences) of:
+   - What feature is being built
+   - Key technical approach or patterns mentioned
+   - Any reusable components referenced
+
+**For each individual subtask, invoke the `implementation/implementer` subagent with:**
+
+```
+Spec folder: [spec-folder-path]
+
+Spec context:
+[2-3 sentence summary from spec.md about what feature is being built and key technical approach]
+
+Task to implement (ONE TASK ONLY):
+[Task ID]: [description]
+
+Assigned implementer domains: [domain1, domain2]
+
+Subtasks:
+- [List all subtasks with acceptance criteria]
+
+Pattern references:
+- [Any pattern files mentioned in tasks.md, or "None"]
+
+CRITICAL: Implement ONLY the subtasks listed above.
+```
+
+The implementer subagent will:
+- Load its domain-specific context files (or use generic workflow if not available)
+- Implement the task following domain patterns
+- Create an implementation report
+- Return completion status to this command
+
+**If implementer reports failure:**
+```
+❌ Implementation failed: [error message]
+
+The task remains unchecked in tasks.md.
+
+Required actions:
+1. Review the error above
+2. Fix any blockers
+3. Re-run /implement-task [TASK_ID]
+
+Cannot mark task as complete due to implementation failure.
+```
+**STOP** - Do not continue or mark task complete. User must fix issues and retry.
+
+### PHASE 3: Verify Task After All Subtasks Complete
+
+**NOTE: This phase runs AFTER ALL subtasks in a task are implemented. We verify the entire task, not individual subtasks.**
+
+**Determine if verification is needed:**
+
+1. Read the task's **Verification methods** field from tasks.md
+2. If verification methods are listed (e.g., "testing, security"):
+   - Invoke the `implementation/verifier` subagent
+3. If no verification methods specified:
+   - Skip to Phase 4 (mark task complete)
+
+**If verification is needed, invoke the `implementation/verifier` subagent with:**
+
+```
+Spec folder: [spec-folder-path]
+
+Task to verify:
+[Task ID]: [description]
+
+Verification domains: [domain1, domain2]
+
+Acceptance criteria:
+- [List acceptance criteria from tasks.md]
+
+Implementation report: implementation/task-[task-id]-report.md
+
+Please verify this implementation and return verification status (PASSED/FAILED).
+```
+
+The verifier subagent will:
+- Load its domain-specific verification files
+- Review the implementation
+- Run necessary checks and tests
+- Create a verification report
+- Return PASSED or FAILED status to this command
+
+### PHASE 4: Auto-Fix Loop (If Verification Fails)
+
+**NOTE: Subtask checkboxes are updated by the subagents:**
+- Implementer marks subtask checkboxes complete (e.g., `- [x] 1.1 Task description`)
+- Verifier marks verification checkboxes complete (e.g., `- [x] ✓ Tests passed`)
+
+**Check verification status:**
+
+1. Check implementer returned success
+2. Check verifier status:
+   - PASSED: Task complete, continue to next subtask
+   - PASSED WITH WARNINGS: Display warnings prominently and ask user to confirm (see below)
+   - FAILED: Enter auto-fix loop
+   - SKIPPED: Task complete (no verification configured)
+
+**If verification returned PASSED WITH WARNINGS:**
+
+You MUST display the warnings prominently and ask the user before continuing.
+
+1. **Read the verification report** to extract the specific warnings:
+   ```
+   Read: [spec-folder-path]/verification/task-[task-id]-verification.md
+   ```
+
+2. **Display warnings prominently** in this format:
+   ```
+   ⚠️ Task [task-id] PASSED WITH WARNINGS
+
+   **Warnings found:**
+   - [Warning type 1]: [count] warnings
+     - [Brief description or example]
+   - [Warning type 2]: [count] warnings
+     - [Brief description or example]
+
+   📄 Full details: verification/task-[task-id]-verification.md
+   ```
+
+3. **STOP and ask the user for confirmation using AskUserQuestion tool:**
+
+   **CRITICAL: You MUST use the AskUserQuestion tool here. Do NOT continue without user input.**
+
+   Use AskUserQuestion with:
+   - Question: "How would you like to proceed with the warnings?"
+   - Options:
+     1. "Continue to next task" - warnings will remain unaddressed
+     2. "Stop and fix warnings" - halt implementation to address warnings first
+
+4. **WAIT for user response, then act accordingly:**
+   - If user chooses "Continue to next task": Proceed to next subtask
+   - If user chooses "Stop and fix warnings": Display message and STOP
+     ```
+     Stopping implementation. Please review and fix the warnings in:
+     - verification/task-[task-id]-verification.md
+
+     After fixing, re-run: /implement-task [task-id]
+     ```
+   - **Do NOT proceed to the next task without receiving explicit user confirmation.**
+
+**If verification FAILED, enter auto-fix loop:**
+
+The verifier has identified issues that need fixing. Automatically attempt to fix them.
+
+**Auto-fix loop (max 3 attempts):**
+
+```
+FOR attempt 1 to 3:
+  1. Read the verification report: verification/task-[task-id]-verification.md
+  2. Extract the specific failures:
+     - Type errors
+     - Lint errors
+     - Test failures
+     - Domain verification failures
+     - Unmet acceptance criteria
+
+  3. Invoke implementation/implementer subagent again with:
+     ```
+     Spec folder: [spec-folder-path]
+
+     Task to FIX:
+     [Task ID]: [description]
+
+     CRITICAL: This is a FIX attempt (attempt [X] of 3).
+
+     Previous implementation has verification failures. You must fix these issues:
+
+     [Paste relevant sections from verification report showing what failed]
+
+     Assigned implementer domains: [domain1, domain2]
+
+     Subtasks:
+     - [List all subtasks]
+
+     Focus on fixing the verification failures above.
+     ```
+
+  4. Wait for implementer to complete fixes
+
+  5. Invoke implementation/verifier subagent again with same parameters as Phase 3
+
+  6. Check verifier status:
+     - If PASSED: Exit loop, task complete
+     - If PASSED WITH WARNINGS: Exit loop, then display warnings and ask user (see below)
+     - If FAILED and attempt < 3: Continue to next attempt
+     - If FAILED and attempt = 3: Exit loop, report final failure
+```
+
+**After auto-fix loop completes:**
+
+- If final status is PASSED:
+  - Display: "✅ Task fixed and verified after [X] attempts"
+  - Continue to next subtask (or Report section)
+
+- If final status is PASSED WITH WARNINGS:
+  - Display: "✅ Task fixed after [X] attempts, but warnings remain"
+  - Follow the same "PASSED WITH WARNINGS" flow from above:
+    1. Display warnings prominently
+    2. **Use AskUserQuestion tool** to ask user for confirmation to continue or stop
+    3. **WAIT for user response** before proceeding
+  - Based on user response, continue or stop
+
+- If final status is FAILED after 3 attempts:
+  - Display error message:
+    ```
+    ❌ Task verification failed after 3 auto-fix attempts
+
+    **Task:** [task-id]
+    **Latest verification report:** verification/task-[task-id]-verification.md
+
+    The automated fix attempts could not resolve all issues.
+
+    Required actions:
+    1. Review the verification report above
+    2. Fix the issues manually
+    3. Re-run /implement-task [task-id]
+
+    Cannot continue to next task due to verification failures.
+    ```
+  - STOP processing further tasks
+  - User must manually intervene
+
+**After successful completion:**
+- If there are more subtasks in the queue, continue to next subtask (back to Phase 2)
+- If all subtasks are complete, proceed to Report section
+
+## Report
+
+After all phases complete successfully, inform the user:
+
+**For single subtask (e.g., `/implement-task 1.1`):**
+
+```
+Subtask [subtask-id] implemented successfully! ✅
+
+**Subtask:** [subtask-description]
+**Implementer:** [implementer-name]
+**Files changed:** [file-count] files
+
+📄 Implementation report: `implementation/task-[subtask-id]-report.md`
+
+[If verification done - show appropriate status:]
+✅ Verified by: [verifier-name] - PASSED
+OR
+⚠️ Verified by: [verifier-name] - PASSED WITH WARNINGS ([X] warnings)
+📄 Verification report: `verification/task-[subtask-id]-verification.md`
+
+👉 Next step: Continue with remaining subtasks or run `/implement-spec` to implement all tasks
+```
+
+**For entire task with multiple subtasks (e.g., `/implement-task 1`):**
+
+```
+Task [task-id] completed successfully! ✅
+
+**Completed [X] subtasks:**
+- ✅ [subtask-id-1]: [description]
+- ✅ [subtask-id-2]: [description]
+- ✅ [subtask-id-3]: [description]
+
+**Implementer:** [implementer-name]
+**Total files changed:** [file-count] files
+
+📄 Implementation reports in: `implementation/`
+
+[If verification done - show appropriate status:]
+✅ Task verified by: [verifier-name] - PASSED
+OR
+⚠️ Task verified by: [verifier-name] - PASSED WITH WARNINGS ([X] warnings)
+📄 Verification report: `verification/task-[task-id]-verification.md`
+
+👉 Next step: Continue with next task or run `/implement-spec` to implement all remaining tasks
+```
+
+**For subtask range (e.g., `/implement-task 1.1-1.3`):**
+
+```
+Subtask range completed successfully! ✅
+
+**Completed [X] subtasks:**
+- ✅ [subtask-id-1]: [description]
+- ✅ [subtask-id-2]: [description]
+- ✅ [subtask-id-3]: [description]
+
+**Implementer:** [implementer-name]
+**Total files changed:** [file-count] files
+
+📄 Implementation reports in: `implementation/`
+
+👉 Next step: Continue with remaining subtasks or run `/implement-spec` to implement all remaining tasks
+```
+
+**Artifacts created:**
+```
+devorch/specs/[date-spec-name]/
+├── implementation/
+│   ├── task-[id]-report.md
+│   └── task-[id]-report.md
+├── verification/
+│   ├── task-[id]-verification.md
+│   └── task-[id]-verification.md
+└── tasks.md (updated with completed checkboxes)
+```
+
+## Examples
+
+### Example 1: Implement All Subtasks in Task
+
+```
+User: /implement-task 1
+
+Assistant: Loading task 1 from tasks.md...
+✅ Found 3 tasks with implementer domains: ui
+✅ Implementing subtasks...
+✅ Completed successfully\!
+```
+
+### Example 2: Implement Single Task
+
+```
+User: /implement-task 2.3
+
+Assistant: Loading subtask 2.3 from tasks.md...
+✅ Found subtask with implementer domains: database
+✅ Implementing...
+✅ Subtask 2.3 completed\!
+```

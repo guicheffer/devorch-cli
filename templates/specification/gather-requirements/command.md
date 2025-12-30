@@ -1,0 +1,136 @@
+---
+schema: command-multi-agent
+name: /gather-requirements
+description: Initialize a new spec and gather requirements through research
+mode: multi-agent
+dependencies:
+  subagents:
+    - specification/spec-initializer
+    - specification/spec-researcher
+partials:
+  setup: common/partials/commands/command-setup.md
+  instructions-footer: common/partials/commands/standard-instructions-footer.md
+---
+
+# Gather Requirements
+
+## Purpose
+
+Gather information for a new spec by initializing a spec folder and researching requirements through structured questions and visual analysis.
+
+## Instructions
+
+This process follows 4 sequential phases:
+
+0. **Pre-checks** - Verify devorch version
+1. **Initialize Spec** - Create a new dated spec folder
+2. **Research Requirements** - Ask clarifying questions and analyze visuals
+3. **Inform User** - Confirm completion and provide next steps
+
+{{partials.instructions-footer}}
+
+{{^context-training-name}}
+{{partials.context-training-check}}
+{{/context-training-name}}
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+{{partials.setup}}
+
+### PHASE 1: Initialize Spec
+
+Use the **spec-initializer** subagent to initialize a new spec.
+
+**Pass to spec-initializer:**
+- The user's spec description (if provided)
+
+The spec-initializer will provide the path to the dated spec folder (YYYY-MM-DD-spec-name) they've created.
+
+**After spec-initializer completes:**
+
+Extract the spec name from the folder path (the part after the date prefix):
+- Example: `devorch/specs/2025-11-18-user-auth` → spec name is `user-auth`
+
+Set the newly created spec as active:
+
+```bash
+devorch get-spec [spec-name]
+```
+
+Verify the output shows `SUCCESS=true`. If not, display the error to the user.
+
+### PHASE 2: Research Requirements
+
+After spec-initializer completes, immediately use the **spec-researcher** subagent:
+
+Provide the spec-researcher with:
+
+- The spec folder path from spec-initializer
+
+**🚨 CRITICAL - YOU ARE ONLY A MESSAGE RELAY 🚨**
+
+After launching spec-researcher, you must ONLY relay messages:
+
+**DO NOT:**
+- ❌ Answer questions yourself
+- ❌ Analyze Figma files yourself (even if user provides Figma URL)
+- ❌ Call ANY Figma MCP tools (get_screenshot, get_metadata, get_design_context, etc.)
+- ❌ Check visuals folder yourself
+- ❌ Process, interpret, or summarize user responses
+- ❌ Make any decisions about what to do with responses
+- ❌ Call any Read/Glob/Grep tools on behalf of spec-researcher
+
+**DO:**
+- ✅ Show spec-researcher's questions to user EXACTLY as provided
+- ✅ Pass user's EXACT response back to spec-researcher using Task tool with resume parameter
+- ✅ Repeat until spec-researcher says "Requirements saved to:"
+
+**🔴 FORBIDDEN TOOLS IN THIS PHASE:**
+You must NOT call these tools during Phase 2:
+- mcp__figma__* (any Figma MCP tool)
+- Read (unless explicitly for command logic)
+- Glob/Grep (unless explicitly for command logic)
+- Any visual analysis tools
+
+**Why:** The spec-researcher subagent has its own context window and skills for Figma analysis. If you call Figma tools in the main context, you'll bloat the main context window unnecessarily.
+
+**Multi-turn interaction flow:**
+
+1. Launch spec-researcher with spec folder path
+2. spec-researcher outputs questions → Display to user VERBATIM
+3. User responds → **Launch NEW spec-researcher with user's response + spec folder path**
+4. spec-researcher loads context from disk, processes response, may ask follow-ups
+5. Repeat steps 3-4 until spec-researcher outputs "Requirements saved to:"
+
+**Important:** Each call is a fresh subagent. The spec-researcher maintains state by reading/writing files in the spec folder, not via resume parameter.
+
+## Report
+
+After all steps complete, inform the user:
+
+"Requirements gathering complete!
+
+✅ Spec folder created: `[spec-folder-path]`
+✅ Requirements gathered and documented
+✅ Visual assets: [Found X files / No files provided]
+
+👉 **Next step**: Run `/create-spec` to generate the detailed specification"
+
+**Artifacts created:**
+```
+devorch/specs/YYYY-MM-DD-spec-name/
+├── planning/
+│   ├── initialization.md    # Initial spec idea and metadata
+│   ├── requirements.md       # Gathered requirements and answers
+│   └── visuals/             # Optional visual assets (screenshots, mockups)
+
+{{artifacts-path}}/spec-researcher/
+├── state.json               # Research state and progress
+├── user-responses.txt       # Raw user responses from each round
+├── figma-analysis.json      # Figma design data (if analyzed)
+└── visuals-check.txt        # Visual folder check output
+```
+
+**Debug artifacts:** All research state preserved in `{{artifacts-path}}/spec-researcher/` for inspection.

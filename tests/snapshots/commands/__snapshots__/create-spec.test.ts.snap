@@ -1,0 +1,282 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /create-spec should match snapshot 1`] = `
+"---
+name: "/create-spec"
+description: "Create specification document using subagents"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "specification/spec-writer"
+    - "specification/spec-verifier"
+---
+
+# Create Specification
+
+## Purpose
+
+Create a comprehensive specification document from gathered requirements and verify the spec for accuracy.
+
+## Instructions
+
+This process follows 4 sequential phases:
+
+0. **Pre-checks** - Verify spec-machine version and required subagents
+1. **Select Spec** - Choose active spec with stale detection
+2. **Write Spec** - Generate detailed specification document
+3. **Verify Spec** - Validate specification accuracy
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+⚠️ **STOP HERE - No context-training configured**
+
+This command requires context-training to be configured in your project.
+
+Context training provides:
+- Repository-specific specification guidelines
+- Domain-specific implementation patterns
+- Available implementers and verifiers
+
+**To set up context training:**
+1. Run \`/analyze-tech-stack\` to analyze your codebase
+2. Run \`/train-context\` to generate context training
+3. Run this command again
+
+**Cannot proceed without context training.**
+
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /create-spec
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- specification/spec-writer
+- specification/spec-verifier
+
+
+### PHASE 1: Select Spec
+
+**Get the active spec:**
+
+\`\`\`bash
+spec-machine get-spec
+\`\`\`
+
+**Parse the output:**
+- If \`NO_ACTIVE_SPEC=true\` and \`NO_SPECS_FOUND=true\`: Exit with error - no specs to work with
+- Otherwise: Extract \`CURRENT_SPEC=[path]\`, \`SPEC_NAME=[name]\`, and \`FOLDER_NAME=[folder]\`
+- Always extract \`NEWEST_SPEC=[path]\`, \`NEWEST_SPEC_NAME=[name]\`, and \`NEWEST_SPEC_FOLDER=[folder]\` from output
+- Check \`IS_STALE\` flag to determine if active spec is older than newest
+
+**Note:** If no active spec was previously set, \`spec-machine get-spec\` automatically sets the newest spec as active.
+
+**Always ask the user to confirm or change the spec:**
+
+Use the AskUserQuestion tool to prompt the user:
+
+\`\`\`
+Question: "Active spec is '[active-folder-name]' ([active-date]). Which spec would you like to use?"
+
+Header: "Select Spec"
+
+Options:
+1. Continue with '[active-folder-name]'
+   Description: Use the currently active spec
+
+2. Switch to '[newest-folder-name]'
+   Description: Switch to the newest spec ([newest-date])
+
+3. Cancel
+   Description: Abort this command
+\`\`\`
+
+**Note:** If the active spec is stale (\`IS_STALE=true\`), modify the question to: "Active spec '[active-folder-name]' ([active-date]) is older than '[newest-folder-name]' ([newest-date]). Which spec would you like to use?"
+
+**Handle user's response:**
+- **Option 1 (Continue)**: Use \`CURRENT_SPEC\` path as-is
+- **Option 2 (Switch)**: Run \`spec-machine get-spec [NEWEST_SPEC_NAME]\` to set it active, then re-run \`spec-machine get-spec\` to get updated spec info, and use the new \`CURRENT_SPEC\` path
+- **Option 3 (Cancel)**: Stop execution and exit the command
+
+**Validate spec folder exists:**
+
+\`\`\`bash
+if [ ! -d "[spec-path]" ]; then
+  echo "ERROR: Spec folder not found at [spec-path]"
+  exit 1
+fi
+\`\`\`
+
+**Store the selected spec path as \`[spec-folder-path]\`** for use in subsequent phases.
+
+The \`[spec-folder-path]\` variable will contain the full path to the spec folder (e.g., \`spec-machine/specs/2025-11-18-user-auth\`).
+
+
+### PHASE 2: Write Specification
+
+**Before calling the subagent, inform the user:**
+
+"📝 **Creating specification document...** This may take a few minutes as I explore the codebase for reusable patterns. ⏳"
+
+Now use the **spec-writer** subagent to create the specification document for this spec.
+
+**Pass to spec-writer in your prompt:**
+
+\`\`\`
+Create a comprehensive specification document.
+
+Spec folder path: [spec-folder-path]
+
+Example path: spec-machine/specs/2025-11-18-user-auth
+
+Read the requirements document at [spec-folder-path]/planning/requirements.md - it contains all the research findings, user answers, and context you need.
+
+Create spec.md in the spec folder.
+\`\`\`
+
+The spec-writer will:
+1. Read requirements.md (contains all planning context)
+2. Analyze requirements and constraints
+3. Create \`spec.md\` inside the spec folder
+
+### PHASE 3: Verify Specification
+
+Use the **spec-verifier** subagent to verify accuracy.
+
+**Pass to spec-verifier in your prompt:**
+
+\`\`\`
+Spec folder path: [spec-folder-path]
+
+Example path: spec-machine/specs/2025-11-18-user-auth
+
+Questions asked to user during requirements gathering:
+[List all questions from earlier in this conversation]
+
+User's raw responses:
+[List all user answers from earlier in this conversation]
+
+Please verify the specification for accuracy and alignment with requirements.
+\`\`\`
+
+The spec-verifier will:
+1. Verify requirements accuracy
+2. Check structural integrity
+3. Validate visual alignment (if visuals exist)
+4. Create verification report in \`planning/spec-verification.md\`
+
+## Report
+
+After all steps complete, read the verification report at \`[spec-folder-path]/verification/spec-verification.md\` and extract:
+- Whether verification passed
+- Critical issues (if any - these should have been auto-fixed)
+- Minor issues count and list
+- Recommendations
+
+Then inform the user with this structure:
+
+**If verification passed with NO minor issues:**
+
+"⏺ Specification created successfully!
+
+  ✅ Specification document: \`[spec-folder-path]/spec.md\`
+  ✅ Verification: Passed
+
+  👉 **Next step**: Run \`/create-tasks\` to break down the spec into actionable tasks"
+
+**If verification passed WITH minor issues/recommendations:**
+
+"⏺ Specification created successfully!
+
+  ✅ Specification document: \`[spec-folder-path]/spec.md\`
+  ✅ Verification: Passed with [N] minor recommendations
+
+  Verification Results:
+  [List key positive findings from the verification report, e.g.:]
+  - ✅ Requirements accuracy verified
+  - ✅ Structural integrity confirmed
+  - ✅ Excellent reuse of existing patterns
+
+  **📋 Minor Recommendations** (Before proceeding, consider addressing these):
+  [List each minor issue/recommendation from the report as a numbered item]
+
+  💡 **Options:**
+  - Address these recommendations now (I can apply them one by one)
+  - Proceed to \`/create-tasks\` and handle during implementation
+  - Review the full verification report at \`[spec-folder-path]/verification/spec-verification.md\`
+
+  👉 **Next step**: Run \`/create-tasks\` when ready"
+
+**If verification found critical issues (should be rare as they're auto-fixed):**
+
+"⚠️ Specification created with issues addressed!
+
+  ✅ Specification document: \`[spec-folder-path]/spec.md\`
+  ⚠️ Verification: [N] critical issues found and fixed
+
+  Issues Fixed:
+  [List what was fixed]
+
+  👉 **Next step**: Review the spec and run \`/create-tasks\` when satisfied"
+
+**Artifacts created:**
+\`\`\`
+spec-machine/specs/[date-spec-name]/
+├── planning/
+│   ├── initialization.md
+│   ├── requirements.md
+│   └── visuals/
+├── verification/
+│   └── spec-verification.md
+└── spec.md
+\`\`\`
+"
+`;

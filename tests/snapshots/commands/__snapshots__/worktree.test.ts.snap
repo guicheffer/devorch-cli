@@ -1,0 +1,170 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /worktree should match snapshot 1`] = `
+"---
+name: "/worktree"
+description: "Create one or more git worktrees with branches and copy .claude folder"
+mode: "multi-agent"
+---
+
+# /worktree - Create Git Worktrees (Multi-Agent)
+
+Create one or more git worktrees in \`./worktrees/\` with new branches and automatically copy the \`.claude\` folder to maintain your local configuration.
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /worktree
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+
+## Overview
+
+This command automates the process of:
+- Creating git worktrees in \`./worktrees/<branch-name>\` for one or more branches
+- Creating new branches with the specified names
+- Copying the \`.claude\` folder to each new worktree (if it exists)
+- Providing instructions for switching to the new worktrees
+
+## Orchestration
+
+You are the orchestrator for this workflow. Coordinate the following steps, using the Explore subagent where appropriate for verification tasks.
+
+## Workflow
+
+### Step 1: Get Branch Names
+
+# Get Branch Names
+
+Extract branch names from the user's request:
+- Parse the user's natural language request for branch names
+- Support multiple branches in a single request
+- Examples:
+  - "create worktrees for feat-auth, feat-payments" → ['feat-auth', 'feat-payments']
+  - "I want worktrees called x, y and z" → ['x', 'y', 'z']
+  - "worktree for bugfix-login" → ['bugfix-login']
+- If no branch names provided, ask: "What branch name(s) would you like to use? You can specify multiple."
+- Validate each branch name (no spaces, special chars that git doesn't allow)
+
+Store the list of branch names for use in subsequent steps.
+
+
+### Step 2: Verify Git Repository State
+
+Before creating the worktrees, optionally use the **Explore** subagent to verify:
+- Current git repository status
+- Existing worktrees (\`git worktree list\`)
+- Branch existence for each requested branch
+
+This verification step helps prevent conflicts and provides better error messages.
+
+### Step 3: Create the Worktrees
+
+# Create Git Worktrees
+
+For each branch name, create the git worktree:
+\`\`\`bash
+git worktree add ./worktrees/<branch-name> -b <branch-name>
+\`\`\`
+
+Process all branches:
+- Track successful creations
+- Track any failures with error details
+- Continue with remaining branches even if one fails
+
+Important:
+- Always create worktrees in the \`./worktrees/\` directory
+- Use the \`-b\` flag to create a new branch
+- If a branch already exists, the command will fail for that branch - continue with others
+- If the user wants to use an existing branch, omit the \`-b\` flag
+
+## Error Handling
+
+Handle common errors per branch:
+- **Branch already exists**: Suggest using \`git worktree add ./worktrees/<branch-name> <existing-branch>\` (without \`-b\`)
+- **Not in git repository**: Inform user this command only works in git repositories (fail early for all)
+- **Directory already exists**: Check if worktree already exists at that path
+- **Permission issues**: Report file system permission errors clearly
+
+
+### Step 4: Copy Claude Configuration
+
+# Copy Claude Configuration
+
+For each successfully created worktree, copy the \`.claude\` folder if it exists:
+
+\`\`\`bash
+# For each successfully created worktree
+if [ -d .claude ]; then
+  cp -r .claude ./worktrees/<branch-name>/.claude
+  echo "✓ Copied .claude folder to ./worktrees/<branch-name>"
+else
+  echo "ℹ No .claude folder to copy"
+fi
+\`\`\`
+
+This copies the entire \`.claude\` folder including:
+- settings.local.json
+- Any other local configuration files
+- Custom commands or settings
+
+
+### Step 5: Verify Setup
+
+Optionally use the **Explore** subagent to verify the worktrees were created successfully:
+- Check that each \`./worktrees/<branch-name>\` exists
+- Verify \`.claude\` folder was copied if it existed
+- Confirm the branches were created
+
+### Step 6: Provide Next Steps
+
+# Provide Next Steps
+
+Summarize results:
+\`\`\`
+✓ Created X worktree(s):
+  - ./worktrees/<branch-1> (branch: <branch-1>)
+  - ./worktrees/<branch-2> (branch: <branch-2>)
+  ...
+✓ Copied .claude folder to each worktree
+
+To work in a worktree:
+  cd ./worktrees/<branch-name>
+
+To remove a worktree when done:
+  git worktree remove ./worktrees/<branch-name>
+\`\`\`
+
+If any failures occurred, list them with error details at the end.
+
+
+## Coordination Notes
+
+- Use parallel tool calls where possible (e.g., creating multiple worktrees in parallel)
+- Handle errors gracefully - continue with remaining worktrees if one fails
+- Provide a summary of successes and failures at the end
+- If verification fails, provide detailed diagnostics before attempting fixes
+"
+`;

@@ -1,0 +1,828 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /panic should match snapshot 1`] = `
+"---
+name: "/panic"
+description: "Emergency context capture and GitHub issue creation"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "dev-tools/conversation-analyzer"
+    - "dev-tools/command-history-collector"
+    - "dev-tools/error-analyzer"
+    - "dev-tools/environment-collector"
+    - "dev-tools/file-context-collector"
+---
+
+# /panic - Emergency Context Capture (Multi-Agent)
+
+This command uses a multi-agent orchestration pattern to capture comprehensive context and create a GitHub issue for help or debugging.
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /panic
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- dev-tools/conversation-analyzer
+- dev-tools/command-history-collector
+- dev-tools/error-analyzer
+- dev-tools/environment-collector
+- dev-tools/file-context-collector
+
+
+---
+
+## Process Overview
+
+This workflow follows a structured multi-phase approach:
+
+**PHASE 1: Verification** - Check prerequisites and repository status
+**PHASE 2: Context Gathering** - Collect all relevant information using subagents
+**PHASE 3: Report Assembly** - Compile information into structured markdown
+**PHASE 4: Issue Creation** - Submit to GitHub and report results
+
+Follow each of these phases IN SEQUENCE:
+
+---
+
+## Multi-Phase Process
+
+### PHASE 1: Verification
+
+**Objective:** Ensure all prerequisites are met
+
+## Step 1: Verify Prerequisites
+
+### Check GitHub CLI
+
+Verify that the \`gh\` CLI is available and authenticated:
+
+\`\`\`bash
+gh --version
+gh auth status
+\`\`\`
+
+**If \`gh\` is not installed or not authenticated:**
+
+Display error message and exit:
+
+\`\`\`
+❌ Error: GitHub CLI not available or not authenticated
+
+The /panic command requires the GitHub CLI (gh).
+
+Install: https://cli.github.com/
+Authenticate: gh auth login
+
+After setup, try /panic again.
+\`\`\`
+
+**STOP HERE** if GitHub CLI is not ready.
+
+### Check Git Repository
+
+Verify that the current directory is inside a git repository:
+
+\`\`\`bash
+git rev-parse --is-inside-work-tree
+git remote get-url origin
+\`\`\`
+
+**If not a git repository:**
+
+Display error message and exit:
+
+\`\`\`
+❌ Error: Not a git repository
+
+The /panic command requires a git repository to create issues.
+Please run this command from within a git repository.
+\`\`\`
+
+**STOP HERE** if not in a git repository.
+
+### Display Verification Success
+
+Once both checks pass, display confirmation:
+
+\`\`\`
+✅ Prerequisites Verified
+
+Repository: [owner/repo from git remote]
+Working Directory: [pwd]
+GitHub CLI: Authenticated as [username from gh auth status]
+\`\`\`
+
+
+### PHASE 2: Context Gathering
+
+**Objective:** Collect comprehensive context using available subagents or direct orchestration
+
+**🚀 CRITICAL: Launch all 5 subagents IN PARALLEL**
+
+To minimize latency, launch all context-gathering subagents simultaneously in a SINGLE message with multiple Task tool calls:
+
+\`\`\`markdown
+**In a single message, invoke all 5 Task tools:**
+
+1. Task(subagent_type="dev-tools/conversation-analyzer", ...)
+2. Task(subagent_type="dev-tools/command-history-collector", ...)
+3. Task(subagent_type="dev-tools/error-analyzer", ...)
+4. Task(subagent_type="dev-tools/environment-collector", ...)
+5. Task(subagent_type="dev-tools/file-context-collector", ...)
+\`\`\`
+
+**Each subagent prompt should include:**
+- Context: "This is for a /panic report to capture current session state"
+- Output format: "Return your findings as structured markdown"
+- Scope: Relevant to their specific task
+
+**Task Assignment Strategy:**
+
+For each aspect of context gathering, use the specialized subagent:
+
+#### Task 2.1: Conversation Analysis (PARALLEL)
+- **Subagent:** \`dev-tools/conversation-analyzer\`
+- **Output:** Summary, goal, status, key issues
+
+#### Task 2.2: Command & Tool History (PARALLEL)
+- **Subagent:** \`dev-tools/command-history-collector\`
+- **Output:** Structured list of all commands/tools used
+
+#### Task 2.3: Error Collection & Analysis (PARALLEL)
+- **Subagent:** \`dev-tools/error-analyzer\`
+- **Output:** Categorized errors with context
+
+#### Task 2.4: Environment Information (PARALLEL)
+- **Subagent:** \`dev-tools/environment-collector\`
+- **Output:** System and project snapshot
+
+#### Task 2.5: File Context Gathering (PARALLEL)
+- **Subagent:** \`dev-tools/file-context-collector\`
+- **Output:** Relevant files with content/excerpts
+
+**Fallback:** If any subagent fails, the orchestrator performs that task directly.
+
+**Context Gathering Instructions:**
+
+## Step 2: Gather Comprehensive Context
+
+Collect all relevant information about the current session for the panic report.
+
+### A. Conversation Summary
+
+Review the conversation history in the current context window and create:
+
+- **Goal**: Brief description of what the user was trying to accomplish
+- **Current Status**: Where things stand (stuck, error, needs review, etc.)
+- **Key Issues**: Main questions or problems encountered
+- **Timeline**: High-level sequence of what was attempted
+
+**Format:**
+\`\`\`markdown
+## Summary
+
+[1-2 paragraph overview of the situation]
+
+## Goal
+
+[What the user was trying to accomplish]
+
+## Current Status
+
+[Current state: stuck/error/blocked/needs-review]
+\`\`\`
+
+### B. Commands & Tools Used
+
+List all commands and tools executed in this session:
+
+- Bash commands (with relevant results/outputs)
+- File operations (Read, Write, Edit, Glob, Grep)
+- Tool invocations (Task, WebFetch, SlashCommand, etc.)
+- Failed operations with their error messages
+
+**Include:**
+- Command/tool name
+- Key parameters or arguments
+- Result status (success/failure)
+- Error messages for failures
+
+**Format:**
+\`\`\`markdown
+## Commands & Tools Used
+
+<details>
+<summary>View all commands ([X] total)</summary>
+
+1. \`bash: git status\` - Success
+2. \`Read: src/file.ts\` - Success
+3. \`Edit: src/file.ts\` - Failed: file not found
+4. \`Task: subagent-name\` - Success
+[etc.]
+
+</details>
+\`\`\`
+
+### C. Error Context
+
+Capture all errors encountered during the session:
+
+- Error messages and their full text
+- Stack traces (if available)
+- Failed command outputs
+- Validation failures
+- Build/test failures
+- Exception traces
+- Warning messages
+
+**For each error, include:**
+- When it occurred (sequence in conversation)
+- What operation triggered it
+- Full error message
+- Any attempted fixes
+
+**Format:**
+\`\`\`markdown
+## Errors Encountered
+
+<details>
+<summary>View errors ([Y] total)</summary>
+
+### Error 1: [Brief description]
+
+**Occurred during:** [operation/command]
+
+**Error message:**
+\\\`\\\`\\\`
+[full error text]
+\\\`\\\`\\\`
+
+**Context:** [what was being attempted]
+
+---
+
+### Error 2: [Brief description]
+[same structure]
+
+</details>
+\`\`\`
+
+### D. Environment Information
+
+Collect system and project details:
+
+\`\`\`bash
+# Git context
+git branch --show-current
+git status --short
+git log --oneline -5
+git diff --stat
+
+# System info
+uname -a
+pwd
+date
+
+# Project structure (top-level)
+ls -la
+\`\`\`
+
+**Capture:**
+- Operating system and version
+- Current working directory
+- Git branch name
+- Git status (modified/untracked files)
+- Recent commits (last 5)
+- Any uncommitted changes
+- Current date/time
+
+**Format:**
+\`\`\`markdown
+## Environment
+
+- **OS:** [OS name and version from uname]
+- **Date/Time:** [current timestamp]
+- **Working Directory:** [pwd]
+- **Git Branch:** [branch name]
+- **Git Status:**
+  \\\`\\\`\\\`
+  [git status output]
+  \\\`\\\`\\\`
+- **Recent Commits:**
+  \\\`\\\`\\\`
+  [git log output]
+  \\\`\\\`\\\`
+- **Uncommitted Changes:**
+  \\\`\\\`\\\`
+  [git diff --stat]
+  \\\`\\\`\\\`
+\`\`\`
+
+### E. Relevant Files
+
+Identify and capture files that were discussed, modified, or are relevant to the errors:
+
+**⚠️ TOKEN BUDGET AWARENESS:**
+
+Before including file contents, estimate current context usage:
+- If context appears >60% full (based on conversation length), use SUMMARY MODE
+- In summary mode: Include file paths and brief descriptions only, not full content
+- Always prioritize: Error-related files > Modified files > Read files
+
+**Files to include (priority order):**
+1. Files mentioned in error messages (HIGHEST)
+2. Files that were modified during session
+3. Configuration files (package.json, tsconfig.json, etc.)
+4. Files that were read
+5. Recently modified files (LOWEST)
+
+**For each file:**
+1. Record file path and size
+2. **If context budget is tight (>60% full):** Include path + 1-line description only
+3. If file is under 200 lines AND context budget allows: include full content
+4. If file is larger: include relevant excerpts (around errors/changes)
+5. Note any modifications made during session
+
+**Maximum files to include:** 10 files (prioritize by relevance)
+
+**Format:**
+\`\`\`markdown
+## Relevant Files
+
+<details>
+<summary>File 1: path/to/file.ext ([size] lines)</summary>
+
+**Status:** [read/modified/created/deleted]
+
+**Content:**
+\\\`\\\`\\\`[extension]
+[file contents or relevant excerpt]
+\\\`\\\`\\\`
+
+</details>
+
+<details>
+<summary>File 2: path/to/file.ext ([size] lines)</summary>
+
+[same structure]
+
+</details>
+\`\`\`
+
+### F. Additional Context
+
+Capture any other relevant information:
+
+- Recent conversation topics
+- Links or URLs referenced
+- External resources consulted
+- Attempted solutions that didn't work
+- Workarounds or temporary fixes applied
+
+**Format:**
+\`\`\`markdown
+## Additional Context
+
+- [Notable item 1]
+- [Notable item 2]
+[etc.]
+\`\`\`
+
+
+**Note:** If using subagents, coordinate their outputs and consolidate into the format described above.
+
+### PHASE 3: Report Assembly
+
+**Objective:** Compile all gathered information into a structured markdown report
+
+## Step 3: Format Panic Report
+
+Compile all gathered context into a well-structured markdown document suitable for a GitHub issue.
+
+### Report Structure
+
+Use the following template, populated with data gathered in Step 2:
+
+\`\`\`markdown
+# Panic Report - [TIMESTAMP]
+
+> **Generated by /panic command**
+> Repository: [owner/repo]
+> Branch: [branch-name]
+> Date: [YYYY-MM-DD HH:MM:SS]
+
+---
+
+## Summary
+
+[Brief 1-2 paragraph description of the situation from Step 2.A]
+
+## Goal
+
+[What the user was trying to accomplish from Step 2.A]
+
+## Current Status
+
+**Status:** [stuck/error/blocked/needs-review from Step 2.A]
+
+[Detailed explanation of current state]
+
+---
+
+## Commands & Tools Used
+
+<details>
+<summary>View all commands ([count] total)</summary>
+
+[List from Step 2.B]
+
+</details>
+
+---
+
+## Errors Encountered
+
+<details>
+<summary>View errors ([count] total)</summary>
+
+[Error list from Step 2.C with full details]
+
+</details>
+
+---
+
+## Environment
+
+[Environment information from Step 2.D]
+
+- **OS:** [operating system]
+- **Date/Time:** [timestamp]
+- **Working Directory:** [path]
+- **Git Branch:** [branch]
+- **Git Status:**
+  \\\`\\\`\\\`
+  [git status]
+  \\\`\\\`\\\`
+- **Recent Commits:**
+  \\\`\\\`\\\`
+  [git log]
+  \\\`\\\`\\\`
+
+---
+
+## Relevant Files
+
+[File list from Step 2.E with collapsible sections]
+
+<details>
+<summary>File 1: path/to/file.ext ([size])</summary>
+
+\\\`\\\`\\\`[extension]
+[content]
+\\\`\\\`\\\`
+
+</details>
+
+---
+
+## Additional Context
+
+[Additional information from Step 2.F]
+
+---
+
+## Next Steps
+
+[Suggested actions based on the errors and current status]
+
+Possible approaches:
+- [Suggestion 1]
+- [Suggestion 2]
+- [Suggestion 3]
+
+---
+
+*Generated by /panic command on [TIMESTAMP]*
+*Command mode: [single-agent/multi-agent]*
+\`\`\`
+
+### Validation Checks
+
+Before proceeding, validate the report:
+
+1. **Completeness**: Ensure all sections are populated
+2. **Formatting**: Verify markdown syntax is correct
+3. **Size**: Check total character count (GitHub issues have limits)
+4. **Sensitive Data**: Scan for and redact:
+   - API keys or tokens
+   - Passwords or credentials
+   - Personal information
+   - Internal URLs or endpoints
+
+**If report exceeds ~65,000 characters:**
+- Truncate file contents to excerpts only
+- Compress command history to summaries
+- Move full content to local file reference
+
+**If sensitive data detected:**
+- Redact automatically where possible
+- Warn user about remaining sensitive data
+- Ask for confirmation before proceeding
+
+### Preview Display
+
+Show a summary to the user before creating the issue:
+
+\`\`\`
+📋 Panic Report Ready
+
+Sections:
+✅ Summary & Goal
+✅ Current Status
+✅ Commands ([X] total)
+✅ Errors ([Y] total)
+✅ Environment Info
+✅ Relevant Files ([Z] files)
+✅ Next Steps
+
+Report Statistics:
+- Total size: [N] characters
+- Commands logged: [X]
+- Errors captured: [Y]
+- Files included: [Z]
+
+Ready to create GitHub issue.
+\`\`\`
+
+### Store Report
+
+Save the formatted report for use in Step 4:
+- Store as a variable for GitHub issue creation
+- Also save to a local file: \`.panic-report-[timestamp].md\`
+
+
+**Multi-Agent Specific:**
+- Include which subagents were used in the report footer
+- Note any subagent failures or fallbacks in the "Additional Context" section
+
+### PHASE 4: Issue Creation
+
+**Objective:** Create GitHub issue and report results to user
+
+## Step 4: Create GitHub Issue
+
+Submit the formatted panic report as a GitHub issue in the current repository.
+
+### Prepare Issue Metadata
+
+**Title:** \`Panic Report - [YYYY-MM-DD HH:MM:SS]\`
+- Use current timestamp for uniqueness
+- Makes it easy to find and sort panic reports
+
+**Label:** \`panic\`
+- Automatically label for easy filtering
+- Allows repo maintainers to set up automation
+
+**Body:** The formatted markdown report from Step 3
+
+### Create the Issue
+
+Use the GitHub CLI to create the issue:
+
+\`\`\`bash
+# Generate timestamp
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Create issue with body from file (handles special characters better)
+echo "[report markdown]" > spec-machine/.state/artifacts/panic/report-$$.md
+
+gh issue create \\
+  --title "Panic Report - $TIMESTAMP" \\
+  --body-file spec-machine/.state/artifacts/panic/report-$$.md \\
+  --label "panic"
+\`\`\`
+
+**Alternative approach** (if body is small enough):
+
+\`\`\`bash
+gh issue create \\
+  --title "Panic Report - $(date '+%Y-%m-%d %H:%M:%S')" \\
+  --body "$(cat .panic-report-[timestamp].md)" \\
+  --label "panic"
+\`\`\`
+
+### Handle Large Reports
+
+If the report exceeds GitHub's issue size limits (typically ~65,000 characters):
+
+1. **Create abbreviated issue:**
+   - Include only Summary, Goal, Status sections
+   - Add note: "Full report saved locally"
+   - Include command to view: \`cat .panic-report-[timestamp].md\`
+
+2. **Instruct user to attach full report:**
+   \`\`\`
+   ⚠️ Report is too large for GitHub issue body
+
+   Created issue with summary: [issue URL]
+   Full report saved to: .panic-report-[timestamp].md
+
+   To attach the full report:
+   1. Visit the issue: [URL]
+   2. Click "Add a comment"
+   3. Drag and drop: .panic-report-[timestamp].md
+   \`\`\`
+
+### Save Local Backup
+
+Always save a local copy, regardless of issue creation success:
+
+\`\`\`bash
+# Save with timestamp
+echo "[report]" > .panic-report-$(date '+%Y%m%d-%H%M%S').md
+\`\`\`
+
+This ensures context is never lost, even if GitHub is unavailable.
+
+### Capture Issue Details
+
+After successful creation, extract:
+- Issue URL
+- Issue number
+- Repository information
+
+Parse from \`gh issue create\` output or use:
+
+\`\`\`bash
+# Get the issue number from the most recent issue
+ISSUE_NUM=$(gh issue list --label panic --limit 1 --json number --jq '.[0].number')
+
+# Construct URL
+REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+ISSUE_URL="https://github.com/$REPO/issues/$ISSUE_NUM"
+\`\`\`
+
+### Display Success Message
+
+Show detailed results to the user:
+
+\`\`\`
+✅ Panic Report Created Successfully!
+
+Issue: [issue URL]
+Issue Number: #[number]
+Repository: [owner/repo]
+Local Copy: .panic-report-[timestamp].md
+
+Report Contents:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Statistics:
+- Commands logged: [X]
+- Errors captured: [Y]
+- Files included: [Z]
+- Report size: [N] characters
+
+📁 Sections:
+✅ Summary & Goal
+✅ Current Status
+✅ Commands & Tools
+✅ Error Details
+✅ Environment Info
+✅ Relevant Files
+✅ Next Steps
+
+💡 What to do next:
+- Share the issue URL with others for help
+- Use the local backup for offline reference
+- Add more details to the issue if needed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+\`\`\`
+
+### Handle Issue Creation Failure
+
+If \`gh issue create\` fails:
+
+1. **Capture the error:**
+   \`\`\`bash
+   if ! gh issue create [...]; then
+     echo "Failed to create issue"
+     # fallback
+   fi
+   \`\`\`
+
+2. **Display error with fallback:**
+   \`\`\`
+   ❌ Error: Failed to create GitHub issue
+
+   Error message:
+   [error from gh CLI]
+
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   📄 Fallback: Report saved locally
+
+   The panic report has been saved to:
+   .panic-report-[timestamp].md
+
+   You can:
+   1. Manually create an issue and paste the contents
+   2. Share this file with others for help
+   3. Try again later when GitHub is available
+
+   To manually create the issue:
+   gh issue create --title "Panic Report" --body-file .panic-report-[timestamp].md --label panic
+   \`\`\`
+
+3. **Ensure local file exists:**
+   - Always save the local backup before attempting issue creation
+   - This guarantees context is preserved
+
+
+**Multi-Agent Specific:**
+When displaying results, include:
+\`\`\`
+Subagents Used:
+- [subagent-1]: [what it contributed]
+- [subagent-2]: [what it contributed]
+- Direct orchestration: [any fallback tasks]
+\`\`\`
+
+---
+
+## Error Handling
+
+### Verification Failures (Phase 1)
+
+Handled by the verify-prerequisites workflow (see above).
+
+### Context Gathering Failures (Phase 2)
+
+**If a subagent fails:**
+- Log the failure with details
+- Fall back to direct orchestration for that specific task
+- Continue with remaining tasks
+- Note the failure in the final report under "Additional Context"
+
+**Example fallback message:**
+\`\`\`
+⚠️ Subagent [name] failed during context gathering
+Reason: [error message]
+Falling back to direct orchestration for this task.
+\`\`\`
+
+### Report Assembly Failures (Phase 3)
+
+Handled by the format-report workflow (see above).
+
+### Issue Creation Failures (Phase 4)
+
+Handled by the create-issue workflow (see above).
+
+---
+
+All subagents must also be instructed to follow these standards.
+"
+`;

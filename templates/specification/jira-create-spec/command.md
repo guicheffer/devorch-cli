@@ -1,0 +1,420 @@
+---
+schema: command-multi-agent
+name: /jira-create-spec
+argument-hint: [ticket-key(s)]
+description: Generate implementation spec from Jira ticket(s) and answered questions, then post spec to the ticket
+mode: multi-agent
+dependencies:
+  commands:
+    - /load-context-training
+    - /create-spec
+  skills:
+    - cli-tools-jira-cli
+  subagents:
+    - specification/jira-ticket-fetcher
+    - specification/spec-researcher
+    - specification/spec-writer
+    - specification/spec-verifier
+partials:
+  setup: common/partials/commands/command-setup.md
+  instructions-footer: common/partials/commands/standard-instructions-footer.md
+---
+
+# Jira Create Spec
+
+## Purpose
+
+Generate implementation specification from Jira ticket(s) with intelligent Q&A extraction from comments, then post the spec back to the ticket. Uses enhanced ADF parsing and LLM-powered Q&A detection to automatically identify and structure requirements from Jira discussions. The spec-researcher agent generates requirements.md from the parsed data.
+
+## Instructions
+
+This process follows 6 sequential phases:
+
+0. **Pre-checks** - Verify devorch version and jira CLI setup
+1. **Get Ticket Keys** - Collect Jira ticket keys from user
+2. **Fetch & Parse** - Use enhanced specification/jira-ticket-fetcher to get ticket details with ADF parsing and intelligent Q&A extraction
+3. **Validate Q&A Quality** - Check Q&A completeness using structured analysis
+4. **Generate Requirements** - Use spec-researcher agent to create requirements.md from parsed data
+5. **Generate Spec** - Create implementation specification using /create-spec
+6. **Post to Jira** - Add spec as comment to original ticket(s)
+
+{{partials.instructions-footer}}
+
+## Variables
+
+TICKET_KEYS: $ARGUMENTS[0]  # Optional: ticket key(s) from command argument
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+{{partials.setup}}
+
+**Load context training:**
+
+Run `SlashCommand("/load-context-training")` to load all context-training files into context.
+
+This ensures you have access to:
+- Repository-specific specification guidelines
+- Domain-specific implementation patterns
+- Available implementers and verifiers
+
+Wait for `/load-context-training` to complete before proceeding.
+
+**Additional check for jira CLI:**
+
+```bash
+command -v jira >/dev/null 2>&1 || echo "ERROR: jira CLI not found"
+```
+
+If jira CLI not found, display error and STOP:
+```
+❌ jira CLI is required for this command
+
+**Installation:**
+- macOS: `brew install jira`
+- Other: https://github.com/ankitpokhrel/jira-cli#installation
+
+**After installation:**
+1. Run: `jira init` to configure Jira connection
+2. Export API token: `export JIRA_API_TOKEN=your_token`
+3. Re-run `/jira-create-spec`
+```
+
+### PHASE 1: Get Ticket Keys
+
+**If TICKET_KEYS provided as argument:**
+- Use the provided ticket key(s)
+- Multiple tickets can be comma or space separated
+- Example: `/jira-create-spec PROJ-123` or `/jira-create-spec PROJ-123,PROJ-124`
+
+**If no TICKET_KEYS provided:**
+
+Ask the user: "Which Jira ticket(s) would you like to create specs for? Provide ticket key(s) (e.g., PROJ-123 or PROJ-123, PROJ-124, PROJ-125)"
+
+Wait for user response and extract ticket key(s).
+
+### PHASE 2: Fetch Tickets
+
+Use the `specification/jira-ticket-fetcher` subagent to fetch ticket data.
+
+**Pass to `specification/jira-ticket-fetcher`:**
+```
+Fetch the following Jira ticket(s): [TICKET_KEYS]
+
+Extract all relevant fields (summary, description, status, priority, labels, comments) and save to artifacts.
+```
+
+The `specification/jira-ticket-fetcher` will:
+1. Validate jira CLI is installed and configured
+2. Fetch each ticket in JSON format (including latest comments)
+3. Save individual tickets and consolidated summary
+4. Return success/failure status
+
+**If fetcher fails (all tickets failed to fetch):**
+Display the error from `specification/jira-ticket-fetcher` and STOP.
+
+**If fetcher succeeds (at least one ticket fetched):**
+Continue to Phase 3 with successfully fetched ticket(s).
+
+### PHASE 3: Validate Q&A Quality
+
+For each successfully fetched ticket, check Q&A status from the enhanced jira-ticket-fetcher output.
+
+**Load parsed ticket data:**
+```bash
+# Get list of parsed tickets
+for PARSED_FILE in {{artifacts-path}}/jira-ticket-fetcher/*-parsed.json; do
+    TICKET_KEY=$(jq -r '.ticketKey' "$PARSED_FILE")
+
+    # Check Q&A status
+    NUM_QUESTIONS=$(jq -r '.qa.questions | length' "$PARSED_FILE")
+    ALL_ANSWERED=$(jq -r '.qa.allAnswered' "$PARSED_FILE")
+
+    if [ "$NUM_QUESTIONS" -gt 0 ] && [ "$ALL_ANSWERED" = "false" ]; then
+        # Questions exist but not all answered
+        UNANSWERED=$(jq -r '.qa.unansweredIndices | join(", ")' "$PARSED_FILE")
+        echo "⚠️  Unanswered questions for $TICKET_KEY"
+        echo ""
+        echo "Total questions: $NUM_QUESTIONS"
+        echo "Unanswered: Q$UNANSWERED"
+        echo ""
+        echo "**Please:**"
+        echo "1. Complete answers in Jira ticket"
+        echo "2. Re-run: \`/jira-create-spec $TICKET_KEY\`"
+        echo ""
+
+        # Ask user if they want to continue anyway
+        # User can choose to: (1) stop and complete answers, or (2) supplement interactively
+        CONTINUE="no"  # Set based on user choice
+
+        if [ "$CONTINUE" = "no" ]; then
+            echo "Skipping $TICKET_KEY - please complete answers first"
+            continue
+        fi
+    elif [ "$NUM_QUESTIONS" -gt 0 ] && [ "$ALL_ANSWERED" = "true" ]; then
+        # All questions answered
+        echo "✅ All questions answered for $TICKET_KEY ($NUM_QUESTIONS questions)"
+        echo ""
+    else
+        # No questions found
+        echo "ℹ️  No questions found for $TICKET_KEY (requirements clear from ticket)"
+        echo ""
+    fi
+
+    # Continue to Phase 4 for this ticket
+done
+```
+
+### PHASE 4: Generate Requirements.md
+
+For each ticket ready for spec generation, prepare initialization.md and use `specification/spec-researcher` to generate requirements.md.
+
+**For each ticket:**
+
+1. **Create spec folder and initialization.md:**
+
+```bash
+PARSED_FILE="{{artifacts-path}}/jira-ticket-fetcher/${TICKET_KEY}-parsed.json"
+
+# Create spec folder
+SPEC_DATE=$(date +%Y-%m-%d)
+SPEC_NAME=$(jq -r '.summary' "$PARSED_FILE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50)
+SPEC_FOLDER="devorch/specs/${SPEC_DATE}-${SPEC_NAME}"
+
+mkdir -p "$SPEC_FOLDER/planning"
+
+# Extract data
+SUMMARY=$(jq -r '.summary' "$PARSED_FILE")
+DESCRIPTION=$(jq -r '.description' "$PARSED_FILE")
+STATUS=$(jq -r '.status' "$PARSED_FILE")
+PRIORITY=$(jq -r '.priority' "$PARSED_FILE")
+
+# Create initialization.md with all Jira data
+cat > "$SPEC_FOLDER/planning/initialization.md" <<EOF
+# Specification Initialization
+
+**Date:** $(date +%Y-%m-%d)
+**Source:** Jira ticket $TICKET_KEY
+**Status:** $STATUS | Priority: $PRIORITY
+
+## Initial Description
+
+$DESCRIPTION
+
+EOF
+
+# Add Q&A section if exists
+NUM_QUESTIONS=$(jq -r '.qa.questions | length' "$PARSED_FILE")
+if [ "$NUM_QUESTIONS" -gt 0 ]; then
+    echo "## Clarifying Questions & Answers" >> "$SPEC_FOLDER/planning/initialization.md"
+    echo "" >> "$SPEC_FOLDER/planning/initialization.md"
+    echo "Questions and answers from Jira ticket comments:" >> "$SPEC_FOLDER/planning/initialization.md"
+    echo "" >> "$SPEC_FOLDER/planning/initialization.md"
+
+    # Format Q&A
+    paste <(jq -r '.qa.questions[]' "$PARSED_FILE") \
+          <(jq -r '.qa.answers[]' "$PARSED_FILE") | \
+    while IFS=$'\t' read -r question answer; do
+        echo "**$question**" >> "$SPEC_FOLDER/planning/initialization.md"
+        echo "Answer: $answer" >> "$SPEC_FOLDER/planning/initialization.md"
+        echo "" >> "$SPEC_FOLDER/planning/initialization.md"
+    done
+fi
+
+# Add attachments if exist
+ATTACHMENTS=$(jq -r '.attachments[]?' "$PARSED_FILE")
+if [ -n "$ATTACHMENTS" ]; then
+    echo "## Visual Assets" >> "$SPEC_FOLDER/planning/initialization.md"
+    echo "" >> "$SPEC_FOLDER/planning/initialization.md"
+    echo "$ATTACHMENTS" | while read -r url; do
+        echo "- $url" >> "$SPEC_FOLDER/planning/initialization.md"
+    done
+fi
+```
+
+2. **Call `specification/spec-researcher` agent:**
+
+```
+Task(subagent_type: "specification/spec-researcher", prompt: "
+Generate requirements.md for Jira ticket $TICKET_KEY.
+
+Spec folder: $SPEC_FOLDER
+
+Context: The initialization.md contains all ticket details and Q&A already completed in Jira comments.
+
+Instructions:
+- Skip Steps 3-5 (interactive Q&A) - questions already answered
+- Go directly to Step 6: Save Complete Requirements
+- Read initialization.md and format into requirements.md
+- Preserve all Q&A, description, and visual asset information
+- Follow the standard requirements.md format
+
+The Q&A is already complete, just format it properly for requirements.md.
+")
+```
+
+### PHASE 5: Generate Spec
+
+After requirements are initialized, run `SlashCommand("/create-spec")` with the following context:
+
+```
+Create implementation specification based on the gathered requirements for Jira ticket [TICKET-KEY].
+
+The requirements have been saved to the spec folder, including:
+- Ticket description
+- Clarifying questions (if any)
+- Answers from ticket comments (if any)
+
+Generate a complete spec including:
+- Technical approach
+- Task breakdown
+- Implementation details
+- Acceptance criteria
+```
+
+The `/create-spec` command will:
+1. Load requirements from spec folder
+2. Use `specification/spec-writer` to generate spec.md
+3. Use `specification/spec-verifier` to validate completeness
+4. Save final spec to devorch/specs/[date-ticket-key]/spec.md
+
+**Wait for `/create-spec` to complete.**
+
+Extract the spec folder path from the output.
+
+### PHASE 6: Post Spec to Jira
+
+After spec is generated, post it back to the Jira ticket as a comment with the full spec content.
+
+**Read the generated spec:**
+```bash
+SPEC_PATH="[spec-folder-path]/spec.md"
+SPEC_CONTENT=$(cat "$SPEC_PATH")
+TICKET_KEY="[TICKET-KEY]"
+```
+
+**Post full spec to Jira ticket:**
+```bash
+# Create comment with spec content
+COMMENT_FILE=$(mktemp)
+cat > "$COMMENT_FILE" <<'EOF'
+## 📋 Implementation Specification
+
+EOF
+
+# Append the spec content
+cat "$SPEC_PATH" >> "$COMMENT_FILE"
+
+# Add footer
+cat >> "$COMMENT_FILE" <<'EOF'
+
+---
+
+*📋 Generated by devorch*
+
+**Next steps:**
+1. Review the specification above
+2. Run `/implement-spec` to start implementation
+EOF
+
+# Post to Jira
+jira issue comment add "$TICKET_KEY" < "$COMMENT_FILE"
+RESULT=$?
+
+# Clean up temp file
+rm "$COMMENT_FILE"
+```
+
+**Verify post success:**
+```bash
+if [ $RESULT -eq 0 ]; then
+    echo "✅ Posted full spec to $TICKET_KEY"
+    echo "   View at: https://yourcompany.atlassian.net/browse/$TICKET_KEY"
+else
+    echo "❌ Failed to post spec to $TICKET_KEY"
+    echo "Spec saved locally at: $SPEC_PATH"
+fi
+```
+
+## Report
+
+After all phases complete, inform the user:
+
+```
+✅ Implementation spec created and posted to Jira
+
+**Tickets processed:**
+[For each ticket:]
+- **[TICKET-KEY]**: [Summary]
+  - Spec location: `devorch/specs/[date-ticket-key]/spec.md`
+  - Posted to Jira: ✅ / ❌
+  - View at: https://yourcompany.atlassian.net/browse/[TICKET-KEY]
+
+**Next steps:**
+
+1. **Review the spec in Jira**
+   - The full specification has been posted as a comment on the ticket
+   - Review with your team and gather feedback
+   - Update the spec locally if changes are needed
+
+2. **Implement locally (optional)**
+   - If you want to implement the spec yourself, use: `/implement-spec`
+   - The spec is available in the spec folder for reference
+```
+
+**If any tickets failed:**
+Display which tickets failed and why, provide suggestions for resolution.
+
+## Critical Rules
+
+**DO:**
+- ✅ Check jira CLI prerequisites at start
+- ✅ Use enhanced jira-ticket-fetcher with ADF parsing and LLM Q&A detection
+- ✅ Validate Q&A completeness (not just existence) using structured analysis
+- ✅ Use spec-researcher agent to generate requirements.md from parsed data
+- ✅ Pass all ticket data (description, Q&A, attachments) to spec-researcher
+- ✅ Post FULL spec content to Jira (not file references)
+- ✅ Use temp file to post spec: `jira issue comment add KEY < file`
+- ✅ Handle multiple tickets sequentially (one at a time)
+- ✅ Provide clear next steps after spec generation
+
+**DON'T:**
+- ❌ Skip jira CLI prerequisites check
+- ❌ Use fragile string matching like `contains("Clarifying Questions")`
+- ❌ Generate requirements.md with bash (use spec-researcher agent)
+- ❌ Post only file references to Jira (post full content!)
+- ❌ Use heredoc with large content (use temp file instead)
+- ❌ Generate spec without validating Q&A quality
+- ❌ Process multiple tickets in parallel
+- ❌ Continue if all tickets fail to fetch
+- ❌ Assume jira CLI is configured (always check)
+
+## Example Flow
+
+```
+User: /jira-create-spec BACKEND-123
+
+Phase 0: ✅ Pre-checks passed
+Phase 1: ✅ Got ticket key: BACKEND-123
+Phase 2: ✅ Fetched and analyzed ticket
+  - BACKEND-123: Implement user authentication
+  - Parsed 8 comments from ADF
+  - ✅ Complete Q&A found (5 questions answered)
+Phase 3: ✅ Validated Q&A quality
+  - All 5 questions have detailed answers
+Phase 4: ✅ Generated requirements.md using spec-researcher
+  - Created initialization.md with ticket data + Q&A
+  - spec-researcher formatted into requirements.md
+  - Spec folder: devorch/specs/2025-01-24-user-auth/
+Phase 5: ✅ Generated spec using /create-spec
+  - Spec: devorch/specs/2025-01-24-user-auth/spec.md
+Phase 6: ✅ Posted full spec content to BACKEND-123
+  - View at: https://yourcompany.atlassian.net/browse/BACKEND-123
+
+✅ Implementation spec created and posted to Jira
+
+Next steps:
+1. Review the spec in Jira with your team
+2. (Optional) Run /implement-spec if you want to implement locally
+```

@@ -1,0 +1,294 @@
+name: Auto-Update Skills
+
+on:
+  # Daily at 2am UTC
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Allow manual triggering
+  workflow_dispatch: {}
+
+# Prevent concurrent runs
+concurrency:
+  group: auto-update-skills
+  cancel-in-progress: false
+
+jobs:
+  generate-matrix:
+    name: Discover Skills to Update
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+      has_skills: ${{ steps.generate.outputs.has_skills }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate matrix from .updater configs
+        id: generate
+        run: |
+          # Run script to discover all skills with .updater/prompt.md
+          MATRIX=$(bun run .github/scripts/generate-update-matrix.ts)
+
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+          # Check if there are skills to update
+          SKILL_COUNT=$(echo "$MATRIX" | jq '.include | length')
+          if [ "$SKILL_COUNT" -gt 0 ]; then
+            echo "has_skills=true" >> $GITHUB_OUTPUT
+            echo "✓ Discovered $SKILL_COUNT skills with auto-update enabled"
+            echo "$MATRIX" | jq -r '.include[] | "  - \(.skill) (\(.skill_path))"'
+          else
+            echo "has_skills=false" >> $GITHUB_OUTPUT
+            echo "No skills with auto-update configured"
+          fi
+
+  update-skills:
+    name: Update ${{ matrix.skill }}
+    needs: generate-matrix
+    if: needs.generate-matrix.outputs.has_skills == 'true'
+    runs-on: self-hosted
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Import secrets
+        id: vault-secrets
+        uses: hellofresh/jetstream-ci-scripts/actions/vault@master
+        with:
+          shared-secrets: |
+            common/data/defaults GITHUB_TOKEN ;
+
+      - name: Create update branch if needed
+        run: |
+          BRANCH_NAME="auto-update/skills-$(date +%Y%m%d)"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+          # Check if branch exists on remote
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "Branch exists, checking out"
+            git fetch origin "$BRANCH_NAME"
+            git checkout "$BRANCH_NAME"
+          else
+            echo "Creating new branch"
+            git checkout -b "$BRANCH_NAME"
+            git push -u origin "$BRANCH_NAME"
+          fi
+
+      - name: Clone source repositories to parent directory
+        run: |
+          cd ..
+
+          # Clone all repos needed for this skill
+          IFS=',' read -ra REPOS <<< "${{ matrix.repos }}"
+          for repo in "${REPOS[@]}"; do
+            repo_name=$(basename "$repo")
+            if [ ! -d "$repo_name" ]; then
+              echo "Cloning $repo to ../$repo_name"
+              git clone https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/$repo.git
+            else
+              echo "Repository $repo_name already exists, skipping"
+            fi
+          done
+
+      - name: Read update prompt
+        id: read_prompt
+        run: |
+          PROMPT=$(cat ${{ matrix.skill_path }}/.updater/prompt.md)
+          echo "prompt<<EOF" >> $GITHUB_OUTPUT
+          echo "$PROMPT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::951719175506:role/github-actions-invoke-model
+          aws-region: eu-west-1
+          role-chaining: true
+
+      - name: Update skill with Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          use_bedrock: "true"
+          github_token: ${{ env.GITHUB_TOKEN }}
+          prompt: ${{ steps.read_prompt.outputs.prompt }}
+          claude_args: |
+            --max-turns 30
+            --model eu.anthropic.claude-sonnet-4-5-20250929-v1:0
+            --allowedTools Read,Write,Edit,Glob,Grep,Bash
+            --output-format text
+
+      - name: Commit reports to update branch
+        run: |
+          # Add reports to update branch (they're gitignored on master, but we want them in PR)
+          if [ -d "${{ matrix.skill_path }}/.updater/reports" ]; then
+            git add -f ${{ matrix.skill_path }}/.updater/reports/*.md 2>/dev/null || true
+
+            # Only commit if there are reports to commit
+            if ! git diff --cached --quiet; then
+              git commit -m "chore: add update report for ${{ matrix.skill }}"
+              echo "✓ Committed report for ${{ matrix.skill }}"
+            fi
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          # Check if skill file was updated
+          if git diff origin/master --quiet -- ${{ matrix.skill_path }}/SKILL.md; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected for ${{ matrix.skill }}"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected for ${{ matrix.skill }}"
+            git diff origin/master --name-only -- ${{ matrix.skill_path }}/
+          fi
+
+          # Find and read the latest report if it exists
+          REPORT_FILE=$(ls -t ${{ matrix.skill_path }}/.updater/reports/*-update.md 2>/dev/null | head -n 1)
+          if [ -f "$REPORT_FILE" ]; then
+            echo "report<<EOF" >> $GITHUB_OUTPUT
+            cat "$REPORT_FILE" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "report=No report generated." >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          # Push all commits (skill updates + reports)
+          git push origin "$BRANCH_NAME"
+
+  create-pr:
+    name: Create Pull Request
+    needs: [generate-matrix, update-skills]
+    if: always() && needs.generate-matrix.outputs.has_skills == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Import secrets
+        id: vault-secrets
+        uses: hellofresh/jetstream-ci-scripts/actions/vault@master
+        with:
+          shared-secrets: |
+            common/data/defaults GITHUB_TOKEN ;
+
+      - name: Check for update branch and reports
+        id: check_branch
+        run: |
+          BRANCH_NAME="auto-update/skills-$(date +%Y%m%d)"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+            git fetch origin "$BRANCH_NAME"
+            git checkout "$BRANCH_NAME"
+
+            # Check if there are any commits on the branch
+            COMMIT_COUNT=$(git rev-list --count origin/master..HEAD)
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+
+              # Collect all reports from .updater/reports directories
+              echo "reports<<EOF" >> $GITHUB_OUTPUT
+              for report in templates/skills/**/.*updater/reports/$(date +%Y-%m-%d)-*-update.md; do
+                if [ -f "$report" ]; then
+                  echo "---" >> $GITHUB_OUTPUT
+                  echo "" >> $GITHUB_OUTPUT
+                  cat "$report" >> $GITHUB_OUTPUT
+                  echo "" >> $GITHUB_OUTPUT
+                fi
+              done
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update pull request
+        if: steps.check_branch.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+          branch: ${{ steps.check_branch.outputs.branch_name }}
+          base: master
+          title: '🤖 Skills Update - ${{ github.run_number }}'
+          body: |
+            ## 🔄 Auto-Update Skills
+
+            This PR updates skills with the latest patterns from source repositories.
+
+            ### Updated Skills
+
+            ${{ steps.check_branch.outputs.commit_count }} skill(s) have been updated based on changes detected in their configured source repositories.
+
+            ---
+
+            ## 📊 Detailed Reports
+
+            ${{ steps.check_branch.outputs.reports }}
+
+            ---
+
+            ### Review Instructions
+
+            1. **Review the Reports Above**: Read detailed changes for each skill
+            2. **Check Signature Changes**: Verify API updates are correct
+            3. **Review Examples**: Ensure code examples match current APIs
+            4. **Validate Frontmatter**: Confirm skill metadata is preserved
+
+            ### Review Checklist
+
+            - [ ] Reports show accurate changes
+            - [ ] New components/APIs are documented correctly
+            - [ ] Examples are valid and up-to-date
+            - [ ] No outdated information remains
+            - [ ] Frontmatter is preserved correctly
+            - [ ] Skill structure is maintained
+
+            ---
+
+            🤖 **Generated by**: GitHub Actions (Claude Code)
+            **Workflow**: `.github/workflows/auto-update-skills.yml`
+            **Run**: #${{ github.run_number }}
+          labels: |
+            documentation
+            automated
+            claude-code
+          delete-branch: false
+
+      - name: Report no changes
+        if: steps.check_branch.outputs.has_changes == 'false'
+        run: |
+          echo "✓ No updates needed - all skills are up to date"

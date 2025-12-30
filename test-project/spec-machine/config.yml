@@ -1,0 +1,74 @@
+profile:
+  name: test-project
+  description: devorch setup for test-project
+  agents:
+    - claude-code
+  context_training: backend-go-microservice
+commands:
+  - name: /analyze-tech-stack
+    enabled: true
+  - name: /create-spec
+    enabled: true
+  - name: /design-change-web
+    enabled: true
+  - name: /help
+    enabled: true
+subagents:
+  - name: analysis/dependency-scanner
+    enabled: true
+  - name: analysis/tech-stack-analyzer
+    enabled: true
+  - name: analysis/tech-stack-merger
+    enabled: true
+  - name: context-training/artifact-generator
+    enabled: true
+  - name: context-training/context-migrator
+    enabled: true
+  - name: context-training/context-summarizer
+    enabled: true
+  - name: context-training/pattern-reviewer
+    enabled: true
+  - name: context-training/pr-fetcher
+    enabled: true
+  - name: context-training/pr-pattern-analyzer
+    enabled: true
+  - name: context-training/tech-stack-reader
+    enabled: true
+  - name: dev-tools/command-history-collector
+    enabled: true
+  - name: dev-tools/conversation-analyzer
+    enabled: true
+  - name: dev-tools/environment-collector
+    enabled: true
+  - name: dev-tools/error-analyzer
+    enabled: true
+  - name: dev-tools/file-context-collector
+    enabled: true
+  - name: implementation/implementer
+    enabled: true
+  - name: implementation/role-mapper
+    enabled: true
+  - name: implementation/task-parser
+    enabled: true
+  - name: implementation/tasks-list-creator
+    enabled: true
+  - name: implementation/tasks-verifier
+    enabled: true
+  - name: implementation/verifier
+    enabled: true
+  - name: specification/jira-ticket-fetcher
+    enabled: true
+  - name: specification/spec-initializer
+    enabled: true
+  - name: specification/spec-researcher
+    enabled: true
+  - name: specification/spec-verifier
+    enabled: true
+  - name: specification/spec-writer
+    enabled: true
+skills:
+  - name: cli-tools/jira-cli
+    enabled: true
+template_vars:
+  profile_name: test-project
+  generation_date: 2025-11-26T10:03:36.198Z

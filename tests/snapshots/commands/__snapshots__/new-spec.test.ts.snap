@@ -1,0 +1,127 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /new-spec should match snapshot 1`] = `
+"---
+name: "/new-spec"
+description: "Initialize a new spec and research requirements using subagents"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "specification/spec-initializer"
+    - "specification/spec-researcher"
+---
+
+# New Spec Process
+
+You are initiating a new spec for a new feature.  This process will follow 3 main phases, each with their own workflow steps.
+
+## Verify spec-machine Version
+
+**CRITICAL**: Run \`spec-machine check-version\` before proceeding. Parse the JSON output and check \`needsUpdate\` and \`needsReinstall\` fields.
+
+**If \`needsUpdate: true\`**: STOP and tell user to run \`spec-machine update\`, then retry this command.
+
+**If \`needsReinstall: true\`**: STOP and tell user to run \`spec-machine install\`, then retry this command.
+
+**If both are false**: Continue with the command workflow.
+
+**Error handling**: If check-version fails, inform the user and exit (check for missing \`gh\` CLI or network issues).
+
+## Required Subagents Check
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+### Required Subagents
+
+- specification/spec-initializer
+- specification/spec-researcher
+
+## Required Subagents Check
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+### Required Subagents
+
+- specification/spec-initializer
+- specification/spec-researcher
+
+
+---
+
+## Process Overview
+
+PHASE 1. Initialize spec
+PHASE 2. Research requirements for this spec
+PHASE 3. Inform the user that the spec has been initialized
+
+Follow each of these phases and their individual workflows IN SEQUENCE:
+
+## Multi-Phase Process:
+
+### PHASE 1: Initialize Spec
+
+Use the **spec-initializer** subagent to initialize a new spec.
+
+**Pass to spec-initializer:**
+- The user's spec description (if provided)
+
+The spec-initializer will provide the path to the dated spec folder (YYYY-MM-DD-spec-name) they've created.
+
+### PHASE 2: Research Requirements
+
+After spec-initializer completes, immediately use the **spec-researcher** subagent:
+
+Provide the spec-researcher with:
+
+- The spec folder path from spec-initializer
+
+The spec-researcher will give you several separate responses that you MUST show to the user. These include:
+
+1. Numbered clarifying questions along with a request for visual assets (show these to user, wait for user's response)
+2. Follow-up questions if needed (based on user's answers and provided visuals)
+
+**IMPORTANT**:
+
+- Display these questions to the user and wait for their response
+- The spec-researcher may ask you to relay follow-up questions that you must present to user
+
+### PHASE 3: Inform the user
+
+After all steps complete, inform the user:
+
+"Spec initialized successfully!
+
+✅ Spec folder created: \`[spec-path]\`
+✅ Requirements gathered
+✅ Visual assets: [Found X files / No files provided]
+
+👉 Run \`/create-spec\` to generate the detailed specification and task breakdown."
+
+"
+`;

@@ -1,0 +1,813 @@
+---
+schema: command-multi-agent
+name: /zest-add-component-rn
+description: Add or update Zest design system components in the zest-react-native repository. Analyzes Figma designs, generates component files following established patterns, creates comprehensive tests, and manages the full PR workflow with automated monitoring.
+mode: multi-agent
+dependencies:
+  skills:
+    - figma-dev-mode-figma-researcher
+    - figma-dev-mode-figma-image-downloader
+    - ui-design-system-rn-zest-component-creation
+    - ui-design-system-rn-accessibility
+    - ui-design-system-rn-zest-integration
+    - ui-design-system-rn-zest-components
+    - ui-design-system-rn-styling-patterns
+    - mobile-mcp
+partials:
+  setup: common/partials/commands/command-setup.md
+  instructions-footer: common/partials/commands/standard-instructions-footer.md
+---
+
+# Zest Add Component RN
+
+## Purpose
+
+Add or update Zest design system components in the zest-react-native repository based on Figma designs. This command is designed for designers to independently create or update components by following established patterns, ensuring consistency and quality without engineering help.
+
+## Instructions
+
+1. Don't skip any phase or step in the workflow
+2. Always stop for user feedback when requested
+3. This command targets the `zest-react-native` repository → `src/components/` directory
+4. Follow established patterns from `ui-design-system-rn-zest-component-creation` skill
+
+{{partials.instructions-footer}}
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+{{partials.setup}}
+
+### PHASE 1: Check prerequisites
+
+Check `gh` CLI:
+
+```bash
+if ! command -v gh &> /dev/null; then
+  echo "GitHub CLI (gh) not found"
+  echo "Install: https://cli.github.com/"
+  exit 1
+fi
+```
+
+Check `gh` is properly authenticated:
+
+```bash
+if ! gh auth status &> /dev/null; then
+  echo "GitHub CLI not authenticated"
+  echo "Run: gh auth login"
+  exit 1
+fi
+```
+
+**STOP** and explain the user they need to have the `gh` CLI tool installed. You can help them with the install!
+
+#### Optional Prerequisites for Local Testing
+
+Check if `node` is installed:
+
+```bash
+if ! command -v node &> /dev/null; then
+  echo "Node not found"
+  echo "Install: https://nodejs.org/en/download"
+  exit 1
+fi
+```
+
+Check if `yarn` is installed:
+
+```bash
+if ! command -v yarn &> /dev/null; then
+  echo "Yarn not found"
+  echo "Install: https://yarnpkg.com/getting-started/install"
+  exit 1
+fi
+```
+
+Check for iOS development tools (macOS only):
+
+```bash
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  if ! command -v xcrun &> /dev/null; then
+    echo "Xcode Command Line Tools not found"
+    echo "Install: xcode-select --install"
+    exit 1
+  fi
+fi
+```
+
+Check whether the Mobile MCP is available. Use `mobile_list_available_devices` to verify. If it's not available **EXPLAIN** to the user how to install it:
+
+```bash
+claude mcp add mobile-mcp -- npx -y @mobilenext/mobile-mcp@latest
+```
+
+**EXPLAIN** to the user that they need these CLI tools installed to test the component locally. This will make it easier to verify the design changes.
+
+### PHASE 2: Collect input [INTERACTIVE]
+
+We require the following from the user, ask them the questions one-by-one. The questions could have been answered as a part of $ARGS, if yes, then answer the question from that $ARGS input variable.
+
+**Question 1: Operation Type**
+
+Ask the user: "Are you adding a NEW component or UPDATING an existing component?"
+
+Options:
+- "New component" - Creating a brand new Zest component
+- "Update existing" - Modifying an existing Zest component
+
+**Question 2: Figma Design**
+
+We need the Figma design for the component. The Figma file link will look something like: https://www.figma.com/design/rXFdAU9w1qCDKajA6MaxUo/-DRAFT--Onboarding?node-id=1-15326&t=0VD3WkaI5MB3kRdR-11
+
+**IMPORTANT**: Make sure the user selects a specific frame, and doesn't include the full file. When they added a full file, tell them this will result in too much context for the current LLM and ask them to select a specific frame instead.
+
+**Question 3: Component Name**
+
+**IF NEW COMPONENT**: Ask "What should the component be called?"
+- Use PascalCase naming convention (e.g., "Badge", "ProgressBar", "AlertCard")
+- This will be used for directory and component names
+- Show examples: Badge, Button, Accordion, ProgressIndicator
+
+**IF UPDATE EXISTING**: Ask "Which component are you updating?"
+- List available components from `src/components/`
+- Verify the component exists before continuing
+
+**Question 4: Component Description**
+
+Ask for a brief description of what the component does (1-2 sentences). This will be used in JSDoc comments and documentation.
+
+**Question 5: Ticket Number**
+
+We need a JIRA ticket number for the Pull Request. Ask "What is the JIRA ticket number?"
+
+Format: `TICKET-123` or `EPS-456`
+
+### PHASE 3: Verify repository and component
+
+Navigate to the `zest-react-native` repository and verify the structure:
+
+```bash
+# Check if we're in the zest-react-native repository
+if [ ! -f "package.json" ]; then
+  echo "Not in a repository root"
+  exit 1
+fi
+
+# Check if src/components exists
+if [ ! -d "src/components" ]; then
+  echo "src/components directory not found"
+  echo "Are you in the zest-react-native repository?"
+  exit 1
+fi
+```
+
+**STOP** if not in the correct repository and explain the issue.
+
+**IF UPDATE EXISTING**: Verify the component exists:
+
+```bash
+if [ ! -d "src/components/$COMPONENT_NAME" ]; then
+  echo "Component $COMPONENT_NAME not found"
+  echo "Available components:"
+  ls -1 src/components/ | grep -v index.ts
+  exit 1
+fi
+```
+
+**IF UPDATE EXISTING**: Read all existing component files to understand current implementation:
+
+```bash
+# List all files in the component directory
+find src/components/$COMPONENT_NAME -type f
+```
+
+Read each file and analyze:
+- Current props and types
+- Existing variants
+- Current styling patterns (createStylesConfig)
+- Test coverage
+- What needs to change vs. what to preserve
+
+**PRESENT** your analysis to the user and ask "Does this match what you want to update?"
+
+### PHASE 4: Parse Figma design
+
+Activate the `figma-dev-mode-figma-researcher` skill to research the given Figma file. If the Figma researcher fails, download the screenshots by activating the `figma-dev-mode-figma-image-downloader` skill.
+
+Extract from the Figma design:
+- **Design tokens**: Colors, spacing, typography, border radius
+- **Component structure**: Layout, hierarchy, elements
+- **Interactive states**: Pressed, disabled, loading, active (if shown in Figma)
+- **Variants**: Different visual variations (e.g., primary, secondary, outline)
+- **Sizes**: Different size options (e.g., sm, md, lg)
+- **Accessibility needs**: Labels, roles, semantic meaning
+
+**PRESENT** the extracted information to the user in a clear, non-technical way. Show:
+
+**IF NEW COMPONENT**:
+- Component structure you plan to create
+- Zest primitives you'll use (Text, Icon, etc.)
+- Theme tokens you'll apply (global.spacing.md, alias.color.brand.background.default)
+- Props the component will accept (with examples)
+- Variants and sizes you'll support
+- File structure (index.tsx, types.ts, styles.ts, index.spec.tsx)
+
+**IF UPDATE EXISTING**:
+- What will change (new props, new variants, style updates, behavior changes)
+- What will stay the same
+- Whether this is a breaking change
+- Files that will be modified
+
+**WAIT** for user approval before continuing. Ask "Does this plan look good to you? Any changes or concerns?"
+
+### PHASE 5: Activate Zest patterns skill
+
+Activate the `ui-design-system-rn-zest-component-creation` skill to understand the established patterns for React Native.
+
+Activate the `ui-design-system-rn-accessibility` skill to ensure proper accessibility implementation.
+
+Activate the `ui-design-system-rn-styling-patterns` skill to understand styling patterns.
+
+**CRITICAL**: Follow the patterns EXACTLY as documented in the skills. These patterns are the standard way components are built in the zest-react-native repository.
+
+### PHASE 6: Generate or update component files
+
+**IF NEW COMPONENT**: Follow the component creation patterns from the skill.
+
+**IF UPDATE EXISTING**: Modify existing files following the same patterns.
+
+### For NEW Component - Create These Files:
+
+#### Step 6.1: Create directory
+
+```bash
+mkdir -p src/components/$COMPONENT_NAME
+cd src/components/$COMPONENT_NAME
+```
+
+#### Step 6.2: Create `types.ts`
+
+Generate TypeScript interface with:
+- Props based on Figma design
+- Variant types (if applicable)
+- Size types (if applicable)
+- Standard props: `children`, `onPress`, `disabled`, `testID`
+- Accessibility props: `accessibilityLabel`, `accessibilityHint`, `accessibilityRole`
+- JSDoc comments for all props with `@default` values
+- ViewStyle for custom style prop
+
+```typescript
+import { ViewStyle } from 'react-native';
+
+export interface MyComponentProps {
+  /** The variant style of the component */
+  variant?: 'primary' | 'secondary' | 'outline';
+  /** Size of the component */
+  size?: 'sm' | 'md' | 'lg';
+  /** Content to display */
+  children: React.ReactNode;
+  /** Press handler */
+  onPress?: () => void;
+  /** Disabled state @default false */
+  disabled?: boolean;
+  /** Test identifier for testing */
+  testID?: string;
+  /** Accessibility label for screen readers */
+  accessibilityLabel?: string;
+  /** Accessibility hint for screen readers */
+  accessibilityHint?: string;
+  /** Additional styles */
+  style?: ViewStyle;
+}
+```
+
+#### Step 6.3: Create `styles.ts`
+
+Generate styles using createStylesConfig (NOT StyleSheet.create):
+- Design token strings only (NEVER hardcode values)
+- Use callback pattern for computed/negative values
+
+```typescript
+import { createStylesConfig } from '@zest/react-native';
+
+export const stylesConfig = createStylesConfig({
+  container: {
+    borderRadius: 'global.borderRadius.md',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primary: {
+    backgroundColor: 'alias.color.brand.background.default',
+    padding: 'global.spacing.md',
+  },
+  secondary: {
+    backgroundColor: 'alias.color.neutral.background.default',
+    padding: 'global.spacing.md',
+    borderWidth: 1,
+    borderColor: 'alias.color.neutral.border.default',
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  text: {
+    color: 'alias.color.neutral.foreground.default',
+  },
+  // Callback pattern for computed/negative values
+  negativeMargin: {
+    marginHorizontal: (theme) => -theme.global.spacing.xs,
+  },
+});
+```
+
+#### Step 6.4: Create `index.tsx`
+
+Generate main component file with:
+- **Figma reference comment** at the top: `// Figma: [FIGMA_URL]`
+- Import statements from @zest/react-native
+- Component implementation using functional component
+- JSDoc comment with description and usage example
+- Design token usage via useZestStyles (never hardcode)
+- Proper accessibility attributes:
+  - `accessible={true}`
+  - `accessibilityRole` (button, text, image, etc.)
+  - `accessibilityLabel` for screen readers
+  - `accessibilityHint` for additional context
+  - `accessibilityState` for disabled/selected states
+- Always provide `testID` prop
+- Export component and types
+
+```typescript
+// Figma: [FIGMA_URL]
+import React from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import { Text, useZestStyles } from '@zest/react-native';
+import type { MyComponentProps } from './types';
+import { stylesConfig } from './styles';
+
+/**
+ * MyComponent - Brief description
+ *
+ * @example
+ * <MyComponent variant="primary" onPress={handlePress} testID="my-component">
+ *   Content
+ * </MyComponent>
+ */
+export const MyComponent: React.FC<MyComponentProps> = ({
+  variant = 'primary',
+  children,
+  onPress,
+  disabled = false,
+  testID,
+  accessibilityLabel,
+  accessibilityHint,
+  style,
+}) => {
+  const styles = useZestStyles(stylesConfig);
+  const Wrapper = onPress ? TouchableOpacity : View;
+
+  return (
+    <Wrapper
+      style={[styles.container, styles[variant], disabled && styles.disabled, style]}
+      onPress={onPress}
+      disabled={disabled}
+      testID={testID}
+      accessible={true}
+      accessibilityRole={onPress ? 'button' : 'none'}
+      accessibilityLabel={accessibilityLabel || (typeof children === 'string' ? children : undefined)}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled }}
+    >
+      <Text type="body-md-regular" style={styles.text}>
+        {children}
+      </Text>
+    </Wrapper>
+  );
+};
+
+export type { MyComponentProps } from './types';
+```
+
+#### Step 6.5: Create `index.spec.tsx`
+
+Generate comprehensive tests:
+- Basic rendering test
+- Variants test (all variants render correctly)
+- Props test (custom props work)
+- Interaction test (onPress)
+- Disabled state test
+- Accessibility tests (accessible, accessibilityRole, accessibilityLabel)
+- Use ThemeProvider wrapper
+
+```typescript
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react-native';
+import { MyComponent } from './index';
+import { ThemeProvider } from '../../theme';
+
+const renderWithTheme = (component: React.ReactElement) => {
+  return render(<ThemeProvider>{component}</ThemeProvider>);
+};
+
+describe('MyComponent', () => {
+  it('renders children correctly', () => {
+    const { getByText } = renderWithTheme(
+      <MyComponent>Test Content</MyComponent>
+    );
+    expect(getByText('Test Content')).toBeTruthy();
+  });
+
+  it('calls onPress when pressed', () => {
+    const handlePress = jest.fn();
+    const { getByTestID } = renderWithTheme(
+      <MyComponent onPress={handlePress} testID="my-component">
+        Press me
+      </MyComponent>
+    );
+
+    fireEvent.press(getByTestID('my-component'));
+    expect(handlePress).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onPress when disabled', () => {
+    const handlePress = jest.fn();
+    const { getByTestID } = renderWithTheme(
+      <MyComponent onPress={handlePress} disabled testID="my-component">
+        Press me
+      </MyComponent>
+    );
+
+    fireEvent.press(getByTestID('my-component'));
+    expect(handlePress).not.toHaveBeenCalled();
+  });
+
+  it('has proper accessibility attributes', () => {
+    const { getByTestID } = renderWithTheme(
+      <MyComponent
+        onPress={() => {}}
+        testID="my-component"
+        accessibilityLabel="Test button"
+        accessibilityHint="Tap to perform action"
+      >
+        Press me
+      </MyComponent>
+    );
+
+    const component = getByTestID('my-component');
+    expect(component.props.accessible).toBe(true);
+    expect(component.props.accessibilityRole).toBe('button');
+    expect(component.props.accessibilityLabel).toBe('Test button');
+  });
+});
+```
+
+### For UPDATE Existing - Modify These Files:
+
+#### Step 6.1: Update `types.ts` (if adding props)
+
+Add new props with JSDoc comments and `@default` values.
+
+#### Step 6.2: Update `styles.ts` (if changing styles)
+
+Add/modify styles using design tokens via createStylesConfig.
+
+#### Step 6.3: Update `index.tsx`
+
+- Update Figma reference comment if design changed
+- Add/modify prop handling
+- Update implementation as needed
+- Ensure accessibility remains intact
+
+#### Step 6.4: Update tests
+
+Add test cases for new functionality:
+- New props
+- New variants
+- New behavior
+
+### PHASE 7: Update exports
+
+**IF NEW COMPONENT**: Update `src/index.ts` to export the new component:
+
+```typescript
+// Find appropriate location and add:
+export { MyComponent } from './components/MyComponent';
+export type { MyComponentProps } from './components/MyComponent';
+```
+
+**IF UPDATE EXISTING**: Update exports if new types were added.
+
+### PHASE 8: Test locally (OPTIONAL)
+
+**WHEN**: User doesn't have `yarn`, `node`, or mobile development tools, continue to PHASE 9.
+
+**WHEN**: User has the prerequisites, test the component locally.
+
+#### Step 8.1: Install dependencies (if needed)
+
+```bash
+yarn install
+```
+
+#### Step 8.2: Run tests
+
+```bash
+# Run the specific component tests
+yarn test src/components/$COMPONENT_NAME/index.spec.tsx
+
+# If tests fail, fix issues and re-run
+```
+
+Fix any test failures before continuing.
+
+#### Step 8.3: Run Storybook (if available)
+
+```bash
+yarn storybook
+```
+
+#### Step 8.4: Verify with Mobile MCP
+
+1. Use `mobile_list_available_devices` to find available devices
+2. Launch the Storybook app or test app
+3. Use `mobile_take_screenshot` to capture the component
+4. Navigate to the component using `mobile_list_elements_on_screen` and `mobile_click_on_screen_at_coordinates`
+5. Take screenshots of different variants/states
+6. Compare with the Figma design
+
+Ask the user to verify the changes before continuing. Ask: "Does the component look correct? Ready to create the PR?"
+
+### PHASE 9: Create PR
+
+Since we're not working with a dev, use the `gh` tool to create a new PR. Create a branch like this:
+
+`feature/[TICKET_NUMBER]-[slug-of-change-description]`
+
+Examples:
+- `feature/EPS-1000-add-badge-component`
+- `feature/ZEST-2426-update-button-sizes`
+
+Then use the PR Template to create the PR. The title should start with [TICKET_NUMBER], in brackets:
+
+**IF NEW COMPONENT**:
+```txt
+[TICKET-123] Add ComponentName Zest component
+```
+
+**IF UPDATE EXISTING**:
+```txt
+[TICKET-456] Update ComponentName with new variants
+```
+
+### PR Body Template for NEW Component:
+
+```markdown
+## Summary
+- Added new ComponentName component to Zest React Native design system
+- Includes variants: [list variants]
+- Includes sizes: [list sizes]
+- Full test coverage
+- Accessibility support (VoiceOver, TalkBack)
+
+## Figma
+[Figma URL]
+
+## Files Created
+- `src/components/ComponentName/index.tsx`
+- `src/components/ComponentName/types.ts`
+- `src/components/ComponentName/styles.ts`
+- `src/components/ComponentName/index.spec.tsx`
+
+## Test Plan
+- [ ] Run `yarn test` - all tests pass
+- [ ] Verify all variants render correctly
+- [ ] Verify accessibility (accessibilityLabel, accessibilityRole, accessibilityState)
+- [ ] Verify design tokens are used (no hardcoded values)
+- [ ] Test with VoiceOver/TalkBack
+
+## Usage Example
+\`\`\`typescript
+import { ComponentName } from '@zest/react-native';
+
+<ComponentName
+  variant="primary"
+  onPress={handlePress}
+  testID="my-component"
+  accessibilityLabel="Action button"
+>
+  Content
+</ComponentName>
+\`\`\`
+
+## Rollback Difficulty
+Easy - New component, no dependencies on existing code
+
+---
+
+Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### PR Body Template for UPDATE Existing:
+
+```markdown
+## Summary
+- Updated ComponentName Zest component
+- [List specific changes made]
+
+## Changes
+- **NEW**: [List new features/props/variants]
+- **UPDATED**: [List modifications]
+- **BREAKING**: [List breaking changes, if any]
+
+## Figma
+Before: [Old Figma URL if changed]
+After: [New Figma URL]
+
+## Files Modified
+- `src/components/ComponentName/index.tsx`
+- [List other modified files]
+
+## Test Plan
+- [ ] Run `yarn test` - all tests pass
+- [ ] Verify existing usages still work (no regressions)
+- [ ] Verify new functionality works correctly
+- [ ] Verify accessibility remains intact
+
+## Before/After Screenshots
+[If visual changes, include screenshots]
+
+## Rollback Difficulty
+[Easy/Moderate/Hard] - [Explain why]
+
+---
+
+Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### Create the PR
+
+```bash
+# Stage changes
+git add src/components/$COMPONENT_NAME/
+git add src/index.ts
+
+# Commit with message
+git commit -m "$(cat <<'EOF'
+[TICKET-123] Add/Update ComponentName Zest component
+
+[Brief description of changes]
+
+Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+
+# Push branch
+git push -u origin feature/TICKET-123-slug
+
+# Create PR using gh
+gh pr create --title "[TICKET-123] Add/Update ComponentName" --body "[PR body from template above]"
+```
+
+### PHASE 10: Monitor GH Actions
+
+Now monitor the GH actions on the PR. Keep checking the status:
+
+```bash
+gh pr checks [PR_NUMBER] --watch
+```
+
+Keep waiting until some action fails or all checks pass.
+
+Common issues to fix automatically:
+- **TypeScript errors**: Type mismatches, missing imports, incorrect prop types
+- **Linting errors**: Prettier formatting, ESLint rule violations
+- **Test failures**: Failing tests, outdated snapshots
+- **Import path issues**: Incorrect import paths
+
+### Fix TypeScript Errors
+
+```bash
+# Run TypeScript check locally
+yarn tsc --noEmit
+```
+
+### Fix Linting Errors
+
+```bash
+# Run Prettier
+yarn prettier --write src/components/$COMPONENT_NAME/
+
+# Run ESLint
+yarn eslint --fix src/components/$COMPONENT_NAME/
+```
+
+### Fix Test Failures
+
+```bash
+# Run tests
+yarn test src/components/$COMPONENT_NAME/
+
+# Push fixes
+git add .
+git commit -m "fix: Address CI failures"
+git push
+```
+
+**CONTINUE MONITORING** until all checks are green.
+
+**ONLY QUIT AND SUCCEED** when all the checks are green and the PR is ready for review.
+
+## Report
+
+**IF NEW COMPONENT**:
+1. **Summary of what was created**:
+   - Component name: ComponentName
+   - Location: `src/components/ComponentName/`
+   - Files created: [list all files]
+   - Variants implemented: [list variants]
+   - Sizes implemented: [list sizes]
+   - Features: [list notable features]
+
+2. **PR Information**:
+   - PR link: [URL]
+   - Branch: feature/TICKET-123-slug
+   - Status: [All checks passing / Some checks failing]
+
+3. **Usage Example**:
+   ```typescript
+   import { ComponentName } from '@zest/react-native';
+
+   <ComponentName
+     variant="primary"
+     onPress={handlePress}
+     testID="my-component"
+     accessibilityLabel="Action button"
+   >
+     Content
+   </ComponentName>
+   ```
+
+4. **Next Steps**:
+   - Request review from the design system team
+   - Once approved and merged, publish new version of @zest/react-native
+   - Update Zest documentation if needed
+   - Announce new component to the team
+
+**IF UPDATE EXISTING**:
+1. **Summary of what was updated**:
+   - Component: ComponentName
+   - Location: `src/components/ComponentName/`
+   - Changes made: [detailed list]
+   - Breaking changes: [Yes/No, explain if yes]
+   - Files modified: [list files]
+
+2. **PR Information**:
+   - PR link: [URL]
+   - Branch: feature/TICKET-456-slug
+   - Status: [All checks passing / Some checks failing]
+
+3. **Migration Guide** (if breaking changes):
+   ```typescript
+   // Before
+   <ComponentName oldProp={value} />
+
+   // After
+   <ComponentName newProp={value} />
+   ```
+
+4. **Next Steps**:
+   - Request review from the design system team
+   - Once approved and merged, publish new version
+   - Communicate breaking changes to affected teams
+   - Update component documentation
+
+**Success!** Your Zest React Native component has been [added/updated] and is ready for review!
+
+## Critical Rules
+
+**DO:**
+- Use design tokens via createStylesConfig for ALL styling (never hardcode colors, spacing, or typography)
+- Use Zest primitives (Text, Icon, etc.) for component structure
+- Add testID to all interactive elements for testing
+- Add proper accessibility attributes (accessibilityLabel, accessibilityRole, accessibilityState, accessibilityHint)
+- Add altText to all Icon components
+- Follow the established patterns from `ui-design-system-rn-zest-component-creation` skill exactly
+- Add Figma reference comments at the top of component files
+- Wait for user confirmation at interactive phases
+
+**DON'T:**
+- Use StyleSheet.create() - use createStylesConfig and useZestStyles instead
+- Hardcode colors, spacing, or typography values
+- Skip accessibility requirements (VoiceOver/TalkBack support)
+- Create components without tests
+- Deviate from established component file structure patterns (index.tsx, types.ts, styles.ts, index.spec.tsx)
+- Skip the Figma design analysis phase
+- Push code without running tests first (when local testing is available)
+- Forget testID props on interactive elements

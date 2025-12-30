@@ -1,0 +1,732 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /zest-add-component-web should match snapshot 1`] = `
+"---
+name: "/zest-add-component-web"
+description: "Add or update Zest design system components in the web repository. Analyzes Figma designs, generates component files following established patterns from production PRs, creates comprehensive tests, Storybook documentation, and manages the full PR workflow with automated monitoring."
+mode: "multi-agent"
+dependencies:
+  skills:
+    - "figma-dev-mode-figma-researcher"
+    - "figma-dev-mode-figma-image-downloader"
+    - "ui-design-system-zest-components-web-patterns"
+    - "ui-design-system-web-accessibility"
+    - "ui-design-system-zest-web-integration"
+    - "ui-design-system-zest-components"
+---
+
+# Zest Add Component Web
+
+## Purpose
+
+Add or update Zest design system components in the HelloFresh web repository based on Figma designs. This command is designed for designers to independently create or update components by following established patterns from production PRs, ensuring consistency and quality without engineering help.
+
+## Instructions
+
+1. Don't skip any phase or step in the workflow
+2. Always stop for user feedback when requested
+3. This command targets the \`web\` repository → \`packages/zest/\` directory
+4. Follow established patterns from \`ui-design-system-zest-components-web-patterns\` skill
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /zest-add-component-web
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Skills
+
+This command-multi-agent requires the following skills to be activated:
+
+- Activate skill **\`figma-dev-mode-figma-researcher\`**
+- Activate skill **\`figma-dev-mode-figma-image-downloader\`**
+- Activate skill **\`ui-design-system-zest-components-web-patterns\`**
+- Activate skill **\`ui-design-system-web-accessibility\`**
+- Activate skill **\`ui-design-system-zest-web-integration\`**
+- Activate skill **\`ui-design-system-zest-components\`**
+
+
+### PHASE 1: Check prerequisites
+
+Check \`gh\` CLI:
+
+\`\`\`bash
+if ! command -v gh &> /dev/null; then
+  echo "❌ GitHub CLI (gh) not found"
+  echo "Install: https://cli.github.com/"
+  exit 1
+fi
+\`\`\`
+
+Check \`gh\` is properly authenticated:
+
+\`\`\`bash
+if ! gh auth status &> /dev/null; then
+  echo "❌ GitHub CLI not authenticated"
+  echo "Run: gh auth login"
+  exit 1
+fi
+\`\`\`
+
+**STOP** and explain the user they need to have the \`gh\` CLI tool installed. You can help them with the install!
+
+### Optional Prerequisites
+
+Check if \`node\` is installed:
+
+\`\`\`bash
+if ! command -v node &> /dev/null; then
+  echo "❌ Node not found"
+  echo "Install: https://nodejs.org/en/download"
+  exit 1
+fi
+\`\`\`
+
+Check if \`node\` has the right version, using \`node --version\` and checking \`package.json@engines\`.
+
+Check if \`yarn\` is installed:
+
+\`\`\`bash
+if ! command -v yarn &> /dev/null; then
+  echo "❌ Yarn not found"
+  echo "Install: https://yarnpkg.com/getting-started/install"
+  exit 1
+fi
+\`\`\`
+
+**EXPLAIN** to the user that they need these CLI tools installed to run the web repository locally for testing. You can help them with the install! This will make it easier to verify changes.
+
+Check whether the Playwright or Chrome DevTools MCP is available, if the user has both \`node\` and \`yarn\`. If it's not available, **EXPLAIN** to the user how to install it for local testing (but this is optional).
+
+### PHASE 2: Collect input [INTERACTIVE]
+
+We require the following from the user, ask them the questions one-by-one. The questions could have been answered as a part of $ARGS, if yes, then answer the question from that $ARGS input variable.
+
+**Question 1: Operation Type**
+
+Ask the user: "Are you adding a NEW component or UPDATING an existing component?"
+
+Options:
+- "New component" - Creating a brand new Zest component
+- "Update existing" - Modifying an existing Zest component
+
+**Question 2: Figma Design**
+
+We need the Figma design for the component. The Figma file link will look something like: https://www.figma.com/design/rXFdAU9w1qCDKajA6MaxUo/-DRAFT--Onboarding?node-id=1-15326&t=0VD3WkaI5MB3kRdR-11
+
+**IMPORTANT**: Make sure the user selects a specific frame, and doesn't include the full file. When they added a full file, tell them this will result in too much context for the current LLM and ask them to select a specific frame instead.
+
+**Question 3: Component Name**
+
+**IF NEW COMPONENT**: Ask "What should the component be called?"
+- Use PascalCase naming convention (e.g., "Badge", "ProgressBar", "AlertCard")
+- This will be used for file names and the component export
+- Show examples: Badge, Button, Accordion, ProgressIndicator
+
+**IF UPDATE EXISTING**: Ask "Which component are you updating?"
+- List available components from \`packages/zest/src/\`
+- Verify the component exists before continuing
+
+**Question 4: Component Description**
+
+Ask for a brief description of what the component does (1-2 sentences). This will be used in JSDoc comments and documentation.
+
+**Question 5: Ticket Number**
+
+We need a JIRA ticket number for the Pull Request. Ask "What is the JIRA ticket number?"
+
+Format: \`TICKET-123\` or \`EPS-456\`
+
+### PHASE 3: Verify repository and component
+
+Navigate to the \`web\` repository and verify the structure:
+
+\`\`\`bash
+# Check if we're in the web repository
+if [ ! -f "package.json" ]; then
+  echo "❌ Not in a repository root"
+  exit 1
+fi
+
+# Check if packages/zest exists
+if [ ! -d "packages/zest" ]; then
+  echo "❌ packages/zest directory not found"
+  echo "Are you in the web repository?"
+  exit 1
+fi
+
+# Check if packages/zest/src exists
+if [ ! -d "packages/zest/src" ]; then
+  echo "❌ packages/zest/src directory not found"
+  exit 1
+fi
+\`\`\`
+
+**STOP** if not in the correct repository and explain the issue.
+
+**IF UPDATE EXISTING**: Verify the component exists:
+
+\`\`\`bash
+if [ ! -d "packages/zest/src/$COMPONENT_NAME" ]; then
+  echo "❌ Component $COMPONENT_NAME not found"
+  echo "Available components:"
+  ls -1 packages/zest/src/ | grep -v index.ts
+  exit 1
+fi
+\`\`\`
+
+**IF UPDATE EXISTING**: Read all existing component files to understand current implementation:
+
+\`\`\`bash
+# List all files in the component directory
+find packages/zest/src/$COMPONENT_NAME -type f
+\`\`\`
+
+Read each file and analyze:
+- Current props and types
+- Existing variants
+- Current styling patterns
+- Test coverage
+- What needs to change vs. what to preserve
+
+**PRESENT** your analysis to the user and ask "Does this match what you want to update?"
+
+### PHASE 4: Parse Figma design
+
+Activate the \`figma-dev-mode-figma-researcher\` skill to research the given Figma file. If the Figma researcher fails, download the screenshots by activating the \`figma-dev-mode-figma-image-downloader\` skill.
+
+Extract from the Figma design:
+- **Design tokens**: Colors, spacing, typography, border radius, shadows
+- **Component structure**: Layout, hierarchy, elements
+- **Interactive states**: Hover, pressed, disabled, loading, active (if shown in Figma)
+- **Variants**: Different visual variations (e.g., neutral, brand, error, success)
+- **Sizes**: Different size options (e.g., sm, md, lg)
+- **Accessibility needs**: Labels, roles, semantic meaning, keyboard navigation
+
+**PRESENT** the extracted information to the user in a clear, non-technical way. Show:
+
+**IF NEW COMPONENT**:
+- Component structure you plan to create
+- Zest primitives you'll use (Box, Text, Icon, etc.)
+- Theme tokens you'll apply
+- Props the component will accept (with examples)
+- Variants and sizes you'll support
+- File structure (Simple Component, Complex Component, or Multiple Variants pattern)
+
+**IF UPDATE EXISTING**:
+- What will change (new props, new variants, style updates, behavior changes)
+- What will stay the same
+- Whether this is a breaking change
+- Files that will be modified
+
+**WAIT** for user approval before continuing. Ask "Does this plan look good to you? Any changes or concerns?"
+
+### PHASE 5: Activate Zest patterns skill
+
+Activate the \`ui-design-system-zest-components-web-patterns\` skill to understand the established patterns from production PRs.
+
+Activate the \`ui-design-system-web-accessibility\` skill to ensure proper accessibility implementation.
+
+**CRITICAL**: Follow the patterns EXACTLY as documented in the skill. These patterns come from real production PRs and are the standard way components are built in the web repository.
+
+### PHASE 6: Generate or update component files
+
+**IF NEW COMPONENT**: Follow "Pattern 1: Adding a New Component" from the skill.
+
+**IF UPDATE EXISTING**: Follow "Pattern 2: Updating an Existing Component" from the skill.
+
+### For NEW Component - Create These Files:
+
+#### Step 6.1: Determine file structure
+
+Based on component complexity, choose the right structure from the skill:
+- **Simple Component**: Single-level, straightforward (Badge, Spinner)
+- **Complex Component**: Multiple sub-components, uses Context (Accordion, Modal)
+- **Multiple Variants**: Separate wrapper components for variants (Button)
+
+#### Step 6.2: Create directory
+
+\`\`\`bash
+mkdir -p packages/zest/src/$COMPONENT_NAME/__snapshots__
+cd packages/zest/src/$COMPONENT_NAME
+\`\`\`
+
+#### Step 6.3: Create \`types.ts\`
+
+Generate TypeScript interface with:
+- Props based on Figma design
+- Variant types (if applicable)
+- Size types (if applicable)
+- Standard props: \`children\`, \`onClick\`, \`disabled\`, \`data-testid\`
+- JSDoc comments for all props with \`@default\` values
+- Proper type extensions: \`& Omit<React.HTMLAttributes<HTMLDivElement>, keyof CSSProperties | 'style'>\`
+
+#### Step 6.4: Create \`styles.ts\`
+
+Generate default styles file with:
+- Design tokens only (NEVER hardcode values)
+- Component-specific tokens: \`components.[component].[property].[variant]\`
+- Return type as \`BoxProps\`
+
+#### Step 6.5: Create \`variants.ts\` (if component has variants)
+
+Generate variants configuration with:
+- Array of variant objects, one per prop (\`variant\`, \`size\`, etc.)
+- Use design tokens for all values
+- Type as \`Variant<UseNewTokens>[]\`
+
+#### Step 6.6: Create \`ComponentName.tsx\`
+
+Generate main component file with:
+- **Figma reference comment** at the top: \`// Figma: [FIGMA_URL]\`
+- Import statements from Zest (\`Box\`, \`Text\`, \`Icon\`, etc.)
+- Component implementation using \`forwardRef\`
+- JSDoc comment with description and usage example
+- Design token usage (never hardcode colors/spacing)
+- Proper accessibility attributes:
+  - \`role\` attribute
+  - \`aria-label\`, \`aria-disabled\`, \`aria-expanded\` as needed
+  - \`tabIndex\` for keyboard navigation
+- Conditional styling based on props
+- Set \`displayName\` for debugging
+
+#### Step 6.7: Create \`index.ts\`
+
+Generate barrel export:
+\`\`\`typescript
+import ComponentName from './ComponentName';
+export default ComponentName;
+\`\`\`
+
+For complex components with sub-components, use \`Object.assign\` pattern from the skill.
+
+#### Step 6.8: Create \`ComponentName.test.tsx\`
+
+Generate comprehensive tests:
+- Basic rendering test
+- Variants test (all variants render correctly)
+- Sizes test (all sizes render correctly)
+- Props test (custom props work)
+- Interaction test (onClick, keyboard events)
+- Disabled state test
+- Accessibility tests (role, aria attributes, keyboard navigation)
+- Snapshot test
+- Use proper test structure from the skill
+
+### For UPDATE Existing - Modify These Files:
+
+#### Step 6.1: Update \`types.ts\` (if adding props)
+
+Add new props with JSDoc comments and \`@default\` values.
+
+#### Step 6.2: Update \`variants.ts\` (if adding variants)
+
+Add new variant configurations to the appropriate variant group.
+
+#### Step 6.3: Update \`styles.ts\` (if changing styles)
+
+Modify default styles using design tokens.
+
+#### Step 6.4: Update \`ComponentName.tsx\`
+
+- Update Figma reference comment if design changed
+- Add/modify prop handling
+- Update implementation as needed
+- Ensure accessibility remains intact
+
+#### Step 6.5: Update tests
+
+Add test cases for new functionality:
+- New props
+- New variants
+- New behavior
+- Update snapshots
+
+### PHASE 7: Update exports
+
+**IF NEW COMPONENT**: Update \`packages/zest/src/index.ts\` to export the new component:
+
+\`\`\`typescript
+// Find appropriate alphabetical location and add:
+export { default as ComponentName } from './ComponentName';
+
+// In the types section:
+export type { ComponentNameProps } from './ComponentName/types';
+\`\`\`
+
+**IF UPDATE EXISTING**: Update exports if new types were added.
+
+### PHASE 8: Create Storybook documentation
+
+**IF NEW COMPONENT**: Create \`apps/zest-docs/stories/ComponentName.stories.tsx\`
+
+**IF UPDATE EXISTING**: Update existing story file with new examples.
+
+Generate Storybook file with:
+- Meta configuration with proper title (e.g., \`Components/Feedback/ComponentName\`)
+- \`tags: ['autodocs']\` for automatic documentation
+- \`argTypes\` for all props with controls and descriptions
+- \`parameters.docs.description.component\` with detailed description
+- Stories:
+  - \`Default\` - Basic example with default props
+  - \`Variants\` - Show all variants
+  - \`Sizes\` - Show all sizes (if applicable)
+  - Additional stories for specific features or use cases
+
+Follow the Storybook example from the skill exactly.
+
+### PHASE 9: Test locally (OPTIONAL)
+
+**WHEN**: User doesn't have \`yarn\` or \`node\`, continue to Phase 10.
+
+**WHEN**: User has \`yarn\` and \`node\`, test the component locally.
+
+### Step 9.1: Install dependencies (if needed)
+
+\`\`\`bash
+yarn install
+\`\`\`
+
+### Step 9.2: Run tests
+
+\`\`\`bash
+# Run the specific component tests
+yarn test ComponentName.test.tsx
+
+# Update snapshots
+yarn test ComponentName.test.tsx -u
+\`\`\`
+
+Fix any test failures before continuing.
+
+### Step 9.3: Run Storybook
+
+\`\`\`bash
+# Start Storybook
+yarn storybook
+\`\`\`
+
+**WAIT** for Storybook to start, then:
+
+**IF** Playwright or Chrome DevTools MCP is available:
+- Use the MCP to open Storybook in the browser
+- Navigate to the component story
+- Take screenshots of different variants/states
+- Show screenshots to the user
+
+**IF** MCP not available:
+- Ask the user to manually open Storybook (usually \`http://localhost:6006\`)
+- Ask them to verify the component renders correctly
+- Ask them to test all variants and interactions
+
+**WAIT** for user confirmation before continuing. Ask: "Does the component look good in Storybook? Ready to create the PR?"
+
+### PHASE 10: Create PR
+
+Since we're not working with a dev, use the \`gh\` tool to create a new PR. Create a branch like this:
+
+\`feature/[TICKET_NUMBER]-[slug-of-change-description]\`
+
+Examples:
+- \`feature/EPS-1000-add-badge-component\`
+- \`feature/ZEST-2426-update-button-sizes\`
+
+Then use the PR Template to create the PR. The title should start with [TICKET_NUMBER], in brackets:
+
+**IF NEW COMPONENT**:
+\`\`\`txt
+[TICKET-123] Add ComponentName Zest component
+\`\`\`
+
+**IF UPDATE EXISTING**:
+\`\`\`txt
+[TICKET-456] Update ComponentName with new variants
+\`\`\`
+
+### PR Body Template for NEW Component:
+
+\`\`\`markdown
+## Summary
+- Added new ComponentName component to Zest design system
+- Includes variants: [list variants]
+- Includes sizes: [list sizes]
+- Full test coverage with snapshots
+- Storybook documentation
+
+## Figma
+[Figma URL]
+
+## Files Created
+- \`packages/zest/src/ComponentName/ComponentName.tsx\`
+- \`packages/zest/src/ComponentName/types.ts\`
+- \`packages/zest/src/ComponentName/styles.ts\`
+- \`packages/zest/src/ComponentName/variants.ts\`
+- \`packages/zest/src/ComponentName/ComponentName.test.tsx\`
+- \`packages/zest/src/ComponentName/index.ts\`
+- \`apps/zest-docs/stories/ComponentName.stories.tsx\`
+
+## Test Plan
+- [ ] Run \`yarn test\` - all tests pass
+- [ ] Run \`yarn storybook\` - component renders correctly
+- [ ] Verify all variants render correctly
+- [ ] Verify all sizes render correctly
+- [ ] Verify accessibility (keyboard navigation, screen readers, ARIA attributes)
+- [ ] Verify design tokens are used (no hardcoded values)
+
+## Usage Example
+\\\`\\\`\\\`typescript
+import { ComponentName } from '@/libs/zest';
+
+<ComponentName variant="brand" size="md">
+  Content
+</ComponentName>
+\\\`\\\`\\\`
+
+## Rollback Difficulty
+Easy - New component, no dependencies on existing code
+
+---
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+\`\`\`
+
+### PR Body Template for UPDATE Existing:
+
+\`\`\`markdown
+## Summary
+- Updated ComponentName Zest component
+- [List specific changes made]
+
+## Changes
+- **NEW**: [List new features/props/variants]
+- **UPDATED**: [List modifications]
+- **BREAKING**: [List breaking changes, if any]
+
+## Figma
+Before: [Old Figma URL if changed]
+After: [New Figma URL]
+
+## Files Modified
+- \`packages/zest/src/ComponentName/ComponentName.tsx\`
+- [List other modified files]
+
+## Test Plan
+- [ ] Run \`yarn test\` - all tests pass
+- [ ] Verify existing usages still work (no regressions)
+- [ ] Verify new functionality works correctly
+- [ ] Verify accessibility remains intact
+- [ ] Review snapshot changes
+
+## Before/After Screenshots
+[If visual changes, include screenshots]
+
+## Rollback Difficulty
+[Easy/Moderate/Hard] - [Explain why]
+
+---
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+\`\`\`
+
+### Create the PR
+
+\`\`\`bash
+# Stage changes
+git add packages/zest/src/$COMPONENT_NAME/
+git add packages/zest/src/index.ts
+git add apps/zest-docs/stories/$COMPONENT_NAME.stories.tsx
+
+# Commit with message
+git commit -m "$(cat <<'EOF'
+[TICKET-123] Add/Update ComponentName Zest component
+
+[Brief description of changes]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+
+# Push branch
+git push -u origin feature/TICKET-123-slug
+
+# Create PR using gh
+gh pr create --title "[TICKET-123] Add/Update ComponentName" --body "[PR body from template above]"
+\`\`\`
+
+### PHASE 11: Monitor GH Actions
+
+Now monitor the GH actions on the PR. Keep waiting until some action fails or all checks pass.
+
+Common issues to fix automatically:
+- **TypeScript errors**: Type mismatches, missing imports, incorrect prop types
+- **Linting errors**: Prettier formatting, ESLint rule violations
+- **Test failures**: Failing tests, outdated snapshots
+- **Import path issues**: Incorrect import paths, circular dependencies
+
+### Fix TypeScript Errors
+
+\`\`\`bash
+# Run TypeScript check locally
+yarn tsc --noEmit
+
+# Common fixes:
+# - Add missing type imports
+# - Fix prop type definitions
+# - Add missing type exports to index.ts
+\`\`\`
+
+### Fix Linting Errors
+
+\`\`\`bash
+# Run Prettier
+yarn prettier --write packages/zest/src/$COMPONENT_NAME/
+
+# Run ESLint
+yarn eslint --fix packages/zest/src/$COMPONENT_NAME/
+\`\`\`
+
+### Fix Test Failures
+
+\`\`\`bash
+# Run tests
+yarn test ComponentName.test.tsx
+
+# Update snapshots if UI changed intentionally
+yarn test ComponentName.test.tsx -u
+
+# Push fixes
+git add .
+git commit -m "fix: Address CI failures"
+git push
+\`\`\`
+
+**CONTINUE MONITORING** until all checks are green.
+
+**ONLY QUIT AND SUCCEED** when all the checks are green and the PR is ready for review.
+
+## Report
+
+**IF NEW COMPONENT**:
+1. **Summary of what was created**:
+   - Component name: ComponentName
+   - Location: \`packages/zest/src/ComponentName/\`
+   - Files created: [list all files]
+   - Variants implemented: [list variants]
+   - Sizes implemented: [list sizes]
+   - Features: [list notable features]
+
+2. **PR Information**:
+   - PR link: [URL]
+   - Branch: feature/TICKET-123-slug
+   - Status: [All checks passing ✅ / Some checks failing ⚠️]
+   - Preview link: [When available from GH Actions]
+
+3. **Usage Example**:
+   \`\`\`typescript
+   import { ComponentName } from '@/libs/zest';
+
+   <ComponentName
+     variant="brand"
+     size="md"
+     onClick={handleClick}
+     data-testid="my-component"
+   >
+     Content
+   </ComponentName>
+   \`\`\`
+
+4. **Next Steps**:
+   - Request review from the design system team
+   - Once approved and merged, the component will be available in \`@/libs/zest\`
+   - Update Zest documentation if needed
+   - Announce new component to the team
+
+**IF UPDATE EXISTING**:
+1. **Summary of what was updated**:
+   - Component: ComponentName
+   - Location: \`packages/zest/src/ComponentName/\`
+   - Changes made: [detailed list]
+   - Breaking changes: [Yes/No, explain if yes]
+   - Files modified: [list files]
+
+2. **PR Information**:
+   - PR link: [URL]
+   - Branch: feature/TICKET-456-slug
+   - Status: [All checks passing ✅ / Some checks failing ⚠️]
+   - Preview link: [When available from GH Actions]
+
+3. **Migration Guide** (if breaking changes):
+   \`\`\`typescript
+   // Before
+   <ComponentName oldProp={value} />
+
+   // After
+   <ComponentName newProp={value} />
+   \`\`\`
+
+4. **Next Steps**:
+   - Request review from the design system team
+   - Once approved and merged, update any dependent code
+   - Communicate breaking changes to affected teams
+   - Update component documentation
+
+**Success!** Your Zest component has been [added/updated] and is ready for review!
+
+## Critical Rules
+
+**DO:**
+- Use design tokens for ALL styling (never hardcode colors, spacing, or typography)
+- Use Zest primitives (Box, Text, Icon, etc.) for component structure
+- Add data-testid to interactive elements for testing
+- Add proper ARIA attributes for accessibility
+- Follow the established patterns from \`ui-design-system-zest-components-web-patterns\` skill exactly
+- Add Figma reference comments at the top of component files
+- Wait for user confirmation at interactive phases
+
+**DON'T:**
+- Hardcode colors, spacing, or typography values
+- Skip accessibility requirements (ARIA attributes, keyboard navigation)
+- Create components without tests and Storybook documentation
+- Deviate from established component file structure patterns
+- Skip the Figma design analysis phase
+- Push code without running tests first (when local testing is available)
+"
+`;
