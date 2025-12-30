@@ -1,0 +1,165 @@
+---
+schema: command-multi-agent
+name: /a11y-check
+description: Audit Figma design file for WCAG 2.2 AA accessibility compliance. Checks designs for both web and React Native implementation standards.
+mode: multi-agent
+dependencies:
+  subagents:
+    - design/a11y-checker-web
+    - design/a11y-checker-rn
+partials:
+  setup: common/partials/commands/command-setup.md
+  instructions-footer: common/partials/commands/standard-instructions-footer.md
+---
+
+# Accessibility Check (WCAG 2.2 AA)
+
+## Purpose
+
+Audit a Figma design file for **WCAG 2.2 Level AA** accessibility compliance **before implementation**. This command analyzes design tokens, components, and patterns to identify accessibility issues that should be fixed in the design phase.
+
+## Instructions
+
+1. Check prerequisites (Figma MCP)
+2. Collect Figma input from user
+3. Run both platform subagents in parallel
+4. Present combined accessibility audit report
+
+{{partials.instructions-footer}}
+
+## Important: Design-Phase Accessibility
+
+Catching accessibility issues in the design phase is **10x cheaper** than fixing them in code. This audit checks:
+
+- **Color contrast** ratios against WCAG requirements
+- **Touch/click target sizes** for both web and mobile
+- **Focus state** visibility in interactive elements
+- **Text alternatives** planning for images/icons
+- **Heading hierarchy** and structure
+- **Error state** designs
+- **Motion/animation** considerations
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+{{partials.setup}}
+
+User needs to have the Figma dev mode MCP installed!
+
+**STOP** when it's not installed and tell the user how to install the Figma dev mode MCP.
+
+### PHASE 1: Collect Figma Input [INTERACTIVE]
+
+Collect figma file from the user.
+
+The figma file link will look something like: `https://www.figma.com/design/rXFdAU9w1qCDKajA6MaxUo/-DRAFT--Onboarding?node-id=1-15326&t=0VD3WkaI5MB3kRdR-11`
+
+Make sure the user selects a **frame**, not the full file. When they added a full file tell them this will result in too much context for the current LLM.
+
+### PHASE 2: Run Platform Analysis
+
+**Run both subagents in parallel:**
+
+```
+Task(subagent="design/a11y-checker-web", prompt="Audit this Figma design for WCAG 2.2 AA web accessibility compliance: [figma-link]")
+Task(subagent="design/a11y-checker-rn", prompt="Audit this Figma design for WCAG 2.2 AA React Native accessibility compliance: [figma-link]")
+```
+
+Each subagent will:
+1. Use Figma researcher to extract design tokens and elements
+2. Analyze color contrast ratios
+3. Check target sizes for the platform
+4. Identify missing accessibility considerations
+5. Return a detailed accessibility audit report
+
+### PHASE 3: Present Combined Report
+
+Combine both subagent outputs into a single report:
+
+#### 1. Accessibility Scores
+
+| Platform | Score | Status |
+|----------|-------|--------|
+| Web | X/10 | [status] |
+| React Native | X/10 | [status] |
+
+**Score guide:**
+- **9-10** (Green): Design meets WCAG 2.2 AA standards
+- **7-8** (Yellow): Minor issues to address before implementation
+- **5-6** (Orange): Several accessibility gaps need fixing
+- **3-4** (Red): Significant accessibility issues
+- **1-2** (Red): Major accessibility barriers
+
+#### 2. Critical Issues (Must Fix)
+
+Issues that would cause WCAG 2.2 AA failures:
+- Contrast violations
+- Target size failures
+- Missing focus states
+- Color-only information
+
+#### 3. Platform Differences
+
+Highlight accessibility considerations that differ between web and RN:
+- Target size requirements (24px web vs touch targets for mobile)
+- Focus indicator patterns
+- Screen reader announcement approaches
+
+#### 4. Web Analysis Summary
+
+- Contrast check results
+- Click target sizes
+- Keyboard focus visibility
+- Semantic structure suggestions
+
+#### 5. React Native Analysis Summary
+
+- Contrast check results
+- Touch target sizes
+- VoiceOver/TalkBack considerations
+- Accessibility label recommendations
+
+#### 6. Recommendations for Designer
+
+Provide actionable recommendations the UX designer can fix in Figma:
+1. **Contrast fixes** - Specific color changes needed
+2. **Size adjustments** - Elements that need to be larger
+3. **Missing states** - Focus, hover, error states to add
+4. **Structure improvements** - Heading hierarchy, landmarks
+
+## Report
+
+After all phases complete, display:
+
+```
+WCAG 2.2 AA Design Audit Complete
+
+**Scores:**
+- Web: X/10
+- React Native: X/10
+
+**Critical Issues Found:** X
+[List top 3 issues]
+
+**Next Steps:**
+1. Fix critical contrast issues in Figma
+2. Add missing focus/hover states
+3. Ensure touch targets meet 44x44pt minimum for mobile
+4. Re-run /a11y-check after making changes
+```
+
+## Critical Rules
+
+**DO:**
+- Run both platform subagents
+- Check color contrast using extracted Figma colors
+- Verify target sizes for both web (24px) and mobile (44pt)
+- Identify missing interactive states
+- Provide specific, actionable Figma fixes
+
+**DON'T:**
+- Load skills directly (subagents handle this)
+- Skip either platform analysis
+- Provide generic recommendations without specifics
+- Assume code-level fixes (this is design audit)

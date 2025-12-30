@@ -1,0 +1,161 @@
+---
+schema: command-multi-agent
+name: /help
+description: Interactive help system for devorch commands and workflows
+mode: multi-agent
+dependencies:
+  subagents: []
+partials:
+  setup: common/partials/commands/command-setup.md
+---
+
+# DevOrch Help
+
+## Purpose
+
+Provide interactive guidance on devorch commands, workflows, and best practices by reading from the devorch repository documentation using the GitHub CLI.
+
+## Instructions
+
+1. Present a help menu with 6 topic options
+2. Wait for user to select a topic number (1-6) or ask a specific question
+3. Use `gh api` to read documentation files from the guicheffer/devorch repository
+4. For the workflow diagram, convert the mermaid diagram from README.md to ASCII
+5. Offer to help with additional topics or answer follow-up questions
+
+**Note:** Use the GitHub CLI to fetch docs:
+```bash
+gh api repos/guicheffer/devorch/contents/README.md --jq '.content' | base64 -d
+gh api repos/guicheffer/devorch/contents/docs/user-guide/quickstart.md --jq '.content' | base64 -d
+```
+
+{{partials.instructions-footer}}
+
+## Workflow
+
+### PHASE 0: Pre-checks
+{{partials.setup}}
+
+### PHASE 1: Present Help Menu
+
+🔧 DevOrch Help
+
+What would you like help with?
+
+1. Spec-Driven Development Workflow
+2. Available Commands Reference
+3. Getting Started Guide
+4. Configuration Guide
+5. Context Training System
+6. Advanced Topics
+
+Type a number (1-6) or ask a specific question.
+
+**STOP and wait for user input.**
+
+### PHASE 2: Provide Help Based on Selection
+
+**IMPORTANT: Do not repeat or echo the user's selection. Just provide the help content directly.**
+
+Based on the user's selection, read the appropriate documentation file and provide help:
+
+---
+
+**If user selects 1 (Spec-Driven Development Workflow):**
+
+1. Fetch `README.md` using: `gh api repos/guicheffer/devorch/contents/README.md --jq '.content' | base64 -d`
+2. Locate the "Spec-Driven Development Workflow" section
+3. Extract the mermaid diagram
+4. Convert it to a clean ASCII flowchart that displays well in the terminal (use box-drawing characters, arrows, and preserve the emojis)
+5. Explain the workflow, commands, and when to use each one
+
+---
+
+**If user selects 2 (Available Commands Reference):**
+
+1. Fetch `docs/user-guide/command-reference.md` using: `gh api repos/guicheffer/devorch/contents/docs/user-guide/command-reference.md --jq '.content' | base64 -d`
+2. Summarize all available commands organized by category
+3. Point to the full documentation for details
+
+---
+
+**If user selects 3 (Getting Started Guide):**
+
+Fetch `docs/user-guide/quickstart.md` using `gh api` and provide a clear getting started guide with essential steps and troubleshooting tips.
+
+---
+
+**If user selects 4 (Configuration Guide):**
+
+Fetch `docs/user-guide/configuration.md` using `gh api` and explain config file structure, key settings, and examples.
+
+---
+
+**If user selects 5 (Context Training System):**
+
+Fetch `docs/user-guide/context-training.md` using `gh api` and explain what context training is, the setup workflow, and its benefits.
+
+---
+
+**If user selects 6 (Advanced Topics):**
+
+Present a sub-menu of advanced topics:
+
+Advanced Topics:
+
+a. Skills System (docs/user-guide/skills.md)
+b. Creating Custom Commands (docs/developer-guide/extending.md)
+c. Polyrepo Setup (docs/user-guide/polyrepo.md)
+d. Contributing (docs/developer-guide/contributing-as-user.md)
+
+Type a letter (a-d) or ask a specific question.
+
+Wait for selection, then fetch and summarize the appropriate documentation file using `gh api`.
+
+---
+
+**If user asks a specific question:**
+
+Determine the most relevant documentation file, fetch it using `gh api`, and answer their question. Offer to show a related help topic.
+
+### PHASE 3: Offer Follow-Up Help
+
+After providing help, ask:
+
+```
+Would you like to:
+1. See another help topic?
+2. Ask a specific question?
+3. Get started with a command?
+
+Just let me know!
+```
+
+## Report
+
+After helping the user, summarize what was covered:
+
+```
+✅ Help provided on: [topic name or question answered]
+
+**Documentation referenced:**
+- [List the docs file(s) you read]
+
+**Suggested next steps:**
+- [Recommend relevant command or documentation based on their question]
+
+**Quick reference:**
+- CLI help: `devorch --help`
+- Health check: `devorch diagnose`
+- All docs: `docs/` directory
+- Issues: https://github.com/guicheffer/devorch/issues
+
+Need more help? Just ask!
+```
+
+## Examples
+
+### Example 1: User Asks About Workflow
+
+```
+User: /help

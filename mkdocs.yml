@@ -1,0 +1,63 @@
+site_name: 'DevOrch'
+site_description: 'Composable AI workflow automation. Complete AI toolkit for AI Native PDLC'
+
+plugins:
+  - techdocs-core
+
+markdown_extensions:
+  - admonition
+  - footnotes
+
+nav:
+  - Home: 'index.md'
+
+  - User Guide:
+      - Quick Start: 'user-guide/quickstart.md'
+      - Installation: 'user-guide/install.md'
+      - Core Concepts: 'user-guide/concepts.md'
+      - Configuration: 'user-guide/configuration.md'
+      - Workflows: 'user-guide/workflows.md'
+      - Working with DevOrch: 'user-guide/working-with-devorch.md'
+      - Command Reference: 'user-guide/command-reference.md'
+      - Skills: 'user-guide/skills.md'
+      - Context Training: 'user-guide/context-training.md'
+      - AWS Bedrock Setup: 'user-guide/aws-bedrock-setup.md'
+      - Polyrepo Setup: 'user-guide/polyrepo.md'
+      - GitHub Actions Integration: 'user-guide/github-actions-integration.md'
+
+  - Developer Guide:
+      - Development: 'developer-guide/development.md'
+      - Developer's Guide: 'developer-guide/dev-guide.md'
+      - Extending: 'developer-guide/extending.md'
+      - Designer's Guide: 'developer-guide/designers-guide.md'
+      - Contributing as User: 'developer-guide/contributing-as-user.md'
+      - Auto-Updater: 'developer-guide/auto-updater.md'
+      - Skill Auto-Update: 'developer-guide/skill-auto-update.md'
+      - Template Compilation: 'developer-guide/template-compilation.md'
+
+  - Handbook:
+      - Overview: 'handbook/README.md'
+      - AI-Native Product Development: 'handbook/ai-native-product-development.md'
+      - Our Guiding Principles: 'handbook/our-guiding-principles.md'
+      - The Blueprint: 'handbook/the-blueprint.md'
+      - Context Engineering: 'handbook/context-engineering.md'
+      - Rituals & Ceremonies: 'handbook/rituals-ceremonies.md'
+      - Dive Deeper: 'handbook/dive-deeper.md'
+      - Changelog: 'handbook/changelog.md'
+      - Workflow Steps:
+          - Overview: 'handbook/workflow-steps/README.md'
+          - Think - Hypothesis: 'handbook/workflow-steps/think-01-hypothesis.md'
+          - Think - Deep Research: 'handbook/workflow-steps/think-02-deep-research.md'
+          - Think - Brainstorm: 'handbook/workflow-steps/think-03-brainstorm.md'
+          - Think - Prototype: 'handbook/workflow-steps/think-04-prototype.md'
+          - Think - Validate: 'handbook/workflow-steps/think-05-validate.md'
+          - Think - Update Hypothesis: 'handbook/workflow-steps/think-06-update-hypothesis.md'
+          - Make - Scope: 'handbook/workflow-steps/make-07-scope.md'
+          - Make - Specs: 'handbook/workflow-steps/make-08-specs.md'
+          - Make - Design: 'handbook/workflow-steps/make-09-design.md'
+          - Make - Develop: 'handbook/workflow-steps/make-10-develop.md'
+          - Make - QA: 'handbook/workflow-steps/make-11-qa.md'
+          - Make - Demo: 'handbook/workflow-steps/make-12-demo.md'
+          - Make - Deploy: 'handbook/workflow-steps/make-13-deploy.md'
+          - Check - Learn: 'handbook/workflow-steps/check-learn.md'
+          - Check - Prioritize: 'handbook/workflow-steps/check-prioritize.md'

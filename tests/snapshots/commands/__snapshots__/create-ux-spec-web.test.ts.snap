@@ -1,0 +1,402 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /create-ux-spec-web should match snapshot 1`] = `
+"---
+name: "/create-ux-spec-web"
+description: "Generate detailed web development instructions from a Figma design using Zest design system tokens and components."
+mode: "multi-agent"
+dependencies:
+  skills:
+    - "figma-dev-mode-figma-researcher"
+    - "ui-design-system-zest-web-integration"
+    - "ui-design-system-zest-components"
+---
+
+# Create UX Spec (Web)
+
+## Purpose
+
+Generate a detailed development specification document from a Figma design. This document maps all design tokens to Zest web tokens, identifies required components with their exact props, and provides implementation code snippets.
+
+**Use this command when:**
+- A designer hands off a Figma design for web implementation
+- You need to understand exactly how to build a design with Zest
+- You want a reference document before starting implementation
+
+## Instructions
+
+1. Check prerequisites (Figma MCP installed)
+2. Collect Figma URL from user
+3. Extract design using Figma researcher skill
+4. Map all tokens to Zest web equivalents
+5. Generate UX Spec document
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /create-ux-spec-web
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Skills
+
+This command-multi-agent requires the following skills to be activated:
+
+- Activate skill **\`figma-dev-mode-figma-researcher\`**
+- Activate skill **\`ui-design-system-zest-web-integration\`**
+- Activate skill **\`ui-design-system-zest-components\`**
+
+
+User needs to have the Figma dev mode MCP installed.
+
+**STOP** if Figma MCP is not installed. Tell the user:
+
+"Install the Figma MCP first: \`claude mcp add --transport http figma https://mcp.figma.com/mcp\`"
+
+
+### PHASE 1: Collect Figma Input [INTERACTIVE]
+
+Ask the user for the Figma design URL.
+
+The URL should look like: \`https://www.figma.com/design/FILE_KEY/Design-Name?node-id=123-456\`
+
+**Important:** Ensure the user selects a **specific frame**, not the entire file. A full file will have too much content for effective analysis.
+
+If the URL lacks a \`node-id\` parameter, ask the user to select a specific frame in Figma and copy that link.
+
+
+### PHASE 2: Extract Design
+
+Use the \`figma-dev-mode-figma-researcher\` skill to extract design information:
+
+1. Get file metadata to understand structure
+2. Extract design tokens:
+   - Colors (fills, strokes)
+   - Spacing (padding, margins, gaps)
+   - Typography (font family, size, weight, line height)
+   - Border radii
+   - Shadows/effects
+3. Extract component structure and hierarchy
+4. Get 1-2 targeted screenshots for visual reference
+
+
+### PHASE 3: Map to Zest Tokens
+
+Map extracted values to Zest web tokens:
+
+**Spacing tokens:**
+| Figma Value | Zest Token |
+|-------------|------------|
+| 0px | zero |
+| 2px | xxs |
+| 4px | xs |
+| 8px | sm-1 |
+| 12px | sm-2 |
+| 16px | md-1 |
+| 24px | md-2 |
+| 32px | lg-1 |
+| 48px | lg-2 |
+
+**Color tokens:**
+| Figma Value | Zest Token |
+|-------------|------------|
+| Brand blue | primary.600 |
+| Error red | error.600 |
+| Warning yellow | warning.600 |
+| Success green | success.600 |
+| Grays | neutral.100 - neutral.800 |
+
+**Components mapping:**
+| Figma Element | Zest Component |
+|---------------|----------------|
+| Primary button | Button.Primary |
+| Secondary button | Button.Secondary |
+| Text styles | Text with variant prop |
+| Container/Frame | Box |
+| Card | Card |
+| Icon button | IconButton.Primary |
+
+### PHASE 4: Generate UX Spec Document
+
+Create a markdown document with the following structure:
+
+\`\`\`markdown
+# UX Spec: [Design Name]
+
+**Figma:** [FIGMA_URL]
+**Generated:** [DATE]
+**Platform:** Web (Zest)
+
+---
+
+## Component Tree
+
+Generate a visual tree diagram showing the component hierarchy. This provides a quick overview of the screen structure.
+
+### Tree Format
+
+\`\`\`
+[ScreenName]
+├── [ComponentName]
+│   ├── ScrollView (horizontal)
+│   ├── Pressable "Label"
+│   └── ChildComponent[]
+│       ├── Text (description)
+│       └── Icon [IconName]
+└── [AnotherComponent]
+    └── Button "CTA Text"
+\`\`\`
+
+### Notation
+
+| Symbol | Meaning |
+|--------|---------|
+| \`ComponentName[]\` | Array/list of repeated components |
+| \`"Label"\` | Static text content |
+| \`(description)\` | Purpose/role of element |
+| \`[IconName]\` | Specific icon used |
+
+### Construction Rules
+
+**Include:**
+- Named custom components (ProductCard, WeekNavigation, etc.)
+- Zest components (Button, Text, Icon, Card, ImageCloudinary, Badge, etc.)
+- Key structural elements when semantically meaningful (ScrollView, FlatList)
+
+**Skip:**
+- Plain View/Box wrappers used just for layout
+- Container elements without semantic meaning
+- Intermediate layout divs
+
+### Example
+
+For a storefront screen:
+
+\`\`\`
+StorefrontScreen
+├── WeekNavigation
+│   ├── ScrollView (horizontal)
+│   ├── Pressable "Past Orders"
+│   └── WeekItem[]
+│       ├── Text (day)
+│       └── Text (date)
+├── Categories
+│   └── ScrollView (horizontal)
+│       └── TabItem[]
+│           └── Text (label)
+├── Filters
+│   ├── Pressable (sort)
+│   │   └── Icon [SortFilled16]
+│   └── TagFilter[]
+├── FlatList
+│   └── ProductCard[]
+│       ├── ImageCloudinary
+│       ├── Pressable (add button)
+│       │   └── Icon [PlusOutline16]
+│       ├── Text (title)
+│       ├── Text (subtitle)
+│       └── Text (price)
+└── StickyFooter
+    ├── Pressable (cart)
+    │   ├── Icon [CartOutline24]
+    │   └── Badge
+    └── Button "Checkout"
+\`\`\`
+
+
+---
+
+## Design Tokens
+
+### Colors
+| Usage | Figma Value | Zest Token |
+|-------|-------------|------------|
+| Background | #FFFFFF | neutral.100 |
+| Primary action | #1A73E8 | primary.600 |
+| ... | ... | ... |
+
+### Spacing
+| Usage | Figma Value | Zest Token |
+|-------|-------------|------------|
+| Container padding | 24px | md-2 |
+| Element gap | 16px | md-1 |
+| ... | ... | ... |
+
+### Typography
+| Usage | Figma Style | Zest Variant |
+|-------|-------------|--------------|
+| Heading | 24px Bold | headline-lg |
+| Body | 16px Regular | body-md-regular |
+| ... | ... | ... |
+
+---
+
+## Components
+
+### [Component Name]
+
+**Zest Component:** \`Button.Primary\`
+
+**Props:**
+- size: "md"
+- onClick: handler
+
+**Code:**
+\`\`\`tsx
+<Button.Primary size="md" onClick={handleClick}>
+  Button Label
+</Button.Primary>
+\`\`\`
+
+[Repeat for each component]
+
+---
+
+## Layout Structure
+
+\`\`\`tsx
+<Box display="flex" flexDirection="column" gap="md-1" p="md-2">
+  <Text variant="headline-lg">Title</Text>
+  <Box display="flex" gap="sm-2">
+    <Button.Primary>Primary</Button.Primary>
+    <Button.Secondary>Secondary</Button.Secondary>
+  </Box>
+  <Card>
+    <Box p="md-1">
+      <Text variant="body-md-regular">Card content</Text>
+    </Box>
+  </Card>
+</Box>
+\`\`\`
+
+---
+
+## Responsive Considerations
+
+- **Mobile** [< 768px]: [adjustments]
+- **Tablet** [768px - 1024px]: [adjustments]
+- **Desktop** [> 1024px]: [default layout]
+
+Use responsive arrays: \`[mobile, tablet, desktop]\`
+
+Example:
+\`\`\`tsx
+<Box
+  display="flex"
+  flexDirection={["column", "column", "row"]}
+  gap={["sm-2", "md-1", "md-2"]}
+>
+\`\`\`
+
+---
+
+## Accessibility Requirements
+
+All components MUST include:
+- \`testID\` for testing
+- \`altText\` for icons
+- \`accessibilityLabel\` for interactive elements
+- \`accessibilityRole\` for semantic elements (tab, button)
+- \`accessibilityState\` for selection states
+
+**Examples:**
+
+\`\`\`tsx
+<Pressable
+  testID="product-card-123"
+  accessibilityLabel="Cheesy Spinach-Stuffed Turkey Breasts, $8.99 per serving"
+  accessibilityRole="button"
+/>
+
+<Icon icon={PlusOutline16} altText="Add to cart" />
+
+<Pressable
+  accessibilityRole="tab"
+  accessibilityState=
+/>
+\`\`\`
+
+
+---
+
+## Implementation Notes
+
+- [Any custom styling requirements]
+- [Components not available in Zest]
+- [Accessibility considerations]
+
+\`\`\`
+
+Save this document to \`spec-machine/.state/artifacts/ux-specs/[design-name]-web.md\`
+
+## Report
+
+After generating the spec:
+
+\`\`\`
+UX Spec Generated Successfully
+
+**File:** spec-machine/.state/artifacts/ux-specs/[design-name]-web.md
+
+**Summary:**
+- X design tokens mapped
+- Y components identified
+- Z custom implementations needed
+
+**Next Steps:**
+1. Review the generated spec document
+2. Use /design-change-web to implement the design
+3. Reference the spec during code review
+\`\`\`
+
+## Critical Rules
+
+**DO:**
+- Extract ALL design tokens from the Figma design
+- Map tokens to nearest Zest equivalent
+- Provide complete code snippets
+- Include testID and altText in all examples
+- Note any values that don't have Zest equivalents
+- Include responsive considerations
+- Generate Component Tree diagram
+
+**DON'T:**
+- Use hardcoded color/spacing values in code examples
+- Skip accessibility props (testID, altText)
+- Ignore responsive breakpoints
+- Generate partial specs
+- Use StyleSheet.create() (RN) - use createStylesConfig instead
+
+"
+`;

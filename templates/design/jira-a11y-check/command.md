@@ -1,0 +1,234 @@
+---
+schema: command-multi-agent
+name: /jira-a11y-check
+argument-hint: "[ticket-key]"
+description: Audit Figma design for WCAG 2.2 AA accessibility and post results to a Jira ticket
+mode: multi-agent
+dependencies:
+  commands:
+    - /a11y-check
+  skills:
+    - cli-tools/jira-cli
+partials:
+  setup: common/partials/commands/command-setup.md
+  instructions-footer: common/partials/commands/standard-instructions-footer.md
+---
+
+# Jira Accessibility Check
+
+## Purpose
+
+Audit Figma design files for WCAG 2.2 AA accessibility compliance and post the complete review to a Jira ticket. This command is a wrapper around `/a11y-check` that posts results to Jira.
+
+The posted comment includes:
+- Accessibility scores for both web and React Native
+- Color contrast analysis results
+- Target/touch size analysis
+- Missing interactive states
+- Screen reader considerations
+- Recommendations for designers
+
+## Instructions
+
+1. Check prerequisites (jira CLI)
+2. Get ticket key from argument or user
+3. Run `/a11y-check` command
+4. Post results to Jira ticket
+
+{{partials.instructions-footer}}
+
+## Variables
+
+TICKET_KEY: $ARGUMENTS[0]   # Optional: Jira ticket key from command argument
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+{{partials.setup}}
+
+**Check for jira CLI:**
+
+```bash
+command -v jira >/dev/null 2>&1 || echo "ERROR: jira CLI not found"
+```
+
+If jira CLI not found, display error and STOP:
+```
+jira CLI is required for this command
+
+**Installation:**
+- macOS: `brew install jira`
+- Other: https://github.com/ankitpokhrel/jira-cli#installation
+
+**After installation:**
+1. Run: `jira init` to configure Jira connection
+2. Export API token: `export JIRA_API_TOKEN=your_token`
+3. Re-run `/jira-a11y-check`
+```
+
+### PHASE 1: Get Ticket Key [INTERACTIVE]
+
+**If TICKET_KEY provided as argument:**
+- Use the provided ticket key
+- Example: `/jira-a11y-check PROJ-123`
+
+**If no TICKET_KEY provided:**
+
+Ask the user: "Which Jira ticket would you like to post the accessibility audit results to? Provide the ticket key (e.g., PROJ-123)"
+
+Wait for user response and extract the ticket key.
+
+**Validate ticket key format:**
+```bash
+TICKET_KEY="[user-provided-key]"
+
+if ! echo "$TICKET_KEY" | grep -qE '^[A-Z]+-[0-9]+$'; then
+    echo "Invalid ticket key format: $TICKET_KEY"
+    echo "Expected format: PROJECT-123"
+    exit 1
+fi
+```
+
+### PHASE 2: Run Accessibility Check
+
+Run the `/a11y-check` command (analyzes both platforms):
+
+```
+SlashCommand("/a11y-check")
+```
+
+The `/a11y-check` command will:
+1. Check Figma MCP prerequisites
+2. Collect Figma frame URL from user
+3. Run both web and RN platform analysis in parallel
+4. Output combined accessibility audit report
+
+**Wait for `/a11y-check` to complete.**
+
+**IMPORTANT:** Capture the entire report output from `/a11y-check`. You will post this complete report to Jira in the next phase.
+
+### PHASE 3: Post Results to Jira
+
+After the check is complete, post the full report to the Jira ticket.
+
+**Create and post the Jira comment:**
+
+```bash
+# Create temp file for the comment
+COMMENT_FILE=$(mktemp)
+
+# Write header
+cat > "$COMMENT_FILE" <<'EOF'
+## WCAG 2.2 AA Accessibility Audit
+
+EOF
+
+# Append the complete report from /a11y-check
+# This includes scores for both platforms, contrast analysis, target sizes, missing states, recommendations
+cat >> "$COMMENT_FILE" <<'EOF'
+[PASTE THE COMPLETE REPORT OUTPUT FROM /a11y-check HERE]
+EOF
+
+# Add footer with instructions
+cat >> "$COMMENT_FILE" <<'EOF'
+
+---
+
+*Posted by devorch*
+
+**For designers:** Review the accessibility issues above and fix them in Figma before handoff
+**For developers:** Use this audit as a reference - designs should be updated before implementation
+**WCAG Reference:** https://www.w3.org/WAI/WCAG22/quickref/
+EOF
+
+# Post to Jira
+jira issue comment add "$TICKET_KEY" < "$COMMENT_FILE"
+RESULT=$?
+
+# Clean up temp file
+rm "$COMMENT_FILE"
+```
+
+**Verify post success:**
+
+```bash
+if [ $RESULT -eq 0 ]; then
+    echo "Posted accessibility audit to $TICKET_KEY"
+    echo "   View at: https://yourcompany.atlassian.net/browse/$TICKET_KEY"
+else
+    echo "Failed to post to $TICKET_KEY"
+    echo "   Error code: $RESULT"
+    echo ""
+    echo "The audit was completed successfully."
+    echo "You can manually copy the report above and paste it into the Jira ticket."
+fi
+```
+
+## Report
+
+After all phases complete, inform the user:
+
+```
+Accessibility audit completed and posted to Jira
+
+**Ticket:** $TICKET_KEY
+**View at:** https://yourcompany.atlassian.net/browse/$TICKET_KEY
+
+The Jira comment includes:
+- Accessibility scores (web and React Native)
+- Color contrast analysis
+- Target/touch size analysis
+- Missing interactive states
+- Screen reader considerations
+- Recommendations for designers
+
+**Next steps:**
+1. Review the accessibility issues in the Jira ticket
+2. Fix critical issues (contrast, target sizes) in Figma
+3. Add missing states (focus, error, pressed)
+4. Re-run /jira-a11y-check after making changes
+```
+
+## Critical Rules
+
+**DO:**
+- Check both Figma MCP and jira CLI prerequisites at start
+- Run `/a11y-check` (covers both platforms automatically)
+- Capture the COMPLETE report output from `/a11y-check`
+- Post the full report content to Jira (not just a summary)
+- Use temp file to post: `jira issue comment add KEY < file`
+- Provide Jira URL in the final report
+
+**DON'T:**
+- Skip jira CLI prerequisites check
+- Re-implement audit logic (use `/a11y-check` command)
+- Post only partial report or summary (post complete output!)
+- Use heredoc with command substitution for large content
+- Continue if `/a11y-check` fails
+- Assume jira CLI is configured (always check)
+
+## Example Flow
+
+```
+User: /jira-a11y-check DESIGN-456
+
+Phase 0: Pre-checks passed (Figma MCP + jira CLI)
+Phase 1: Got ticket key: DESIGN-456
+Phase 2: Running /a11y-check...
+  - Collected Figma frame URL
+  - Running web analysis...
+  - Running RN analysis...
+  - Web score: 7/10 (2 contrast issues)
+  - RN score: 6/10 (3 touch target issues)
+  Audit complete
+Phase 3: Posted complete report to DESIGN-456
+  - View at: https://yourcompany.atlassian.net/browse/DESIGN-456
+
+Accessibility audit completed and posted to Jira
+
+Next steps:
+1. Review the accessibility issues in Jira
+2. Fix critical issues in Figma
+3. Re-run /jira-a11y-check after changes
+```

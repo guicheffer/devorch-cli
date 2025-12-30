@@ -1,0 +1,270 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /load-context-training should match snapshot 1`] = `
+"---
+name: "/load-context-training"
+description: "Load all context-training files into context for the current project"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "context-training/context-loader"
+    - "context-training/context-summarizer"
+---
+
+# Load Context Training Files
+
+## Purpose
+
+Load all context-training files into Claude's context for the current project. This is useful when you want to reference or review your project's patterns, guidelines, and conventions without having them automatically injected during implementation.
+
+**Usage:**
+- \`/load-context-training\` - Load all files in full
+- \`/load-context-training <max-tokens>\` - Load summarized version within token budget (e.g., \`/load-context-training 50k\`)
+
+## Instructions
+
+This command follows a 3-phase workflow:
+
+0. **Pre-checks** - Verify spec-machine version
+1. **Check Configuration** - Verify context-training is configured
+2. **Load Files** - Either full load OR summarized load (based on arguments)
+3. **Provide Summary** - Show what was loaded
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+## Variables
+
+Parse command arguments:
+
+\`\`\`
+MAX_TOKENS: $ARGUMENTS[0]        # e.g., "50k", "100k" or empty (full load)
+\`\`\`
+
+**Validation:**
+- If MAX_TOKENS is empty: **Full load mode** → use \`context-loader\` subagent
+- If MAX_TOKENS is provided: **Summarized mode** → use \`context-summarizer\` subagent
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /load-context-training
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- context-training/context-loader
+- context-training/context-summarizer
+
+
+### PHASE 1: Check Configuration
+
+⚠️ **STOP HERE - No context-training configured**
+
+This command requires context-training to be configured in your project.
+
+Context training provides:
+- Repository-specific specification guidelines
+- Domain-specific implementation patterns
+- Available implementers and verifiers
+
+**To set up context training:**
+1. Run \`/analyze-tech-stack\` to analyze your codebase
+2. Run \`/train-context\` to generate context training
+3. Run this command again
+
+**Cannot proceed without context training.**
+
+
+
+### PHASE 2: Load Context Training Files
+
+**IMPORTANT:** Always delegate file loading to the appropriate subagent. Do NOT read files directly in this command.
+
+#### If MAX_TOKENS is empty (Full Load Mode)
+
+Use the \`context-training/context-loader\` subagent:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/context-loader"
+- description: "Load context-training files"
+- prompt: |
+    Load the context-training files for .
+
+    Context training directory: spec-machine/context-training/
+
+    Read all files in the context-training directory and return them in full with semantic framing.
+\`\`\`
+
+#### If MAX_TOKENS is provided (Summarized Mode)
+
+Parse the token budget (e.g., "50k" → 50000, "100k" → 100000).
+
+Use the \`context-training/context-summarizer\` subagent:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/context-summarizer"
+- description: "Summarize context-training files"
+- prompt: |
+    Summarize the context-training files for .
+
+    Context training directory: spec-machine/context-training/
+    Target token budget: [parsed token value] tokens
+
+    Read all files and return a summarized version that fits within the token budget
+    while preserving the most important patterns and guidelines.
+\`\`\`
+
+### PHASE 3: Provide Summary
+
+#### If Full Load Mode (no MAX_TOKENS)
+
+Count the tokens and provide a detailed summary:
+
+1. **Count tokens** in the context-training directory:
+   \`\`\`bash
+   spec-machine count-tokens spec-machine/context-training/ 2>/dev/null || echo ""
+   \`\`\`
+
+2. **Calculate percentage** of context window:
+   - Context window: ~200,000 tokens
+   - Calculate: \`percentage = (loaded_tokens / 200000) * 100\`
+
+3. **Display summary:**
+
+\`\`\`
+✅ Context training loaded: 
+**Mode:** Full load
+
+**Files loaded:**
+[If loaded:] - specification.md
+[If loaded:] - implementation.md
+- [count] implementer files:
+  - [list each implementer filename]
+- [count] verifier files:
+  - [list each verifier filename]
+
+[If any files were missing:]
+**Note:** [filename] not found (optional)
+
+**Total files:** [count]
+**Tokens loaded:** [formatted token count] ([X]% of context window)
+
+All context-training files are now loaded and available for reference.
+\`\`\`
+
+#### If Summarized Mode (MAX_TOKENS provided)
+
+Skip token counting (the summarizer already targeted the budget). Provide a brief summary:
+
+\`\`\`
+✅ Context training loaded: 
+**Mode:** Summarized (target: $MAX_TOKENS tokens)
+
+Summarized content from all context-training files is now available.
+
+For full details, run \`/load-context-training\` without arguments.
+\`\`\`
+
+## Report
+
+After successfully loading:
+
+\`\`\`
+✅ **Context training loaded successfully**
+
+**Summary:**
+- Context training: 
+[If full load:] - Mode: Full load
+[If full load:] - Implementers: [count]
+[If full load:] - Verifiers: [count]
+[If full load:] - Tokens: [count] ([X]% of context)
+[If summarized:] - Mode: Summarized (target: $MAX_TOKENS)
+
+**Next steps:**
+[If full load:]
+- All files are available in this conversation
+- Reference specific implementers or verifiers as needed
+[If summarized:]
+- Summarized content is available for quick reference
+- Run \`/load-context-training\` for full details
+\`\`\`
+
+If the operation failed or was incomplete:
+
+\`\`\`
+⚠️ **Context training partially loaded**
+
+**Loaded:**
+- [list what was successfully loaded]
+
+**Missing:**
+- [list what couldn't be loaded]
+
+**Recommendation:** Review the context-training setup or run \`/train-context\` to regenerate.
+\`\`\`
+
+**Error scenarios:**
+
+If context-training directory doesn't exist:
+\`\`\`
+❌ Context training directory not found: spec-machine/context-training//
+
+Please run \`/train-context\` to generate context training first.
+\`\`\`
+
+If no implementer files exist (fatal):
+\`\`\`
+❌ No implementer files found in context-training
+
+The context-training directory exists but has no implementer files. Run \`/train-context\` to regenerate.
+\`\`\`
+"
+`;

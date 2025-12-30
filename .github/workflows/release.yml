@@ -1,0 +1,374 @@
+name: Build and Release CLI
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  determine-version:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.version.outputs.skip }}
+      tag_name: ${{ steps.version.outputs.tag_name }}
+      bump_type: ${{ steps.version.outputs.bump_type }}
+      changed_files: ${{ steps.version.outputs.changed_files }}
+      min_compatible_cli: ${{ steps.version.outputs.min_compatible_cli }}
+      pr_title: ${{ steps.version.outputs.pr_title }}
+      pr_summary: ${{ steps.version.outputs.pr_summary }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Determine version
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run .github/scripts/determine-version.ts
+
+  build-macos:
+    needs: determine-version
+    if: needs.determine-version.outputs.skip != 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Load asset names
+        id: assets
+        run: |
+          # Read all asset names from centralized config
+          bun run .github/scripts/get-asset-names.ts >> $GITHUB_OUTPUT
+
+      - name: Build macOS binaries
+        run: |
+          mkdir -p dist
+          VERSION="${{ needs.determine-version.outputs.tag_name }}"
+          MACOS_ARM64="${{ steps.assets.outputs.BINARY_MACOS_ARM64 }}"
+          MACOS_X64="${{ steps.assets.outputs.BINARY_MACOS_X64 }}"
+
+          # Build both architectures
+          bun build src/cli/index.ts --compile --target=bun-darwin-arm64 --outfile "dist/${MACOS_ARM64}" --define "process.env.BUILD_VERSION=\"$VERSION\"" &
+          bun build src/cli/index.ts --compile --target=bun-darwin-x64 --outfile "dist/${MACOS_X64}" --define "process.env.BUILD_VERSION=\"$VERSION\"" &
+          wait
+
+      - name: Make binaries executable
+        run: |
+          chmod +x "dist/${{ steps.assets.outputs.BINARY_MACOS_ARM64 }}"
+          chmod +x "dist/${{ steps.assets.outputs.BINARY_MACOS_X64 }}"
+
+      - name: Ad-hoc code sign macOS binaries
+        run: |
+          MACOS_ARM64="${{ steps.assets.outputs.BINARY_MACOS_ARM64 }}"
+          MACOS_X64="${{ steps.assets.outputs.BINARY_MACOS_X64 }}"
+
+          # Sign with ad-hoc identity and JIT entitlements
+          codesign --force --deep --sign - --entitlements installer/entitlements.plist "dist/${MACOS_ARM64}"
+          codesign --force --deep --sign - --entitlements installer/entitlements.plist "dist/${MACOS_X64}"
+
+          # Verify signatures
+          echo "Verifying arm64 signature:"
+          codesign -vvv --verify "dist/${MACOS_ARM64}"
+          echo "Verifying x64 signature:"
+          codesign -vvv --verify "dist/${MACOS_X64}"
+
+      - name: Create installation packages
+        working-directory: ./dist
+        run: |
+          VERSION="${{ needs.determine-version.outputs.tag_name }}"
+          MACOS_ARM64="${{ steps.assets.outputs.BINARY_MACOS_ARM64 }}"
+          MACOS_X64="${{ steps.assets.outputs.BINARY_MACOS_X64 }}"
+          PKG_MAC_APPLE_SILICON="${{ steps.assets.outputs.PKG_MAC_APPLE_SILICON }}"
+          PKG_MAC_INTEL="${{ steps.assets.outputs.PKG_MAC_INTEL }}"
+
+          # Mac Apple Silicon (M1/M2/M3)
+          mkdir -p package-mac-apple-silicon/bin
+          cp "${MACOS_ARM64}" package-mac-apple-silicon/bin/devorch
+          cp ../installer/setup.sh package-mac-apple-silicon/
+          cp ../installer/README.txt package-mac-apple-silicon/
+          cd package-mac-apple-silicon && zip -r "../${PKG_MAC_APPLE_SILICON}-${VERSION}.zip" . && cd ..
+          rm -rf package-mac-apple-silicon
+
+          # Mac Intel
+          mkdir -p package-mac-intel/bin
+          cp "${MACOS_X64}" package-mac-intel/bin/devorch
+          cp ../installer/setup.sh package-mac-intel/
+          cp ../installer/README.txt package-mac-intel/
+          cd package-mac-intel && zip -r "../${PKG_MAC_INTEL}-${VERSION}.zip" . && cd ..
+          rm -rf package-mac-intel
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-binaries
+          path: |
+            dist/${{ steps.assets.outputs.BINARY_MACOS_ARM64 }}
+            dist/${{ steps.assets.outputs.BINARY_MACOS_X64 }}
+            dist/${{ steps.assets.outputs.PKG_MAC_APPLE_SILICON }}-*.zip
+            dist/${{ steps.assets.outputs.PKG_MAC_INTEL }}-*.zip
+
+  build-linux-windows:
+    needs: determine-version
+    if: needs.determine-version.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Load asset names
+        id: assets
+        run: |
+          # Read all asset names from centralized config
+          bun run .github/scripts/get-asset-names.ts >> $GITHUB_OUTPUT
+
+      - name: Build Linux and Windows binaries
+        run: |
+          mkdir -p dist
+          VERSION="${{ needs.determine-version.outputs.tag_name }}"
+          LINUX_X64="${{ steps.assets.outputs.BINARY_LINUX_X64 }}"
+          LINUX_ARM64="${{ steps.assets.outputs.BINARY_LINUX_ARM64 }}"
+          WINDOWS_X64="${{ steps.assets.outputs.BINARY_WINDOWS_X64 }}"
+
+          # Build all platforms in parallel
+          bun build src/cli/index.ts --compile --target=bun-linux-x64 --outfile "dist/${LINUX_X64}" --define "process.env.BUILD_VERSION=\"$VERSION\"" &
+          bun build src/cli/index.ts --compile --target=bun-linux-arm64 --outfile "dist/${LINUX_ARM64}" --define "process.env.BUILD_VERSION=\"$VERSION\"" &
+          bun build src/cli/index.ts --compile --target=bun-windows-x64 --outfile "dist/${WINDOWS_X64}" --define "process.env.BUILD_VERSION=\"$VERSION\"" &
+          wait
+
+      - name: Make binaries executable
+        run: |
+          chmod +x "dist/${{ steps.assets.outputs.BINARY_LINUX_X64 }}"
+          chmod +x "dist/${{ steps.assets.outputs.BINARY_LINUX_ARM64 }}"
+
+      - name: Create installation packages
+        working-directory: ./dist
+        run: |
+          VERSION="${{ needs.determine-version.outputs.tag_name }}"
+          LINUX_X64="${{ steps.assets.outputs.BINARY_LINUX_X64 }}"
+          LINUX_ARM64="${{ steps.assets.outputs.BINARY_LINUX_ARM64 }}"
+          WINDOWS_X64="${{ steps.assets.outputs.BINARY_WINDOWS_X64 }}"
+          PKG_LINUX="${{ steps.assets.outputs.PKG_LINUX }}"
+          PKG_LINUX_ARM="${{ steps.assets.outputs.PKG_LINUX_ARM }}"
+          PKG_WINDOWS="${{ steps.assets.outputs.PKG_WINDOWS }}"
+
+          # Linux x64
+          mkdir -p package-linux/bin
+          cp "${LINUX_X64}" package-linux/bin/devorch
+          cp ../installer/setup.sh package-linux/
+          cp ../installer/README.txt package-linux/
+          cd package-linux && zip -r "../${PKG_LINUX}-${VERSION}.zip" . && cd ..
+          rm -rf package-linux
+
+          # Linux ARM64
+          mkdir -p package-linux-arm/bin
+          cp "${LINUX_ARM64}" package-linux-arm/bin/devorch
+          cp ../installer/setup.sh package-linux-arm/
+          cp ../installer/README.txt package-linux-arm/
+          cd package-linux-arm && zip -r "../${PKG_LINUX_ARM}-${VERSION}.zip" . && cd ..
+          rm -rf package-linux-arm
+
+          # Windows
+          mkdir -p package-windows/bin
+          cp "${WINDOWS_X64}" package-windows/bin/devorch.exe
+          cp ../installer/README.txt package-windows/
+          cd package-windows && zip -r "../${PKG_WINDOWS}-${VERSION}.zip" . && cd ..
+          rm -rf package-windows
+
+      - name: Upload Linux/Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-windows-binaries
+          path: |
+            dist/${{ steps.assets.outputs.BINARY_LINUX_X64 }}
+            dist/${{ steps.assets.outputs.BINARY_LINUX_ARM64 }}
+            dist/${{ steps.assets.outputs.BINARY_WINDOWS_X64 }}
+            dist/${{ steps.assets.outputs.PKG_LINUX }}-*.zip
+            dist/${{ steps.assets.outputs.PKG_LINUX_ARM }}-*.zip
+            dist/${{ steps.assets.outputs.PKG_WINDOWS }}-*.zip
+
+  release:
+    needs: [determine-version, build-macos, build-linux-windows]
+    if: needs.determine-version.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Load asset names
+        id: assets
+        run: |
+          # Read all asset names from centralized config
+          bun run .github/scripts/get-asset-names.ts >> $GITHUB_OUTPUT
+
+      - name: Generate version-info.json
+        run: |
+          TAG_NAME="${{ needs.determine-version.outputs.tag_name }}"
+          BUMP_TYPE="${{ needs.determine-version.outputs.bump_type }}"
+          CHANGED_FILES='${{ needs.determine-version.outputs.changed_files }}'
+          MIN_COMPATIBLE_CLI="${{ needs.determine-version.outputs.min_compatible_cli }}"
+
+          # Handle empty or unset CHANGED_FILES
+          if [ -z "$CHANGED_FILES" ] || [ "$CHANGED_FILES" = "[]" ]; then
+            CHANGED_FILES_JSON="[]"
+          else
+            CHANGED_FILES_JSON="$CHANGED_FILES"
+          fi
+
+          cat > version-info.json << EOF
+          {
+            "schemaVersion": 1,
+            "version": "${TAG_NAME#v}",
+            "bumpType": "${BUMP_TYPE}",
+            "minCompatibleCli": "${MIN_COMPATIBLE_CLI#v}",
+            "changedFiles": ${CHANGED_FILES_JSON}
+          }
+          EOF
+
+          echo "Generated version-info.json:"
+          cat version-info.json
+
+      - name: Package config files
+        run: |
+          # Include version-info.json in the templates tarball
+          cp version-info.json templates/
+          tar -czf config.tar.gz templates/
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-binaries
+          path: dist
+
+      - name: Download Linux/Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-windows-binaries
+          path: dist
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.determine-version.outputs.tag_name }}
+          BUMP_TYPE: ${{ needs.determine-version.outputs.bump_type }}
+          MIN_COMPATIBLE_CLI: ${{ needs.determine-version.outputs.min_compatible_cli }}
+          CHANGED_FILES: ${{ needs.determine-version.outputs.changed_files }}
+          PR_TITLE: ${{ needs.determine-version.outputs.pr_title }}
+          PR_SUMMARY: ${{ needs.determine-version.outputs.pr_summary }}
+          MACOS_ARM64: ${{ steps.assets.outputs.BINARY_MACOS_ARM64 }}
+          MACOS_X64: ${{ steps.assets.outputs.BINARY_MACOS_X64 }}
+          LINUX_X64: ${{ steps.assets.outputs.BINARY_LINUX_X64 }}
+          LINUX_ARM64: ${{ steps.assets.outputs.BINARY_LINUX_ARM64 }}
+          WINDOWS_X64: ${{ steps.assets.outputs.BINARY_WINDOWS_X64 }}
+          PKG_MAC_APPLE_SILICON: ${{ steps.assets.outputs.PKG_MAC_APPLE_SILICON }}
+          PKG_MAC_INTEL: ${{ steps.assets.outputs.PKG_MAC_INTEL }}
+          PKG_LINUX: ${{ steps.assets.outputs.PKG_LINUX }}
+          PKG_LINUX_ARM: ${{ steps.assets.outputs.PKG_LINUX_ARM }}
+          PKG_WINDOWS: ${{ steps.assets.outputs.PKG_WINDOWS }}
+        run: |
+          # Generate release description
+          BUMP_LABEL="patch (templates only)"
+          if [ "$BUMP_TYPE" = "minor" ]; then
+            BUMP_LABEL="minor (CLI update)"
+          elif [ "$BUMP_TYPE" = "major" ]; then
+            BUMP_LABEL="major (breaking changes)"
+          fi
+
+          # Generate compatibility note based on bump type
+          if [ "$BUMP_TYPE" = "patch" ]; then
+            COMPAT_NOTE="Templates auto-update for CLI ${MIN_COMPATIBLE_CLI}+"
+          else
+            COMPAT_NOTE="Requires CLI update to ${MIN_COMPATIBLE_CLI}"
+          fi
+
+          # Build release notes with PR content
+          cat > release-notes.md << 'RELEASE_EOF'
+          ## What's Changed
+          RELEASE_EOF
+
+          # Add PR title if available (strip conventional commit prefix for cleaner display)
+          if [ -n "$PR_TITLE" ]; then
+            # Keep the full title - it contains useful scope info like feat(worktree):
+            echo "" >> release-notes.md
+            echo "**${PR_TITLE}**" >> release-notes.md
+          fi
+
+          # Add PR summary if available
+          if [ -n "$PR_SUMMARY" ]; then
+            echo "" >> release-notes.md
+            echo "$PR_SUMMARY" >> release-notes.md
+          fi
+
+          # Add metadata section
+          cat >> release-notes.md << RELEASE_EOF
+
+          ---
+
+          <details>
+          <summary>Release Details</summary>
+
+          **Update Type:** ${BUMP_LABEL}
+
+          **Compatibility:**
+          - Minimum CLI version: ${MIN_COMPATIBLE_CLI}
+          - ${COMPAT_NOTE}
+
+          </details>
+          RELEASE_EOF
+
+          echo "Release notes:"
+          cat release-notes.md
+
+          gh release create "$TAG_NAME" \
+            --title "Release $TAG_NAME" \
+            --notes-file release-notes.md \
+            config.tar.gz \
+            version-info.json \
+            "dist/${MACOS_ARM64}" \
+            "dist/${MACOS_X64}" \
+            "dist/${LINUX_X64}" \
+            "dist/${LINUX_ARM64}" \
+            "dist/${WINDOWS_X64}" \
+            "dist/${PKG_MAC_APPLE_SILICON}-${TAG_NAME}.zip" \
+            "dist/${PKG_MAC_INTEL}-${TAG_NAME}.zip" \
+            "dist/${PKG_LINUX}-${TAG_NAME}.zip" \
+            "dist/${PKG_LINUX_ARM}-${TAG_NAME}.zip" \
+            "dist/${PKG_WINDOWS}-${TAG_NAME}.zip"

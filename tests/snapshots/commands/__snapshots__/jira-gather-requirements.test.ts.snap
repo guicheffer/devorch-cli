@@ -1,0 +1,393 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /jira-gather-requirements should match snapshot 1`] = `
+"---
+name: "/jira-gather-requirements"
+description: "Fetch Jira ticket(s), gather requirements, and post clarifying questions to the ticket"
+mode: "multi-agent"
+dependencies:
+  commands:
+    - "/load-context-training"
+    - "/gather-requirements"
+  skills:
+    - "cli-tools-jira-cli"
+  subagents:
+    - "specification/jira-ticket-fetcher"
+    - "specification/spec-researcher"
+---
+
+# Jira Gather Requirements
+
+## Purpose
+
+Fetch Jira ticket(s), gather requirements through clarifying questions, and post those questions to the Jira ticket for the team to answer. This is the first step in the Jira-based specification workflow.
+
+## Instructions
+
+This process follows 5 sequential phases:
+
+0. **Pre-checks** - Verify spec-machine version and jira CLI setup
+1. **Get Ticket Keys** - Collect Jira ticket keys from user
+2. **Fetch Tickets** - Use specification/jira-ticket-fetcher to get ticket details
+3. **Check for Existing Questions** - Verify if spec-machine already posted questions
+4. **Gather Requirements** - Research and post clarifying questions to Jira
+
+**Important:**
+1. **Sequential Execution** - Don't skip any phase, or step in the workflow
+2. **User Feedback** - Always stop for user feedback, when required
+3. **No Nested Commands** - Don't call other slash commands unless explicitly told to
+
+
+## Variables
+
+TICKET_KEYS: $ARGUMENTS[0]  # Optional: ticket key(s) from command argument
+
+## Workflow
+
+### PHASE 0: Pre-checks
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /jira-gather-requirements
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- specification/jira-ticket-fetcher
+- specification/spec-researcher
+
+#### Required Skills
+
+This command-multi-agent requires the following skills to be activated:
+
+- Activate skill **\`cli-tools-jira-cli\`**
+
+
+**Load context training:**
+
+Run \`SlashCommand("/load-context-training")\` to load all context-training files into context.
+
+This ensures you have access to:
+- Repository-specific specification guidelines
+- Domain-specific implementation patterns
+- Available implementers and verifiers
+
+Wait for \`/load-context-training\` to complete before proceeding.
+
+**Additional check for jira CLI:**
+
+\`\`\`bash
+command -v jira >/dev/null 2>&1 || echo "ERROR: jira CLI not found"
+\`\`\`
+
+If jira CLI not found, display error and STOP:
+\`\`\`
+❌ jira CLI is required for this command
+
+**Installation:**
+- macOS: \`brew install jira\`
+- Other: https://github.com/ankitpokhrel/jira-cli#installation
+
+**After installation:**
+1. Run: \`jira init\` to configure Jira connection
+2. Export API token: \`export JIRA_API_TOKEN=your_token\`
+3. Re-run \`/jira-gather-requirements\`
+\`\`\`
+
+### PHASE 1: Get Ticket Keys
+
+**If TICKET_KEYS provided as argument:**
+- Use the provided ticket key(s)
+- Multiple tickets can be comma or space separated
+- Example: \`/jira-gather-requirements PROJ-123\` or \`/jira-gather-requirements PROJ-123,PROJ-124\`
+
+**If no TICKET_KEYS provided:**
+
+Ask the user: "Which Jira ticket(s) would you like to gather requirements for? Provide ticket key(s) (e.g., PROJ-123 or PROJ-123, PROJ-124, PROJ-125)"
+
+Wait for user response and extract ticket key(s).
+
+### PHASE 2: Fetch Tickets
+
+Use the \`specification/jira-ticket-fetcher\` subagent to fetch ticket data.
+
+**Pass to \`specification/jira-ticket-fetcher\`:**
+\`\`\`
+Fetch the following Jira ticket(s): [TICKET_KEYS]
+
+Extract all relevant fields (summary, description, status, priority, labels, comments) and save to artifacts.
+\`\`\`
+
+The \`specification/jira-ticket-fetcher\` will:
+1. Validate jira CLI is installed and configured
+2. Fetch each ticket in JSON format
+3. Save individual tickets and consolidated summary
+4. Return success/failure status
+
+**If fetcher fails (all tickets failed to fetch):**
+Display the error from \`specification/jira-ticket-fetcher\` and STOP.
+
+**If fetcher succeeds (at least one ticket fetched):**
+Continue to Phase 3 with successfully fetched ticket(s).
+
+### PHASE 3: Check for Existing Questions
+
+For each successfully fetched ticket, check if spec-machine has already posted questions.
+
+**Load ticket data:**
+\`\`\`bash
+TICKET_SUMMARY=$(cat spec-machine/.state/artifacts/specification/jira-ticket-fetcher/tickets-summary.json)
+\`\`\`
+
+**For each ticket:**
+
+Check comments for spec-machine questions:
+\`\`\`bash
+TICKET_KEY="[TICKET-KEY]"
+SPEC_MACHINE_COMMENTS=$(jq -r '.comments[]? | select(.body | contains("## Clarifying Questions")) | .body' spec-machine/.state/artifacts/specification/jira-ticket-fetcher/\${TICKET_KEY}.json)
+\`\`\`
+
+**If spec-machine questions found:**
+\`\`\`
+⚠️  Questions already posted to $TICKET_KEY
+
+Existing questions found in ticket comments. Waiting for answers.
+
+**Next steps:**
+1. Review questions in Jira ticket: [ticket URL]
+2. Answer the questions in ticket comments
+3. Run: \`/jira-create-spec $TICKET_KEY\`
+\`\`\`
+
+STOP processing this ticket and continue to next ticket (if any).
+
+**If no spec-machine questions found:**
+Continue to Phase 4 to gather requirements.
+
+### PHASE 4: Gather Requirements and Post Questions
+
+For each ticket without existing questions, gather requirements.
+
+Run \`SlashCommand("/gather-requirements")\` with the following context:
+
+\`\`\`
+The requirement source is Jira ticket: [TICKET-KEY]
+
+**Ticket Summary:**
+[Summary from ticket]
+
+**Description:**
+[Description from ticket]
+
+**Labels:** [Labels]
+**Priority:** [Priority]
+**Status:** [Status]
+
+**Recent Comments:**
+[Display recent comments if any]
+
+Please research requirements and ask clarifying questions.
+\`\`\`
+
+**🚨 CRITICAL - Requirements Gathering Flow:**
+
+The \`/gather-requirements\` command will:
+1. Initialize a spec folder
+2. Launch \`specification/spec-researcher\` to ask clarifying questions
+3. \`specification/spec-researcher\` will generate questions based on ticket content
+
+**After \`/gather-requirements\` completes:**
+
+The \`specification/spec-researcher\` will have displayed clarifying questions in its output.
+
+**Extract the questions from spec-researcher's response:**
+
+The spec-researcher's final message contains the questions. Look for the "Clarifying Questions" section in the spec-researcher output and capture everything from that heading until the "Existing Code Reuse" section.
+
+**Post questions to Jira ticket:**
+
+Once you have the questions from the spec-researcher output, post them to the Jira ticket.
+
+**IMPORTANT: Use Write tool + --body-file instead of HEREDOC to avoid shell escaping issues:**
+
+**Step 1: Create a temporary file with the comment content:**
+
+Use the Write tool to create a file at \`spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md\`:
+
+\`\`\`markdown
+## Clarifying Questions for Implementation Planning
+
+[Insert the numbered questions from spec-researcher output here]
+
+---
+*📋 Posted by spec-machine*
+*Please answer these questions so we can create a detailed implementation spec.*
+*Once answered, run: \`/jira-create-spec [TICKET-KEY]\`*
+\`\`\`
+
+**Step 2: Post using --body-file:**
+
+\`\`\`bash
+# Verify JIRA_API_TOKEN is set
+if [ -z "$JIRA_API_TOKEN" ]; then
+  echo "ERROR: JIRA_API_TOKEN environment variable is not set"
+  exit 1
+fi
+
+# Post comment using file (avoids HEREDOC escaping issues)
+jira issue comment add [TICKET-KEY] --body-file spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md
+
+# Check result
+if [ $? -eq 0 ]; then
+    echo "✅ Posted clarifying questions to [TICKET-KEY]"
+else
+    echo "❌ Failed to post questions to [TICKET-KEY]"
+fi
+\`\`\`
+
+Inform user:
+\`\`\`
+✅ Posted clarifying questions to [TICKET-KEY]
+
+**Next steps:**
+1. Answer questions in Jira ticket
+2. Run: \`/jira-create-spec [TICKET-KEY]\`
+\`\`\`
+
+**If no questions needed:**
+
+Post summary to Jira ticket using the same Write + --body-file pattern:
+
+**Step 1: Create a temporary file:**
+
+Use the Write tool to create a file at \`spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md\`:
+
+\`\`\`markdown
+## Requirements Gathering Complete
+
+No clarifying questions needed - the ticket provides sufficient information for implementation planning.
+
+---
+*📋 Posted by spec-machine*
+*Requirements are clear. Run: \`/jira-create-spec [TICKET-KEY]\` to generate the implementation spec.*
+\`\`\`
+
+**Step 2: Post using --body-file:**
+
+\`\`\`bash
+jira issue comment add [TICKET-KEY] --body-file spec-machine/.state/artifacts/jira/comment-[TICKET-KEY].md
+\`\`\`
+
+Inform user:
+\`\`\`
+✅ No clarifying questions needed for [TICKET-KEY]
+
+Requirements are clear from the ticket description.
+
+**Next steps:**
+Run: \`/jira-create-spec [TICKET-KEY]\`
+\`\`\`
+
+## Report
+
+After all phases complete, inform the user:
+
+\`\`\`
+✅ Requirements gathering complete for [X] ticket(s)
+
+**Tickets processed:**
+[For each ticket:]
+- **[TICKET-KEY]**: [Summary]
+  - Questions posted: ✅ / ⚠️ Already posted / ℹ️ None needed
+  - Status: [Waiting for answers / Ready for spec generation]
+
+**Next steps:**
+
+For tickets with questions:
+1. Answer questions in Jira tickets
+2. Run: \`/jira-create-spec [TICKET-KEY]\`
+
+For tickets ready for spec:
+Run: \`/jira-create-spec [TICKET-KEY]\`
+\`\`\`
+
+**If any tickets failed:**
+Display which tickets failed and why, provide suggestions for resolution.
+
+## Critical Rules
+
+**DO:**
+- ✅ Check jira CLI prerequisites at start
+- ✅ Check for existing spec-machine questions before posting new ones
+- ✅ Post questions to Jira via jira CLI
+- ✅ Post summary if no questions needed
+- ✅ Handle multiple tickets sequentially (one at a time)
+- ✅ Provide clear next steps with exact command to run
+
+**DON'T:**
+- ❌ Skip jira CLI prerequisites check
+- ❌ Post duplicate questions if already exists
+- ❌ Process multiple tickets in parallel
+- ❌ Continue if all tickets fail to fetch
+- ❌ Skip posting to Jira (always post either questions or summary)
+- ❌ Assume jira CLI is configured (always check)
+
+## Example Flow
+
+\`\`\`
+User: /jira-gather-requirements BACKEND-123
+
+Phase 0: ✅ Pre-checks passed
+Phase 1: ✅ Got ticket key: BACKEND-123
+Phase 2: ✅ Fetched ticket data
+  - BACKEND-123: Implement user authentication
+Phase 3: ✅ No existing questions found
+Phase 4: ✅ Gathering requirements...
+  - Generated 5 clarifying questions
+  - Posted questions to BACKEND-123
+
+✅ Requirements gathering complete!
+
+Next: Answer questions in Jira, then run /jira-create-spec BACKEND-123
+\`\`\`
+"
+`;

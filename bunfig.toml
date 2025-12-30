@@ -1,0 +1,10 @@
+[test]
+preload = ["./tests/setup.ts"]
+# Note: Bun doesn't support exclude patterns in config.
+# Use package.json scripts to control which tests run.
+
+[install]
+peer = true
+
+[build]
+loader = [".ts", ".tsx"]

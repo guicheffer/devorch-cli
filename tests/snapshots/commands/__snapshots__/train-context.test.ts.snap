@@ -1,0 +1,634 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`command snapshot: /train-context should match snapshot 1`] = `
+"---
+name: "/train-context"
+description: "Generate repository-specific context training from tech stack and work history analysis"
+mode: "multi-agent"
+dependencies:
+  subagents:
+    - "context-training/tech-stack-reader"
+    - "context-training/pr-fetcher"
+    - "context-training/pr-pattern-analyzer"
+    - "context-training/pattern-reviewer"
+    - "context-training/artifact-generator"
+---
+
+# Purpose
+
+You orchestrate context training, context training is valuable for collecting rules and preferences for specific tasks within a certain repository or workspace.
+
+Interactively we'll design the context for certain pieces of work, we value the input of the user as much as what's in the codebase. It's tantamount to review and discuss findings with the user before we implement them.
+
+
+#### Check spec-machine Version
+
+\`\`\`bash
+spec-machine check-version --command /train-context
+\`\`\`
+
+The command outputs JSON to stdout:
+
+\`\`\`json
+{
+  "cli": { "current": "v1.0.0", "latest": "v1.1.0" },
+  "templates": { "installed": "v1.0.0", "latest": "v1.1.0" },
+  "blocked": false,
+  "message": "CLI update available (v1.1.0). Run \`spec-machine update\` after this task."
+}
+\`\`\`
+
+Parse the JSON and check the \`blocked\` field:
+
+IF \`blocked\` == false:
+  - Show the \`message\` field to the user (if present)
+  - CONTINUE with the command
+
+IF \`blocked\` == true:
+  - Show the \`message\` field to the user
+  - STOP execution - do not proceed with the command
+
+#### Required Subagents
+
+**Before starting**, verify that all required subagents are available in your current profile.
+
+**STOP HERE** if any of the required subagents listed below are not available.
+
+If any subagent is missing, inform the user:
+
+\`\`\`
+⚠️ Cannot execute this command - Missing required subagent(s):
+[list the missing ones]
+
+This command requires these subagents to function properly. Please ensure your profile includes them.
+\`\`\`
+
+**Only proceed** if all required subagents are available.
+
+**Required:**
+- context-training/tech-stack-reader
+- context-training/pr-fetcher
+- context-training/pr-pattern-analyzer
+- context-training/pattern-reviewer
+- context-training/artifact-generator
+
+
+## Instructions
+
+1. Don't skip any phase, or step in the workflow
+2. Always stop for user feedback, when required
+
+## Workflow
+
+### Step 1: Prerequisites
+
+Before continiuing context training we need to verify the following requirements:
+
+1. Required CLI tools
+2. \`spec-machine/tech-stack.md\`
+3. Context training location at \`spec-machine/context-training\`
+
+### Requirement 1: Check Required Tools
+
+Verify that required command-line tools are installed:
+
+Check \`gh\` CLI:
+
+\`\`\`bash
+if ! command -v gh &> /dev/null; then
+  echo "❌ GitHub CLI (gh) not found"
+  echo "Install: https://cli.github.com/"
+  exit 1
+fi
+\`\`\`
+
+Check \`jq\` command:
+
+\`\`\`bash
+if ! command -v jq &> /dev/null; then
+  echo "❌ jq not found"
+  echo "Install: https://jqlang.github.io/jq/download/"
+  exit 1
+fi
+\`\`\`
+
+Check \`gh\` is properly authenticated:
+
+\`\`\`bash
+if ! gh auth status &> /dev/null; then
+  echo "❌ GitHub CLI not authenticated"
+  echo "Run: gh auth login"
+  exit 1
+fi
+\`\`\`
+
+### Requirement 2: \`spec-machine/tech-stack.md\` exists
+
+Look for \`spec-machine/tech-stack.md\` in the project root:
+
+\`\`\`bash
+# Check if file exists
+[ ! -e "spec-machine/tech-stack" ] && echo "Does not exist"
+\`\`\`
+
+### Requirement 3: Verify spec-machine Directory
+
+Ensure the \`spec-machine/context-training\` directory exists for storing context training:
+
+\`\`\`bash
+# Check directory exists
+[ ! -d "spec-machine/context-training" ] && echo "Directory does not exist"
+\`\`\`
+
+## Report missing requirements
+
+If any of the requirements are missing **STOP** and report missing requirements. Don't continue the process.
+
+### Fixing \`Requirement 1\`:
+
+Explain the user how to install \`gh\` and \`jq\` with \`brew\`. If not authenticated, tell them they need to authenticate with \`gh auth login\`.
+
+### Fixing \`Requirement 2\`:
+
+Explain the user they need to run \`/analyze-tech-stack\` command to create the tech stack artifacts before running this command.
+
+### Fixing \`Requirement 3\`:
+
+**ALWAYS auto-create this directory** without asking. Run:
+
+\`\`\`bash
+mkdir -p spec-machine/context-training
+\`\`\`
+
+Then tell the user you created it.
+
+### Step 2: Ingest Tech Stack
+
+Launch the **context-training/tech-stack-reader** subagent using the Task tool:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/tech-stack-reader"
+- description: "Parse spec-machine/tech-stack.md for platforms, libraries, and skills"
+- prompt: "Read and parse tech-stack.md at: spec-machine/tech-stack.md
+
+Extract:
+- Identify the type of application or system described (e.g., mobile app, web service, backend API, monorepo, etc.)
+- List its main dependencies, libraries, and frameworks (group or categorize if possible)
+- Capture any explicit references to technologies, skills, or technical capabilities
+
+Return structured analysis for context-training generation."
+\`\`\`
+
+**What the subagent will do:**
+- Read spec-machine/tech-stack.md
+- Extract platforms and libraries
+- Return structured analysis as JSON **in its response message** (NOT written to disk)
+
+**After the subagent completes:**
+
+**IMPORTANT: The subagent returns the tech stack analysis as JSON in the Task tool result. Parse the JSON from the Task tool response.**
+
+**Save artifact for reference:**
+\`\`\`bash
+mkdir -p spec-machine/.state/artifacts/commands/train-context-2
+echo "$TECH_STACK_JSON" > spec-machine/.state/artifacts/commands/train-context-2/tech-stack-analysis.json
+\`\`\`
+
+Where \`$TECH_STACK_JSON\` is the JSON returned by the subagent. This artifact is for debugging/reference only and will be used as the baseline for tech stack coverage comparison in Step 4.
+
+### Step 3: Fetch past work
+
+Launch the **context-training/pr-fetcher** subagent using the Task tool:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/pr-fetcher"
+- description: "Fetch merged PRs for context training analysis"
+- prompt: "Fetch merged pull requests from this repository for context training.
+
+Follow your workflow to:
+1. Verify gh CLI prerequisites
+2. Fetch and display repository labels
+3. Ask user to select labels for filtering
+4. Fetch and categorize PRs by size
+5. Ask user to select PR count, timeframe, and size distribution
+6. Return filtered PR list with structured JSON output
+
+The user will select which labels and how many PRs to analyze based on what context they want to capture."
+\`\`\`
+
+**What the subagent will do:**
+- Verify gh CLI and jq are available
+- Fetch all repository labels and group them (squad/tribe vs type labels)
+- Interactively ask user which labels to filter by
+- Fetch merged PRs and categorize by size
+- Filter out PRs with >50% net negative changes
+- Ask user for PR count (10/25/50/all), timeframe (1/3/6/12 months, all), and size distribution (balanced/favor large/favor medium/proportional)
+- Return filtered PR list as structured JSON for downstream analysis
+
+**Output format:**
+The subagent returns JSON **in its response message** (NOT written to disk) with:
+- \`selection_criteria\`: labels, count, timeframe
+- \`prs\`: array of PR objects with metadata
+- \`summary\`: counts by size category
+
+**After the subagent completes:**
+
+**IMPORTANT: The subagent returns the PR list as JSON in the Task tool result. Parse the JSON from the Task tool response.**
+
+**Save artifact for reference (commands should specify their own artifact directory):**
+
+The calling command should save the PR JSON to its own artifacts directory for debugging/reference. The workflow uses the in-memory JSON returned by the subagent.
+
+
+**Save the artifact:**
+\`\`\`bash
+mkdir -p spec-machine/.state/artifacts/commands/train-context-2
+echo "$PR_JSON" > spec-machine/.state/artifacts/commands/train-context-2/fetched-prs.json
+\`\`\`
+
+### Step 4: Analyze Patterns
+
+**First, read the artifacts from previous steps:**
+
+\`\`\`bash
+# Read tech stack analysis from Step 2
+TECH_STACK_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/tech-stack-analysis.json)
+
+# Read PR list from Step 3
+PR_LIST_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/fetched-prs.json)
+\`\`\`
+
+Launch the **context-training/pr-pattern-analyzer** subagent using the Task tool to analyze patterns from the selected PRs and assess tech stack coverage.
+
+**Task tool parameters:**
+\`\`\`markdown
+- subagent_type: "context-training/pr-pattern-analyzer"
+- description: "Analyze patterns from merged PRs"
+- prompt: "Analyze the PR list from Step 3 and compare against the tech stack from Step 2.
+
+Tech Stack Analysis (from Step 2):
+$TECH_STACK_JSON
+
+PR List (from Step 3):
+$PR_LIST_JSON
+
+Your job is to:
+1. Parse the tech stack JSON to understand what technologies should exist
+2. Parse the PR list JSON to get PR numbers to analyze
+3. Fetch full PR details using gh CLI (work in memory - do not write temporary files)
+4. Analyze code patterns from diffs and file contents
+5. Extract concrete code examples
+6. Track which tech stack items are observed in actual PR code vs. not observed
+
+Return JSON with:
+- Pattern analysis organized by technical domain
+- Tech stack coverage report (observed vs not-observed technologies)
+- Concrete code examples from PRs
+- Pattern frequency/prevalence
+
+Focus on objective pattern extraction - do not make recommendations yet."
+\`\`\`
+
+**What the subagent will do:**
+- Read spec-machine/tech-stack.md to establish baseline expectations
+- Fetch complete PR details using \`gh pr view\` and \`gh pr diff\` (keep data in memory)
+- Analyze patterns across all files: components, state, APIs, testing, styling, file organization, imports
+- Compare found patterns against tech stack to identify:
+  - ✅ **Observed**: Technologies found in actual PR code
+  - ❌ **Not Observed**: Technologies in tech stack but not found in PRs
+- Calculate pattern frequency and domain prevalence
+- **Return structured JSON in its final response message (NOT written to disk)**
+
+**After the subagent completes:**
+
+**IMPORTANT: The subagent returns the COMPLETE pattern analysis JSON in the Task tool result. Parse the entire JSON from the Task tool response.**
+
+**Save artifact:**
+\`\`\`bash
+mkdir -p spec-machine/.state/artifacts/commands/train-context-2
+echo "$PATTERN_JSON" > spec-machine/.state/artifacts/commands/train-context-2/pattern-analysis.json
+\`\`\`
+
+Where \`$PATTERN_JSON\` is the COMPLETE JSON returned by the subagent, including:
+- All domains with full details
+- All patterns with descriptions
+- All code examples
+- Tech stack coverage report
+- Summary statistics
+
+**CRITICAL**: The artifact MUST contain the full detailed analysis - Step 5 reads from this file!
+
+Extract the pattern analysis JSON from the Task tool result and present the **Tech Stack Coverage Report** to the user:
+
+\`\`\`
+## Tech Stack Coverage Report
+
+Analyzed {X} PRs and found {Y}% of tech stack items in actual usage.
+
+### ✅ Observed Technologies ({count})
+Technologies found in analyzed PRs:
+- Technology 1 (used in X PRs)
+- Technology 2 (used in Y PRs)
+...
+
+### ❌ Not Observed ({count})
+Technologies in tech stack but NOT found in PRs:
+- Technology A
+- Technology B
+...
+
+These missing technologies may be:
+- Legacy/deprecated (no longer actively used)
+- Misidentified during initial tech stack analysis
+- Recently added (not yet used in merged PRs)
+- Used in areas not covered by selected PRs
+\`\`\`
+
+**Ask the user for next step:**
+
+Present these options using the AskUserQuestion tool:
+
+\`\`\`
+"Would you like to:"
+
+Options:
+1. "Continue with current selection" - Proceed with {Y}% coverage
+2. "Add more PRs" - Include additional PRs to cover missing technologies
+3. "Review tech stack" - Mark missing items as legacy/unused and update tech-stack.md
+4. "Proceed anyway" - Missing items may not be relevant for context training
+\`\`\`
+
+**If user selects "Add more PRs":**
+- Return to Step 3 (PR selection workflow)
+- Suggest searching for PRs that use the missing technologies
+- After new PRs are added, re-run this analysis step
+- Show updated coverage report
+
+**If user selects any other option:**
+- Proceed to Step 5 with current pattern analysis
+- Pass the complete analysis JSON to the next step
+
+**Output format:**
+The subagent returns JSON with patterns + coverage:
+\`\`\`json
+{
+  "analysis_metadata": {
+    "total_prs_analyzed": 25,
+    "date_range": "2024-10-01 to 2025-01-09",
+    "repository": "owner/repo"
+  },
+  "domains": [
+    {
+      "domain": "ui-components",
+      "description": "Patterns for building UI components with React and TypeScript",
+      "pr_count": 23,
+      "percentage": 92,
+      "patterns": [
+        {
+          "name": "Pattern Name",
+          "description": "Clear description",
+          "examples": [
+            {
+              "pr_number": 1234,
+              "pr_title": "PR title",
+              "code_snippet": "actual code"
+            }
+          ],
+          "frequency": "95%",
+          "related_libraries": ["react", "@types/react"],
+          "skill_references": []
+        }
+      ]
+    }
+  ],
+  "tech_stack_coverage": {
+    "observed": ["React Native", "TypeScript", "Zustand"],
+    "not_observed": ["Redux", "MobX", "GraphQL"],
+    "coverage_summary": {
+      "total_tech_stack_items": 11,
+      "observed_count": 5,
+      "not_observed_count": 6,
+      "coverage_percentage": 45
+    }
+  },
+  "summary": {
+    "total_patterns": 36,
+    "domains_found": 8,
+    "skill_references_identified": ["skill1", "skill2"]
+  }
+}
+\`\`\`
+
+This pattern analysis will be passed to Step 5 for interactive review with the user.
+
+
+### Step 5: Review Patterns
+
+**First, read the pattern analysis artifact from Step 4:**
+
+\`\`\`bash
+# Read pattern analysis from Step 4
+PATTERN_ANALYSIS_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/pattern-analysis.json)
+\`\`\`
+
+Launch the **context-training/pattern-reviewer** subagent using the Task tool:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/pattern-reviewer"
+- description: "Interactive pattern review with user"
+- prompt: "Present the pattern analysis from Step 4 to the user for interactive review.
+
+Pattern Analysis JSON (from Step 4):
+$PATTERN_ANALYSIS_JSON
+
+You will receive structured pattern analysis with discovered patterns organized by domain. Your job is to:
+1. Present a high-level summary of all discovered domains and pattern counts
+2. Review each domain interactively, showing patterns with concrete code examples
+3. For each domain, ask user to validate, reject, or refine patterns using AskUserQuestion
+4. Ask about pattern priorities (Critical/Important/Recommended)
+5. Ask if user wants to add missing patterns not discovered by analysis
+6. Collect skill references to include in context training
+7. Ask for context training name
+8. Return refined and validated pattern set ready for artifact generation
+
+Be collaborative - this is about understanding what patterns matter to this team. Present patterns domain by domain (not all at once). Show actual code examples from PRs for every pattern. Use AskUserQuestion extensively for structured feedback.
+
+Don't skip any domains, even if they have few patterns. Don't make decisions for the user - always get explicit approval."
+\`\`\`
+
+**What the subagent will do:**
+- Present discovered domains with pattern counts (e.g., "UI Components - 23 PRs (92%) - 8 patterns found")
+- For each domain:
+  - Show all patterns with descriptions, examples, and frequency
+  - Use AskUserQuestion to let user select which patterns to include (multiSelect: true)
+  - Ask about priority level (Critical/Important/Recommended)
+  - Ask if user wants to add missing patterns
+  - If yes, collect additional patterns from user input
+- Ask about skill references to include (based on libraries used)
+- Ask for context training name
+- Return validated patterns with user preferences including:
+  - Approved patterns per domain
+  - Priority levels per domain
+  - User-added patterns
+  - Skill references to include
+  - Context training name
+  - Summary statistics
+
+**Output format:**
+The subagent returns JSON with:
+\`\`\`json
+{
+  "context_training_name": "mobile-app",
+  "domains": [
+    {
+      "domain": "ui-components",
+      "description": "Patterns for building UI components with React and TypeScript",
+      "patterns": [
+        {
+          "name": "Pattern Name",
+          "description": "Description",
+          "examples": [...],
+          "frequency": "95%",
+          "user_approved": true,
+          "source": "discovered|user-added",
+          "related_libraries": ["react"],
+          "notes": "optional user notes"
+        }
+      ]
+    }
+  ],
+  "skill_references": ["skill1", "skill2"],
+  "user_preferences": {
+    "include_examples": true,
+    "strict_enforcement": false,
+    "custom_notes": "optional notes"
+  },
+  "summary": {
+    "total_patterns": 36,
+    "discovered_patterns": 32,
+    "user_added_patterns": 4,
+    "domains_covered": 8,
+    "reviewed_at": "2025-01-09T10:30:00Z"
+  }
+}
+\`\`\`
+
+**After the subagent completes:**
+
+**IMPORTANT: The subagent returns validated patterns as JSON in the Task tool result. Parse the JSON from the Task tool response.**
+
+**Save artifact for reference:**
+\`\`\`bash
+mkdir -p spec-machine/.state/artifacts/commands/train-context-2
+echo "$VALIDATED_JSON" > spec-machine/.state/artifacts/commands/train-context-2/validated-patterns.json
+\`\`\`
+
+Where \`$VALIDATED_JSON\` is the JSON returned by the subagent. This artifact is for debugging/reference only - the workflow uses the in-memory JSON.
+
+This validated pattern set will be passed to Step 6 for artifact generation.
+
+
+### Step 6: Generate Artifacts
+
+**First, read the validated patterns artifact from Step 5:**
+
+\`\`\`bash
+# Read validated patterns from Step 5
+VALIDATED_PATTERNS_JSON=$(cat spec-machine/.state/artifacts/commands/train-context-2/validated-patterns.json)
+\`\`\`
+
+Launch the **context-training/artifact-generator** subagent using the Task tool:
+
+\`\`\`markdown
+Task tool parameters:
+- subagent_type: "context-training/artifact-generator"
+- description: "Generate context-training files from patterns"
+- prompt: "Generate the final context-training directory and files from validated patterns.
+
+Validated Patterns JSON (from Step 5):
+$VALIDATED_PATTERNS_JSON
+
+Your job is to:
+1. Create context-training directory at spec-machine/context-training/{name}/
+2. Generate specification.md with patterns relevant to spec writing (API, data modeling, UI specs)
+3. Generate implementation.md with architectural and planning patterns
+4. Generate implementers/*.md files - one per domain (ui.md, state.md, api.md, testing.md, etc.)
+5. Generate verifiers/*.md files for verification patterns (testing, validation)
+6. Include all validated patterns with code examples, priorities, and skill references
+7. Validate all files are created successfully
+8. Return summary of generated files with next steps for user
+
+Follow the exact context-training directory structure. Use **skill-name** syntax for skill references. Include priority levels and code examples in all pattern descriptions.
+
+If directory already exists, warn user and ask before overwriting."
+\`\`\`
+
+**What the subagent will do:**
+- Create directory structure: \`spec-machine/context-training/{name}/\` with subdirectories \`implementers/\` and \`verifiers/\`
+- Generate specification.md with patterns for spec writers (API, data modeling, UI specs)
+- Generate implementation.md with architectural patterns and file organization guidance
+- Generate one implementer file per domain:
+  - implementers/ui.md (UI component patterns)
+  - implementers/state.md (state management patterns)
+  - implementers/api.md (API integration patterns)
+  - implementers/testing.md (testing patterns)
+  - implementers/styling.md (styling patterns)
+  - etc. for each discovered domain
+- Generate verifier files for testing domains (verifiers/ui.md, verifiers/api.md, etc.)
+- Validate all required files are present
+- Return generation summary
+
+**Output format:**
+The subagent returns JSON with:
+\`\`\`json
+{
+  "success": true,
+  "context_training_name": "mobile-app",
+  "directory": "spec-machine/context-training/mobile-app",
+  "files_generated": [
+    {
+      "path": "specification.md",
+      "type": "guidance",
+      "pattern_count": 12
+    },
+    {
+      "path": "implementers/ui.md",
+      "type": "implementer",
+      "domain": "ui-components",
+      "pattern_count": 8
+    }
+  ],
+  "summary": {
+    "total_files": 12,
+    "total_patterns": 36,
+    "domains_covered": 8,
+    "skill_references_count": 3
+  },
+  "next_steps": [
+    "Review generated files in spec-machine/context-training/mobile-app/",
+    "Create or edit spec-machine/config.local.yml with: profile.context_training: mobile-app",
+    "Run spec-machine install to activate the context training",
+    "Test with a spec writing or implementation command"
+  ]
+}
+\`\`\`
+
+**After the subagent completes:**
+
+**IMPORTANT: The subagent returns the generation summary as JSON in the Task tool result. Parse the JSON from the Task tool response.**
+
+**Save artifact for reference:**
+\`\`\`bash
+mkdir -p spec-machine/.state/artifacts/commands/train-context-2
+echo "$GENERATION_JSON" > spec-machine/.state/artifacts/commands/train-context-2/generation-summary.json
+\`\`\`
+
+Where \`$GENERATION_JSON\` is the JSON returned by the subagent. This artifact documents what files were created and validates generation success.
+
+Present the summary to the user with clear next steps for using the context training.
+
+"
+`;

@@ -1,0 +1,68 @@
+# Dockerfile for testing installer/setup.sh in both modes:
+# 1. ZIP install - when bin/spec-machine exists locally
+# 2. CURL install - when downloading from GitHub
+
+FROM ubuntu:22.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install basic utilities
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    sudo \
+    build-essential \
+    procps \
+    file \
+    ca-certificates \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user with passwordless sudo for Docker
+RUN useradd -m -s /bin/bash testuser && \
+    echo "testuser:qwerty123" | chpasswd && \
+    echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Switch to the test user
+USER testuser
+WORKDIR /home/testuser
+
+# Set up shell environment
+ENV HOME=/home/testuser
+ENV SHELL=/bin/bash
+
+# Copy the installer files for ZIP install test
+# Structure: installer/setup.sh + bin/spec-machine
+COPY --chown=testuser:testuser installer/setup.sh /home/testuser/zip-package/setup.sh
+COPY --chown=testuser:testuser installer/README.txt /home/testuser/zip-package/README.txt
+COPY --chown=testuser:testuser test-docker/spec-machine /home/testuser/zip-package/bin/spec-machine
+
+# Copy setup.sh alone for curl install test (will download binary from GitHub)
+COPY --chown=testuser:testuser installer/setup.sh /home/testuser/curl-test/setup.sh
+
+# Make scripts executable
+RUN chmod +x /home/testuser/zip-package/setup.sh \
+    /home/testuser/zip-package/bin/spec-machine \
+    /home/testuser/curl-test/setup.sh
+
+# Create test scripts
+RUN echo '#!/bin/bash\n\
+echo "=== Testing ZIP Install (local binary) ==="\n\
+echo ""\n\
+echo "This simulates: User downloads zip, extracts, runs setup.sh"\n\
+echo "The binary already exists at bin/spec-machine"\n\
+echo ""\n\
+cd /home/testuser/zip-package\n\
+ls -la\n\
+ls -la bin/\n\
+echo ""\n\
+echo "Running: ./setup.sh"\n\
+./setup.sh\n\
+echo ""\n\
+echo "Testing installed binary:"\n\
+~/.local/bin/spec-machine --version\n\
+' > /home/testuser/test-zip-install.sh && chmod +x /home/testuser/test-zip-install.sh
+
+# Default command
+CMD ["bash", "-c", "echo 'Run one of:'; echo '  ./test-zip-install.sh - Test ZIP install (local binary)'; echo '  cd curl-test && ./setup.sh - Test CURL install (downloads from GitHub, requires gh auth)'"]
