@@ -1,8 +1,0 @@
-{
-    "mcpServers": {
-      "genai-lab-mcp": {
-        "url": "https://genai-lab-api.eu.foundations.shared.int.hellofresh.io/mcp/v2"
-      }
-    }
-}
-  
