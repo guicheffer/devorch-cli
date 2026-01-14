@@ -2,14 +2,14 @@ name: Test setup-bedrock in Docker
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - 'src/cli/commands/setup/**'
       - 'src/cli/lib/bedrock/**'
       - 'test-docker/**'
       - '.github/workflows/test-setup-bedrock.yml'
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - 'src/cli/commands/setup/**'
       - 'src/cli/lib/bedrock/**'
