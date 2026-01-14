@@ -19,7 +19,7 @@ dependencies:
 
 ## Purpose
 
-Add or update Zest design system components in the HelloFresh web repository based on Figma designs. This command is designed for designers to independently create or update components by following established patterns from production PRs, ensuring consistency and quality without engineering help.
+Add or update Zest design system components in the YourCompany web repository based on Figma designs. This command is designed for designers to independently create or update components by following established patterns from production PRs, ensuring consistency and quality without engineering help.
 
 ## Instructions
 

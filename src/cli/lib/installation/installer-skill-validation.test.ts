@@ -17,12 +17,7 @@ describe('installer skill validation', () => {
     ensureDir(projectDir);
 
     // Create tuning directory structure
-    const tuningPath = join(
-      projectDir,
-      'devorch',
-      'context-training',
-      'test-context-training'
-    );
+    const tuningPath = join(projectDir, 'devorch', 'context-training', 'test-context-training');
     ensureDir(tuningPath);
 
     // Create implementers directory (required for valid context-training)
@@ -103,12 +98,7 @@ skills:
     ensureDir(projectDir);
 
     // Create tuning directory structure
-    const tuningPath = join(
-      projectDir,
-      'devorch',
-      'context-training',
-      'valid-context-training'
-    );
+    const tuningPath = join(projectDir, 'devorch', 'context-training', 'valid-context-training');
     ensureDir(tuningPath);
 
     // Create implementers directory (required for valid context-training)

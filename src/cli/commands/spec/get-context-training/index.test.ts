@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import * as configLoader from '@/cli/lib/config/config-loader.js';
 import * as contextTrainingLoader from '@/cli/lib/context-training/context-training-loader.js';
+import type { Config } from '@/schemas';
 import { getContextTrainingCommand } from './index.js';
 
 describe('get-context-training command', () => {
@@ -11,7 +12,9 @@ describe('get-context-training command', () => {
     // Mock process.exit to prevent test from exiting
     exitSpy = spyOn(process, 'exit').mockImplementation(() => undefined as never);
     // Capture console.log output
-    consoleSpy = spyOn(console, 'log').mockImplementation(() => {});
+    consoleSpy = spyOn(console, 'log').mockImplementation(() => {
+      // Intentionally empty - we're just capturing calls, not logging
+    });
   });
 
   afterEach(() => {
@@ -24,9 +27,11 @@ describe('get-context-training command', () => {
     spyOn(configLoader, 'loadConfig').mockReturnValue({
       profile: {
         name: 'test',
+        agents: ['claude-code'],
         context_training: undefined,
       },
-    } as any);
+      commands: [],
+    } as Partial<Config> as Config);
 
     await getContextTrainingCommand();
 
@@ -40,9 +45,11 @@ describe('get-context-training command', () => {
     spyOn(configLoader, 'loadConfig').mockReturnValue({
       profile: {
         name: 'test',
+        agents: ['claude-code'],
         context_training: 'my-context',
       },
-    } as any);
+      commands: [],
+    } as Partial<Config> as Config);
 
     // Mock context-training exists
     spyOn(contextTrainingLoader, 'contextTrainingExists').mockReturnValue(true);
@@ -61,9 +68,11 @@ describe('get-context-training command', () => {
     spyOn(configLoader, 'loadConfig').mockReturnValue({
       profile: {
         name: 'test',
+        agents: ['claude-code'],
         context_training: 'missing-context',
       },
-    } as any);
+      commands: [],
+    } as Partial<Config> as Config);
 
     // Mock context-training does not exist
     spyOn(contextTrainingLoader, 'contextTrainingExists').mockReturnValue(false);

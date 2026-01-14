@@ -79,21 +79,28 @@ function findLocalConfig(projectDir?: string): string | null {
 /**
  * Deep merge two objects (local overrides base)
  */
-function deepMerge(base: any, override: any): any {
-  if (!override) return base;
-  if (!base) return override;
+function deepMerge<T extends Record<string, unknown>>(
+  base: T | undefined,
+  override: Partial<T> | undefined
+): T {
+  if (!override) return base as T;
+  if (!base) return override as T;
 
-  const result = { ...base };
+  const result = { ...base } as Record<string, unknown>;
 
   for (const key in override) {
-    if (override[key] && typeof override[key] === 'object' && !Array.isArray(override[key])) {
-      result[key] = deepMerge(base[key], override[key]);
+    const overrideValue = override[key];
+    if (overrideValue && typeof overrideValue === 'object' && !Array.isArray(overrideValue)) {
+      result[key] = deepMerge(
+        base[key] as Record<string, unknown>,
+        overrideValue as Record<string, unknown>
+      );
     } else {
-      result[key] = override[key];
+      result[key] = overrideValue;
     }
   }
 
-  return result;
+  return result as T;
 }
 
 /**

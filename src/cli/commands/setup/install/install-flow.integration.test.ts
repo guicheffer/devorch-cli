@@ -171,12 +171,7 @@ describe('install-flow integration', () => {
       }).toThrow();
 
       // Verify nothing was created
-      const contextDir = join(
-        projectDir,
-        'devorch',
-        'context-training',
-        'non-existent-context'
-      );
+      const contextDir = join(projectDir, 'devorch', 'context-training', 'non-existent-context');
       expect(existsSync(contextDir)).toBe(false);
     });
 

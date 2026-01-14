@@ -183,7 +183,7 @@ TICKET_SUMMARY=$(cat devorch/.state/artifacts/specification/jira-ticket-fetcher/
 Check comments for devorch questions:
 \`\`\`bash
 TICKET_KEY="[TICKET-KEY]"
-SPEC_MACHINE_COMMENTS=$(jq -r '.comments[]? | select(.body | contains("## Clarifying Questions")) | .body' devorch/.state/artifacts/specification/jira-ticket-fetcher/\${TICKET_KEY}.json)
+DEVORCH_COMMENTS=$(jq -r '.comments[]? | select(.body | contains("## Clarifying Questions")) | .body' devorch/.state/artifacts/specification/jira-ticket-fetcher/\${TICKET_KEY}.json)
 \`\`\`
 
 **If devorch questions found:**
