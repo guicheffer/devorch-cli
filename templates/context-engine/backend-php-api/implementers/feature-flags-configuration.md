@@ -21,7 +21,7 @@ You are responsible for implementing feature flags and configuration management 
 ```php
 <?php
 
-namespace Hellofresh\Business\FeatureFlags;
+namespace YourCompany\Business\FeatureFlags;
 
 interface FeatureFlagsInterface
 {
@@ -61,7 +61,7 @@ interface FeatureFlagsInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\FeatureFlags;
+namespace YourCompany\Business\FeatureFlags;
 
 use Psr\Log\LoggerInterface;
 
@@ -237,13 +237,13 @@ parameters:
 # services.yml
 services:
     yourcompany.business.feature_flags:
-        class: Hellofresh\Business\FeatureFlags\FeatureFlags
+        class: YourCompany\Business\FeatureFlags\FeatureFlags
         arguments:
             - '%feature_flags%'
             - '%country%'
             - '@logger'
 
-    Hellofresh\Business\FeatureFlags\FeatureFlagsInterface:
+    YourCompany\Business\FeatureFlags\FeatureFlagsInterface:
         alias: yourcompany.business.feature_flags
 ```
 
@@ -271,11 +271,11 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository\Decorator;
+namespace YourCompany\Business\Repository\Decorator;
 
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\FeatureFlags\FeatureFlagsInterface;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\FeatureFlags\FeatureFlagsInterface;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class FeatureFlaggedSubscriptionsRepository implements SubscriptionsRepositoryInterface
@@ -406,13 +406,13 @@ class FeatureFlaggedSubscriptionsRepository implements SubscriptionsRepositoryIn
 services:
     # Base repository
     yourcompany.business.repository.subscriptions.base:
-        class: Hellofresh\Business\Repository\SubscriptionsRepository
+        class: YourCompany\Business\Repository\SubscriptionsRepository
         arguments:
             - '@doctrine.orm.entity_manager'
 
     # Feature flagged decorator
     yourcompany.business.repository.subscriptions.feature_flagged:
-        class: Hellofresh\Business\Repository\Decorator\FeatureFlaggedSubscriptionsRepository
+        class: YourCompany\Business\Repository\Decorator\FeatureFlaggedSubscriptionsRepository
         decorates: yourcompany.business.repository.subscriptions.base
         decoration_priority: 10
         arguments:
@@ -424,7 +424,7 @@ services:
     yourcompany.business.repository.subscriptions:
         alias: yourcompany.business.repository.subscriptions.feature_flagged
 
-    Hellofresh\Business\Repository\SubscriptionsRepositoryInterface:
+    YourCompany\Business\Repository\SubscriptionsRepositoryInterface:
         alias: yourcompany.business.repository.subscriptions
 ```
 
@@ -452,11 +452,11 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription;
+namespace YourCompany\Business\Domain\Subscription;
 
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\FeatureFlags\FeatureFlagsInterface;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\FeatureFlags\FeatureFlagsInterface;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionPauser
@@ -558,10 +558,10 @@ class SubscriptionPauser
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Pricing;
+namespace YourCompany\Business\Domain\Pricing;
 
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\FeatureFlags\FeatureFlagsInterface;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\FeatureFlags\FeatureFlagsInterface;
 
 class PriceCalculator
 {
@@ -839,7 +839,7 @@ parameters:
 ```php
 <?php
 
-namespace Hellofresh\Business\Configuration;
+namespace YourCompany\Business\Configuration;
 
 class CountryConfig
 {
@@ -952,7 +952,7 @@ class CountryConfig
 # services.yml
 services:
     yourcompany.business.configuration.country_config:
-        class: Hellofresh\Business\Configuration\CountryConfig
+        class: YourCompany\Business\Configuration\CountryConfig
         arguments:
             - '%country_config%'
             - '%country%'
@@ -962,7 +962,7 @@ services:
 ```php
 <?php
 
-use Hellofresh\Business\Configuration\CountryConfig;
+use YourCompany\Business\Configuration\CountryConfig;
 
 class SubscriptionCreator
 {
@@ -1015,7 +1015,7 @@ class SubscriptionCreator
 ```php
 <?php
 
-namespace Hellofresh\Business\Configuration;
+namespace YourCompany\Business\Configuration;
 
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -1090,7 +1090,7 @@ class CachedCountryConfig extends CountryConfig
 # services.yml
 services:
     yourcompany.business.configuration.country_config:
-        class: Hellofresh\Business\Configuration\CachedCountryConfig
+        class: YourCompany\Business\Configuration\CachedCountryConfig
         arguments:
             - '%country_config%'
             - '%country%'

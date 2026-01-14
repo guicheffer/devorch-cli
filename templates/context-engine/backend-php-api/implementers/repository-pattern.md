@@ -21,9 +21,9 @@ You are responsible for implementing the repository pattern for clean, testable,
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 interface SubscriptionsRepositoryInterface
 {
@@ -115,11 +115,11 @@ interface SubscriptionsRepositoryInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 class SubscriptionsRepository extends EntityRepository implements SubscriptionsRepositoryInterface
 {
@@ -243,11 +243,11 @@ class SubscriptionsRepository extends EntityRepository implements SubscriptionsR
 ```yaml
 services:
     yourcompany.business.repository.subscriptions:
-        class: Hellofresh\Business\Repository\SubscriptionsRepository
+        class: YourCompany\Business\Repository\SubscriptionsRepository
         arguments:
             - '@doctrine.orm.entity_manager'
 
-    Hellofresh\Business\Repository\SubscriptionsRepositoryInterface:
+    YourCompany\Business\Repository\SubscriptionsRepositoryInterface:
         alias: yourcompany.business.repository.subscriptions
 ```
 
@@ -277,10 +277,10 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\ORM\QueryBuilder;
-use Hellofresh\Business\Entity\Order;
+use YourCompany\Business\Entity\Order;
 
 class OrdersRepository extends EntityRepository implements OrdersRepositoryInterface
 {
@@ -503,7 +503,7 @@ class OrdersRepository extends EntityRepository implements OrdersRepositoryInter
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository\Specification;
+namespace YourCompany\Business\Repository\Specification;
 
 use Doctrine\ORM\QueryBuilder;
 
@@ -523,7 +523,7 @@ interface SpecificationInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository\Specification;
+namespace YourCompany\Business\Repository\Specification;
 
 use Doctrine\ORM\QueryBuilder;
 
@@ -541,7 +541,7 @@ class ActiveSubscriptionSpecification implements SpecificationInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository\Specification;
+namespace YourCompany\Business\Repository\Specification;
 
 use Doctrine\ORM\QueryBuilder;
 
@@ -569,7 +569,7 @@ class CountrySpecification implements SpecificationInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository\Specification;
+namespace YourCompany\Business\Repository\Specification;
 
 use Doctrine\ORM\QueryBuilder;
 
@@ -614,11 +614,11 @@ class DateRangeSpecification implements SpecificationInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\ORM\QueryBuilder;
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Repository\Specification\SpecificationInterface;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Repository\Specification\SpecificationInterface;
 
 class SubscriptionsRepository extends EntityRepository implements SubscriptionsRepositoryInterface
 {
@@ -701,30 +701,30 @@ $subscriptions = $subscriptionRepository->findBySpecifications([
 services:
     # Factory pattern for standard Doctrine repositories
     yourcompany.business.repository.subscriptions:
-        class: Hellofresh\Business\Repository\SubscriptionsRepository
+        class: YourCompany\Business\Repository\SubscriptionsRepository
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments:
-            - 'Hellofresh\Business\Entity\Subscription'
+            - 'YourCompany\Business\Entity\Subscription'
 
     yourcompany.business.repository.orders:
-        class: Hellofresh\Business\Repository\OrdersRepository
+        class: YourCompany\Business\Repository\OrdersRepository
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments:
-            - 'Hellofresh\Business\Entity\Order'
+            - 'YourCompany\Business\Entity\Order'
 
     # Custom repository with additional dependencies
     yourcompany.business.repository.products:
-        class: Hellofresh\Business\Repository\ProductsRepository
+        class: YourCompany\Business\Repository\ProductsRepository
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@cache.app'
             - '@logger'
 
     # Interface aliases
-    Hellofresh\Business\Repository\SubscriptionsRepositoryInterface:
+    YourCompany\Business\Repository\SubscriptionsRepositoryInterface:
         alias: yourcompany.business.repository.subscriptions
 
-    Hellofresh\Business\Repository\OrdersRepositoryInterface:
+    YourCompany\Business\Repository\OrdersRepositoryInterface:
         alias: yourcompany.business.repository.orders
 ```
 
@@ -732,11 +732,11 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Hellofresh\Business\Entity\Product;
+use YourCompany\Business\Entity\Product;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 
@@ -822,9 +822,9 @@ class ProductsRepository extends EntityRepository implements ProductsRepositoryI
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 class SubscriptionsRepository extends EntityRepository implements SubscriptionsRepositoryInterface
 {
@@ -875,7 +875,7 @@ class SubscriptionsRepository extends EntityRepository implements SubscriptionsR
         }
 
         $query = $this->entityManager->createQuery(
-            'DELETE FROM Hellofresh\Business\Entity\Subscription s WHERE s.customerPlanId IN (:ids)'
+            'DELETE FROM YourCompany\Business\Entity\Subscription s WHERE s.customerPlanId IN (:ids)'
         );
         $query->setParameter('ids', $customerPlanIds);
 
@@ -903,7 +903,7 @@ class SubscriptionsRepository extends EntityRepository implements SubscriptionsR
         }
 
         $query = $this->entityManager->createQuery(
-            'UPDATE Hellofresh\Business\Entity\Subscription s
+            'UPDATE YourCompany\Business\Entity\Subscription s
              SET s.status = :status, s.updatedAt = :updatedAt
              WHERE s.customerPlanId IN (:ids)'
         );
@@ -1007,10 +1007,10 @@ $subscriptionRepository->iterateAll(function (Subscription $subscription) {
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\DBAL\Connection;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 class SubscriptionsRepository extends EntityRepository implements SubscriptionsRepositoryInterface
 {
@@ -1243,8 +1243,8 @@ SQL;
 
 namespace Tests\Unit\Repository;
 
-use Hellofresh\Business\Repository\SubscriptionsRepository;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Repository\SubscriptionsRepository;
+use YourCompany\Business\Entity\Subscription;
 use PHPUnit\Framework\TestCase;
 
 class SubscriptionsRepositoryTest extends TestCase
@@ -1265,7 +1265,7 @@ class SubscriptionsRepositoryTest extends TestCase
 
 namespace Tests\Integration\Repository;
 
-use Hellofresh\Business\Repository\SubscriptionsRepository;
+use YourCompany\Business\Repository\SubscriptionsRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SubscriptionsRepositoryIntegrationTest extends KernelTestCase

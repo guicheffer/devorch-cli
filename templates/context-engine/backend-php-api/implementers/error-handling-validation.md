@@ -21,7 +21,7 @@ You are responsible for implementing robust error handling and validation patter
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 /**
  * Base exception for all business logic errors
@@ -66,7 +66,7 @@ abstract class BusinessException extends \RuntimeException
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -99,7 +99,7 @@ class BadRequestException extends BusinessException
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -140,7 +140,7 @@ class NotFoundException extends BusinessException
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -167,7 +167,7 @@ class UnauthorizedException extends BusinessException
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -200,7 +200,7 @@ class ForbiddenException extends BusinessException
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -247,7 +247,7 @@ class ValidationException extends BusinessException
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -308,11 +308,11 @@ class ConflictException extends BusinessException
 ```php
 <?php
 
-namespace Hellofresh\Business\EventListener;
+namespace YourCompany\Business\EventListener;
 
-use Hellofresh\Business\Exception\BusinessException;
-use Hellofresh\Business\Exception\ValidationException;
-use Hellofresh\Business\Helper\Metric\Prometheus;
+use YourCompany\Business\Exception\BusinessException;
+use YourCompany\Business\Exception\ValidationException;
+use YourCompany\Business\Helper\Metric\Prometheus;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -509,7 +509,7 @@ class ExceptionListener
 # services.yml
 services:
     yourcompany.business.event_listener.exception:
-        class: Hellofresh\Business\EventListener\ExceptionListener
+        class: YourCompany\Business\EventListener\ExceptionListener
         arguments:
             - '@logger'
             - '%kernel.environment%'
@@ -543,11 +543,11 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription;
+namespace YourCompany\Business\Domain\Subscription;
 
 use Assert\Assertion;
 use Assert\AssertionFailedException;
-use Hellofresh\Business\Exception\ValidationException;
+use YourCompany\Business\Exception\ValidationException;
 
 class SubscriptionValidator
 {
@@ -790,7 +790,7 @@ Assertion::allInArray($array, ['a', 'b', 'c'], 'All elements must be one of: a, 
 ```php
 <?php
 
-namespace Hellofresh\Business\Validator\Constraints;
+namespace YourCompany\Business\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 
@@ -812,10 +812,10 @@ class ValidDeliveryDate extends Constraint
 ```php
 <?php
 
-namespace Hellofresh\Business\Validator\Constraints;
+namespace YourCompany\Business\Validator\Constraints;
 
-use Hellofresh\Business\Repository\DeliveryOptionsRepositoryInterface;
-use Hellofresh\Business\Repository\CutoffRepositoryInterface;
+use YourCompany\Business\Repository\DeliveryOptionsRepositoryInterface;
+use YourCompany\Business\Repository\CutoffRepositoryInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -885,9 +885,9 @@ class ValidDeliveryDateValidator extends ConstraintValidator
 ```php
 <?php
 
-namespace Hellofresh\Business\Entity;
+namespace YourCompany\Business\Entity;
 
-use Hellofresh\Business\Validator\Constraints\ValidDeliveryDate;
+use YourCompany\Business\Validator\Constraints\ValidDeliveryDate;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class Order
@@ -929,7 +929,7 @@ class Order
 
     /**
      * @Assert\All({
-     *     @Assert\Type(type="Hellofresh\Business\Entity\OrderItem")
+     *     @Assert\Type(type="YourCompany\Business\Entity\OrderItem")
      * })
      * @Assert\Count(
      *     min=1,
@@ -946,10 +946,10 @@ class Order
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Order;
+namespace YourCompany\Business\Domain\Order;
 
-use Hellofresh\Business\Entity\Order;
-use Hellofresh\Business\Exception\ValidationException;
+use YourCompany\Business\Entity\Order;
+use YourCompany\Business\Exception\ValidationException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class OrderValidator
@@ -992,7 +992,7 @@ class OrderValidator
 ```yaml
 # services.yml
 services:
-    Hellofresh\Business\Validator\Constraints\ValidDeliveryDateValidator:
+    YourCompany\Business\Validator\Constraints\ValidDeliveryDateValidator:
         arguments:
             - '@yourcompany.business.repository.delivery_options'
             - '@yourcompany.business.repository.cutoffs'
@@ -1000,7 +1000,7 @@ services:
             - { name: validator.constraint_validator }
 
     yourcompany.business.domain.order.order_validator:
-        class: Hellofresh\Business\Domain\Order\OrderValidator
+        class: YourCompany\Business\Domain\Order\OrderValidator
         arguments:
             - '@validator'
 ```
@@ -1029,7 +1029,7 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Http;
+namespace YourCompany\Business\Http;
 
 class ErrorResponse
 {
@@ -1225,7 +1225,7 @@ class ErrorResponse
 ```php
 <?php
 
-namespace Hellofresh\Business\Http;
+namespace YourCompany\Business\Http;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -1347,7 +1347,7 @@ ServiceUnavailableException  → 503 Service Unavailable
 ```php
 <?php
 
-namespace Hellofresh\Business\Entity;
+namespace YourCompany\Business\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
