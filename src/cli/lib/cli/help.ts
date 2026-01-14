@@ -22,12 +22,6 @@ export function showHelp(version: string): void {
   console.log('Commands:');
   console.log('  install                   Setup and install devorch');
   console.log('                            (creates config if missing, then installs)');
-  console.log('  setup-bedrock             Setup AWS Bedrock access for Claude Code');
-  console.log('                            (YourCompany-specific setup wizard)');
-  console.log('  switch-model              Switch Claude model and AWS region');
-  console.log('                            (Update AWS Bedrock configuration)');
-  console.log('  debug-bedrock             Debug AWS Bedrock configuration');
-  console.log('                            (Diagnose SSO and credential issues)');
   console.log('  diagnose                  Show installation status and run health checks');
   console.log('  count-tokens <dir>        Count tokens in a directory');
   console.log('  update                    Update CLI and install updated templates');
@@ -44,12 +38,8 @@ export function showHelp(version: string): void {
   console.log('Examples:');
   console.log('  devorch                              Start interactive menu');
   console.log('  devorch install                      Setup and install devorch');
-  console.log('  devorch setup-bedrock                Setup AWS Bedrock for Claude Code');
-  console.log('  devorch setup-bedrock --ci           Setup non-interactively (CI mode)');
-  console.log('  devorch switch-model                 Switch Claude model and region');
-  console.log('  devorch debug-bedrock                Debug AWS credential issues');
   console.log('  devorch install --debug              Install with debug logging');
-  console.log('  devorch install --local ~/devorch  Install with local templates');
+  console.log('  devorch install --local ~/devorch    Install with local templates');
   console.log('  devorch diagnose                     Check installation health');
   console.log('  devorch update                       Update CLI and templates\n');
   console.log('Configuration:');

@@ -388,7 +388,7 @@ rm "$COMMENT_FILE"
 \`\`\`bash
 if [ $RESULT -eq 0 ]; then
     echo "✅ Posted full spec to $TICKET_KEY"
-    echo "   View at: https://hellofresh.atlassian.net/browse/$TICKET_KEY"
+    echo "   View at: https://yourcompany.atlassian.net/browse/$TICKET_KEY"
 else
     echo "❌ Failed to post spec to $TICKET_KEY"
     echo "Spec saved locally at: $SPEC_PATH"
@@ -407,7 +407,7 @@ After all phases complete, inform the user:
 - **[TICKET-KEY]**: [Summary]
   - Spec location: \`devorch/specs/[date-ticket-key]/spec.md\`
   - Posted to Jira: ✅ / ❌
-  - View at: https://hellofresh.atlassian.net/browse/[TICKET-KEY]
+  - View at: https://yourcompany.atlassian.net/browse/[TICKET-KEY]
 
 **Next steps:**
 
@@ -468,7 +468,7 @@ Phase 4: ✅ Generated requirements.md using spec-researcher
 Phase 5: ✅ Generated spec using /create-spec
   - Spec: devorch/specs/2025-01-24-user-auth/spec.md
 Phase 6: ✅ Posted full spec content to BACKEND-123
-  - View at: https://hellofresh.atlassian.net/browse/BACKEND-123
+  - View at: https://yourcompany.atlassian.net/browse/BACKEND-123
 
 ✅ Implementation spec created and posted to Jira
 

@@ -188,7 +188,7 @@ rm "$COMMENT_FILE"
 \`\`\`bash
 if [ $RESULT -eq 0 ]; then
     echo "Posted Zest check to $TICKET_KEY"
-    echo "   View at: https://hellofresh.atlassian.net/browse/$TICKET_KEY"
+    echo "   View at: https://yourcompany.atlassian.net/browse/$TICKET_KEY"
 else
     echo "Failed to post to $TICKET_KEY"
     echo "   Error code: $RESULT"
@@ -206,7 +206,7 @@ After all phases complete, inform the user:
 Zest check completed and posted to Jira
 
 **Ticket:** $TICKET_KEY
-**View at:** https://hellofresh.atlassian.net/browse/$TICKET_KEY
+**View at:** https://yourcompany.atlassian.net/browse/$TICKET_KEY
 
 The Jira comment includes:
 - Implementability scores (web and React Native)
@@ -253,7 +253,7 @@ Phase 2: Running /zest-check...
   - RN score: 7/10
   Check complete
 Phase 3: Posted complete report to DESIGN-456
-  - View at: https://hellofresh.atlassian.net/browse/DESIGN-456
+  - View at: https://yourcompany.atlassian.net/browse/DESIGN-456
 
 Zest check completed and posted to Jira
 

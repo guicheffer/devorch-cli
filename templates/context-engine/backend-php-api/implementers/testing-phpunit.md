@@ -23,9 +23,9 @@ You are responsible for writing comprehensive tests using PHPUnit for PHP applic
 
 namespace Tests\Unit\Domain\Subscription;
 
-use Hellofresh\Business\Domain\Subscription\DeliveryDetailsChanger;
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Domain\Subscription\DeliveryDetailsChanger;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 
 class DeliveryDetailsChangerTest extends TestCase
@@ -180,7 +180,7 @@ class DeliveryDetailsChangerTest extends TestCase
 
 namespace Tests\Unit\Helper;
 
-use Hellofresh\Business\Helper\MarketParser;
+use YourCompany\Business\Helper\MarketParser;
 use PHPUnit\Framework\TestCase;
 
 class MarketParserTest extends TestCase
@@ -253,9 +253,9 @@ class MarketParserTest extends TestCase
 
 namespace Tests\Integration\Handler\Plan;
 
-use Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails;
-use Hellofresh\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails;
+use YourCompany\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler;
+use YourCompany\Business\Entity\Subscription;
 use Tests\Integration\IntegrationTestCase;
 
 class ChangePlanDeliveryDetailsHandlerIntegrationTest extends IntegrationTestCase
@@ -327,7 +327,7 @@ class ChangePlanDeliveryDetailsHandlerIntegrationTest extends IntegrationTestCas
 
     public function testHandleThrowsExceptionWhenSubscriptionNotFound(): void
     {
-        $this->expectException(\Hellofresh\Business\Exception\BadRequestException::class);
+        $this->expectException(\YourCompany\Business\Exception\BadRequestException::class);
         $this->expectExceptionMessage('Subscription not found');
 
         $command = new ChangePlanDeliveryDetails(
@@ -375,8 +375,8 @@ class ChangePlanDeliveryDetailsHandlerIntegrationTest extends IntegrationTestCas
 
 namespace Tests\Builders;
 
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Entity\DeliveryOption;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Entity\DeliveryOption;
 
 class SubscriptionBuilder
 {
@@ -540,9 +540,9 @@ public function testPausedSubscription(): void
 
 namespace Tests\Unit\Service;
 
-use Hellofresh\Business\Service\OrderService;
-use Hellofresh\Business\Repository\OrderRepositoryInterface;
-use Hellofresh\Business\Client\PaymentServiceClient;
+use YourCompany\Business\Service\OrderService;
+use YourCompany\Business\Repository\OrderRepositoryInterface;
+use YourCompany\Business\Client\PaymentServiceClient;
 use PHPUnit\Framework\TestCase;
 
 class OrderServiceTest extends TestCase
@@ -630,7 +630,7 @@ class OrderServiceTest extends TestCase
 
 namespace Tests\Integration\Domain;
 
-use Hellofresh\Business\Domain\Subscription\DeliveryDetailsChanger;
+use YourCompany\Business\Domain\Subscription\DeliveryDetailsChanger;
 use Tests\Integration\IntegrationTestCase;
 
 class TransactionBehaviorTest extends IntegrationTestCase

@@ -83,7 +83,7 @@ gh auth status >/dev/null 2>&1 || { echo "❌ gh not authenticated. Run: gh auth
 gh repo view --json nameWithOwner -q .nameWithOwner
 \`\`\`
 
-This returns the repository in \`owner/repo\` format (e.g., \`hellofresh/web\`). Store this for use in subsequent \`gh\` commands with the \`--repo\` flag.
+This returns the repository in \`owner/repo\` format (e.g., \`yourcompany/web\`). Store this for use in subsequent \`gh\` commands with the \`--repo\` flag.
 
 ### Step 2: Fetch Repository Labels
 
