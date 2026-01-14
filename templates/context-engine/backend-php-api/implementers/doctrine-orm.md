@@ -20,10 +20,10 @@ You are responsible for implementing Doctrine ORM patterns for robust object-rel
 **Example from PR #7315:**
 ```yaml
 # config/doctrine/Subscription.orm.yml
-Hellofresh\Business\Entity\Subscription:
+YourCompany\Business\Entity\Subscription:
     type: entity
     table: subscriptions
-    repositoryClass: Hellofresh\Business\Repository\SubscriptionsRepository
+    repositoryClass: YourCompany\Business\Repository\SubscriptionsRepository
 
     id:
         id:
@@ -106,13 +106,13 @@ Hellofresh\Business\Entity\Subscription:
 
     oneToMany:
         orders:
-            targetEntity: Hellofresh\Business\Entity\Order
+            targetEntity: YourCompany\Business\Entity\Order
             mappedBy: subscription
             cascade: ['persist']
             orphanRemoval: false
 
         items:
-            targetEntity: Hellofresh\Business\Entity\SubscriptionItem
+            targetEntity: YourCompany\Business\Entity\SubscriptionItem
             mappedBy: subscription
             cascade: ['persist', 'remove']
             orphanRemoval: true
@@ -121,7 +121,7 @@ Hellofresh\Business\Entity\Subscription:
 
     manyToOne:
         initialOrder:
-            targetEntity: Hellofresh\Business\Entity\Order
+            targetEntity: YourCompany\Business\Entity\Order
             inversedBy: ~
             joinColumn:
                 name: initial_order_id
@@ -154,7 +154,7 @@ Hellofresh\Business\Entity\Subscription:
 ```php
 <?php
 
-namespace Hellofresh\Business\Entity;
+namespace YourCompany\Business\Entity;
 
 class Subscription
 {
@@ -322,17 +322,17 @@ class Subscription
 **OneToMany Relationship:**
 ```yaml
 # Subscription.orm.yml
-Hellofresh\Business\Entity\Subscription:
+YourCompany\Business\Entity\Subscription:
     oneToMany:
         orders:
-            targetEntity: Hellofresh\Business\Entity\Order
+            targetEntity: YourCompany\Business\Entity\Order
             mappedBy: subscription
             cascade: ['persist']
             orphanRemoval: false
             fetch: LAZY
 
         items:
-            targetEntity: Hellofresh\Business\Entity\SubscriptionItem
+            targetEntity: YourCompany\Business\Entity\SubscriptionItem
             mappedBy: subscription
             cascade: ['persist', 'remove']
             orphanRemoval: true
@@ -344,10 +344,10 @@ Hellofresh\Business\Entity\Subscription:
 **ManyToOne Relationship:**
 ```yaml
 # Order.orm.yml
-Hellofresh\Business\Entity\Order:
+YourCompany\Business\Entity\Order:
     manyToOne:
         subscription:
-            targetEntity: Hellofresh\Business\Entity\Subscription
+            targetEntity: YourCompany\Business\Entity\Subscription
             inversedBy: orders
             joinColumn:
                 name: subscription_id
@@ -357,7 +357,7 @@ Hellofresh\Business\Entity\Order:
             fetch: LAZY
 
         customer:
-            targetEntity: Hellofresh\Business\Entity\Customer
+            targetEntity: YourCompany\Business\Entity\Customer
             inversedBy: orders
             joinColumn:
                 name: customer_id
@@ -370,10 +370,10 @@ Hellofresh\Business\Entity\Order:
 **ManyToMany Relationship:**
 ```yaml
 # Subscription.orm.yml
-Hellofresh\Business\Entity\Subscription:
+YourCompany\Business\Entity\Subscription:
     manyToMany:
         tags:
-            targetEntity: Hellofresh\Business\Entity\Tag
+            targetEntity: YourCompany\Business\Entity\Tag
             inversedBy: subscriptions
             joinTable:
                 name: subscription_tags
@@ -436,7 +436,7 @@ $subscription->getTags()->add($tag);
 **Example from PR #7335:**
 ```yaml
 # Subscription.orm.yml
-Hellofresh\Business\Entity\Subscription:
+YourCompany\Business\Entity\Subscription:
     lifecycleCallbacks:
         prePersist: [setCreatedAt, setUpdatedAt, generateCustomerPlanId]
         preUpdate: [setUpdatedAt, validateState]
@@ -451,7 +451,7 @@ Hellofresh\Business\Entity\Subscription:
 ```php
 <?php
 
-namespace Hellofresh\Business\Entity;
+namespace YourCompany\Business\Entity;
 
 use Psr\Log\LoggerInterface;
 
@@ -573,10 +573,10 @@ class Subscription
 ```php
 <?php
 
-namespace Hellofresh\Business\EventListener;
+namespace YourCompany\Business\EventListener;
 
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionEntityListener
@@ -606,11 +606,11 @@ class SubscriptionEntityListener
 # services.yml
 services:
     yourcompany.business.event_listener.subscription_entity:
-        class: Hellofresh\Business\EventListener\SubscriptionEntityListener
+        class: YourCompany\Business\EventListener\SubscriptionEntityListener
         arguments:
             - '@logger'
         tags:
-            - { name: doctrine.orm.entity_listener, entity: Hellofresh\Business\Entity\Subscription, event: postLoad }
+            - { name: doctrine.orm.entity_listener, entity: YourCompany\Business\Entity\Subscription, event: postLoad }
 ```
 
 **Lifecycle Events:**
@@ -645,9 +645,9 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 class SubscriptionsRepository extends EntityRepository
 {
@@ -842,11 +842,11 @@ $query = $repository->createQueryBuilder('s')
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription;
+namespace YourCompany\Business\Domain\Subscription;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionCreator
@@ -1029,10 +1029,10 @@ class SubscriptionCreator
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 class SubscriptionsRepository extends EntityRepository implements SubscriptionsRepositoryInterface
 {
@@ -1173,7 +1173,7 @@ class SubscriptionsRepository extends EntityRepository implements SubscriptionsR
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 use Doctrine\ORM\Query;
 

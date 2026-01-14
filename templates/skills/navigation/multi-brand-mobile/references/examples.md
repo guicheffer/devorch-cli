@@ -39,7 +39,7 @@ export enum BrandCategory {
 }
 
 export const REMOTE_BRANDS = {
-  [Brand.yourcompany]: 'BRAND_HELLOFRESH',
+  [Brand.yourcompany]: 'BRAND_YOURCOMPANY',
   [Brand.everyplate]: 'BRAND_EVERYPLATE',
   [Brand.chefsplate]: 'BRAND_CHEFS_PLATE',
   [Brand.greenchef]: 'BRAND_GREEN_CHEF',

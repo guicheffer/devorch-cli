@@ -21,10 +21,10 @@ You are responsible for implementing the Command/Handler pattern for executing b
 ```php
 <?php
 
-namespace Hellofresh\Business\Command\Plan;
+namespace YourCompany\Business\Command\Plan;
 
-use Hellofresh\Business\Command\Command;
-use Hellofresh\Business\Security\SecurityTokenInterface;
+use YourCompany\Business\Command\Command;
+use YourCompany\Business\Security\SecurityTokenInterface;
 
 class ChangePlanDeliveryDetails extends Command
 {
@@ -102,13 +102,13 @@ class ChangePlanDeliveryDetails extends Command
 ```php
 <?php
 
-namespace Hellofresh\Business\Handler\Plan;
+namespace YourCompany\Business\Handler\Plan;
 
-use Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails;
-use Hellofresh\Business\Domain\Subscription\DeliveryDetailsChanger;
-use Hellofresh\Business\Domain\Subscription\ReactivationSource;
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Security\AuthorizationCheckerInterface;
+use YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails;
+use YourCompany\Business\Domain\Subscription\DeliveryDetailsChanger;
+use YourCompany\Business\Domain\Subscription\ReactivationSource;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Security\AuthorizationCheckerInterface;
 
 class ChangePlanDeliveryDetailsHandler
 {
@@ -183,8 +183,8 @@ class ChangePlanDeliveryDetailsHandler
 
 namespace App\Controllers;
 
-use Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails;
-use Hellofresh\Business\Controller\AbstractController;
+use YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails;
+use YourCompany\Business\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 class PlansController extends AbstractController
@@ -281,15 +281,15 @@ class PlansController extends AbstractController
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription;
+namespace YourCompany\Business\Domain\Subscription;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Exception\BadRequestException;
-use Hellofresh\Business\Helper\Metric\Prometheus;
-use Hellofresh\Business\Metrics\TraceHelper;
-use Hellofresh\Business\Repository\DeliveryOptionsRepositoryInterface;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Exception\BadRequestException;
+use YourCompany\Business\Helper\Metric\Prometheus;
+use YourCompany\Business\Metrics\TraceHelper;
+use YourCompany\Business\Repository\DeliveryOptionsRepositoryInterface;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use InvalidArgumentException;
 use OpenCensus\Trace\Tracer\TracerInterface;
 use Psr\Log\LoggerInterface;
@@ -613,16 +613,16 @@ class DeliveryDetailsChanger
 # services.yml
 services:
     # Command Handlers
-    Hellofresh\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler:
+    YourCompany\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler:
         arguments:
             - '@yourcompany.business.domain.subscription.delivery_details_changer'
             - '@yourcompany.business.security.authorization_checker'
         tags:
-            - { name: tactician.handler, command: Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails }
+            - { name: tactician.handler, command: YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails }
 
     # Domain Services
     yourcompany.business.domain.subscription.delivery_details_changer:
-        class: Hellofresh\Business\Domain\Subscription\DeliveryDetailsChanger
+        class: YourCompany\Business\Domain\Subscription\DeliveryDetailsChanger
         arguments:
             - '@yourcompany.business.repository.subscriptions'
             - '@yourcompany.business.repository.delivery_options'
@@ -748,10 +748,10 @@ class DeliveryDetailsChanger
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription\Subscribers;
+namespace YourCompany\Business\Domain\Subscription\Subscribers;
 
-use Hellofresh\Business\Domain\Subscription\Events\NextDayDeliverySubscriptionPostUpdate;
-use Hellofresh\Business\Domain\Subscription\Events\SubscriptionEvents;
+use YourCompany\Business\Domain\Subscription\Events\NextDayDeliverySubscriptionPostUpdate;
+use YourCompany\Business\Domain\Subscription\Events\SubscriptionEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PostUpdateOneOffChangeSubscriber implements EventSubscriberInterface
@@ -874,10 +874,10 @@ class PostUpdateOneOffChangeSubscriber implements EventSubscriberInterface
 
 namespace Tests\Unit\Handler\Plan;
 
-use Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails;
-use Hellofresh\Business\Domain\Subscription\DeliveryDetailsChanger;
-use Hellofresh\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler;
-use Hellofresh\Business\Security\AuthorizationCheckerInterface;
+use YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails;
+use YourCompany\Business\Domain\Subscription\DeliveryDetailsChanger;
+use YourCompany\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler;
+use YourCompany\Business\Security\AuthorizationCheckerInterface;
 use PHPUnit\Framework\TestCase;
 
 class ChangePlanDeliveryDetailsHandlerTest extends TestCase
@@ -963,8 +963,8 @@ class ChangePlanDeliveryDetailsHandlerTest extends TestCase
 
 namespace Tests\Integration\Handler\Plan;
 
-use Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails;
-use Hellofresh\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler;
+use YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails;
+use YourCompany\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler;
 use Tests\Integration\IntegrationTestCase;
 
 class ChangePlanDeliveryDetailsHandlerIntegrationTest extends IntegrationTestCase
