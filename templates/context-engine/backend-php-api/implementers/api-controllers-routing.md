@@ -23,11 +23,11 @@ You are responsible for implementing API controllers and routing for clean, well
 
 namespace App\Controllers;
 
-use Hellofresh\Business\Command\Subscription\CreateSubscription;
-use Hellofresh\Business\Command\Subscription\UpdateSubscription;
-use Hellofresh\Business\Command\Subscription\CancelSubscription;
-use Hellofresh\Business\Controller\AbstractController;
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Command\Subscription\CreateSubscription;
+use YourCompany\Business\Command\Subscription\UpdateSubscription;
+use YourCompany\Business\Command\Subscription\CancelSubscription;
+use YourCompany\Business\Controller\AbstractController;
+use YourCompany\Business\Entity\Subscription;
 use Symfony\Component\HttpFoundation\Response;
 
 class SubscriptionsController extends AbstractController
@@ -382,7 +382,7 @@ subscription_resume:
 ```php
 <?php
 
-namespace Hellofresh\Business\Controller;
+namespace YourCompany\Business\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -577,7 +577,7 @@ public function postOrders(): Response
 ```php
 <?php
 
-namespace Hellofresh\Business\Controller;
+namespace YourCompany\Business\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -748,7 +748,7 @@ return $this->errorResponse(
 
 namespace App\Controllers;
 
-use Hellofresh\Business\Controller\AbstractController;
+use YourCompany\Business\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrdersController extends AbstractController
@@ -1088,8 +1088,8 @@ class Order
 
 namespace App\Controllers;
 
-use Hellofresh\Business\Controller\AbstractController;
-use Hellofresh\Business\Validator\RequestValidatorInterface;
+use YourCompany\Business\Controller\AbstractController;
+use YourCompany\Business\Validator\RequestValidatorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class SubscriptionsController extends AbstractController
@@ -1147,7 +1147,7 @@ class SubscriptionsController extends AbstractController
 ```php
 <?php
 
-namespace Hellofresh\Business\Validator;
+namespace YourCompany\Business\Validator;
 
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -1273,12 +1273,12 @@ class RequestValidator implements RequestValidatorInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\EventListener;
+namespace YourCompany\Business\EventListener;
 
-use Hellofresh\Business\Exception\BadRequestException;
-use Hellofresh\Business\Exception\NotFoundException;
-use Hellofresh\Business\Exception\UnauthorizedException;
-use Hellofresh\Business\Exception\ValidationException;
+use YourCompany\Business\Exception\BadRequestException;
+use YourCompany\Business\Exception\NotFoundException;
+use YourCompany\Business\Exception\UnauthorizedException;
+use YourCompany\Business\Exception\ValidationException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -1386,7 +1386,7 @@ class ExceptionListener
 # services.yml
 services:
     yourcompany.business.event_listener.exception:
-        class: Hellofresh\Business\EventListener\ExceptionListener
+        class: YourCompany\Business\EventListener\ExceptionListener
         arguments:
             - '@logger'
             - '%kernel.debug%'
@@ -1398,7 +1398,7 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Exception;
+namespace YourCompany\Business\Exception;
 
 class BadRequestException extends \RuntimeException
 {

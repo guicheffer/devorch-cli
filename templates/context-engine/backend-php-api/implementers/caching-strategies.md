@@ -21,7 +21,7 @@ You are responsible for implementing caching strategies using PSR-6 compliant ca
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Cache;
+namespace YourCompany\Infrastructure\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
@@ -88,7 +88,7 @@ n;
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Cache;
+namespace YourCompany\Infrastructure\Cache;
 
 class CacheKeyGenerator
 {
@@ -181,11 +181,11 @@ class CacheKeyGenerator
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Repository\Cached;
+namespace YourCompany\Infrastructure\Repository\Cached;
 
-use Hellofresh\Domain\Repository\ProductRepositoryInterface;
-use Hellofresh\Domain\Entity\Product;
-use Hellofresh\Infrastructure\Cache\CacheKeyGenerator;
+use YourCompany\Domain\Repository\ProductRepositoryInterface;
+use YourCompany\Domain\Entity\Product;
+use YourCompany\Infrastructure\Cache\CacheKeyGenerator;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 
@@ -324,7 +324,7 @@ class CachedProductRepository implements ProductRepositoryInterface
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Cache;
+namespace YourCompany\Infrastructure\Cache;
 
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -470,10 +470,10 @@ class TaggedCacheManager
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Cache;
+namespace YourCompany\Infrastructure\Cache;
 
-use Hellofresh\Domain\Repository\ProductRepositoryInterface;
-use Hellofresh\Domain\Repository\RecipeRepositoryInterface;
+use YourCompany\Domain\Repository\ProductRepositoryInterface;
+use YourCompany\Domain\Repository\RecipeRepositoryInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 
@@ -637,11 +637,11 @@ class CacheWarmer
 ```php
 <?php
 
-namespace Hellofresh\Application\Service;
+namespace YourCompany\Application\Service;
 
-use Hellofresh\Domain\Repository\RecipeRepositoryInterface;
-use Hellofresh\Domain\Entity\Recipe;
-use Hellofresh\Infrastructure\Cache\CacheKeyGenerator;
+use YourCompany\Domain\Repository\RecipeRepositoryInterface;
+use YourCompany\Domain\Entity\Recipe;
+use YourCompany\Infrastructure\Cache\CacheKeyGenerator;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 
@@ -805,7 +805,7 @@ class RecipeService
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Cache;
+namespace YourCompany\Infrastructure\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -996,19 +996,19 @@ services:
             - '@cache.app'
 
     # Cache utilities
-    Hellofresh\Infrastructure\Cache\CacheKeyGenerator: ~
+    YourCompany\Infrastructure\Cache\CacheKeyGenerator: ~
 
-    Hellofresh\Infrastructure\Cache\TaggedCacheManager:
+    YourCompany\Infrastructure\Cache\TaggedCacheManager:
         arguments:
             - '@cache.tagged'
-            - '@Hellofresh\Infrastructure\Cache\CacheKeyGenerator'
+            - '@YourCompany\Infrastructure\Cache\CacheKeyGenerator'
 
-    Hellofresh\Infrastructure\Cache\CacheWarmer:
+    YourCompany\Infrastructure\Cache\CacheWarmer:
         arguments:
             - '@cache.app'
-            - '@Hellofresh\Domain\Repository\ProductRepositoryInterface'
-            - '@Hellofresh\Domain\Repository\RecipeRepositoryInterface'
-            - '@Hellofresh\Infrastructure\Cache\CacheKeyGenerator'
+            - '@YourCompany\Domain\Repository\ProductRepositoryInterface'
+            - '@YourCompany\Domain\Repository\RecipeRepositoryInterface'
+            - '@YourCompany\Infrastructure\Cache\CacheKeyGenerator'
             - '@logger'
 ```
 
@@ -1029,7 +1029,7 @@ services:
 namespace Tests\Infrastructure\Cache;
 
 use PHPUnit\Framework\TestCase;
-use Hellofresh\Infrastructure\Repository\Cached\CachedProductRepository;
+use YourCompany\Infrastructure\Repository\Cached\CachedProductRepository;
 use Psr\Cache\CacheItemPoolInterface;
 use Prophecy\PhpUnit\ProphecyTrait;
 

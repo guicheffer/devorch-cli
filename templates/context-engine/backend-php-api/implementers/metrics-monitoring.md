@@ -21,7 +21,7 @@ You are responsible for implementing metrics collection using StatsD for perform
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Metrics;
+namespace YourCompany\Infrastructure\Metrics;
 
 use Domnikl\Statsd\Client;
 use Domnikl\Statsd\Connection\UdpSocket;
@@ -109,9 +109,9 @@ class MetricsClient
 ```php
 <?php
 
-namespace Hellofresh\API\Controller;
+namespace YourCompany\API\Controller;
 
-use Hellofresh\Infrastructure\Metrics\MetricsClient;
+use YourCompany\Infrastructure\Metrics\MetricsClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -175,9 +175,9 @@ class ProductController
 ```php
 <?php
 
-namespace Hellofresh\Application\Service;
+namespace YourCompany\Application\Service;
 
-use Hellofresh\Infrastructure\Metrics\MetricsClient;
+use YourCompany\Infrastructure\Metrics\MetricsClient;
 
 class OrderService
 {
@@ -228,9 +228,9 @@ class OrderService
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Repository;
+namespace YourCompany\Infrastructure\Repository;
 
-use Hellofresh\Infrastructure\Metrics\MetricsClient;
+use YourCompany\Infrastructure\Metrics\MetricsClient;
 
 class DoctrineProductRepository implements ProductRepositoryInterface
 {
@@ -286,10 +286,10 @@ class DoctrineProductRepository implements ProductRepositoryInterface
 ```php
 <?php
 
-namespace Hellofresh\Infrastructure\Cache;
+namespace YourCompany\Infrastructure\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Hellofresh\Infrastructure\Metrics\MetricsClient;
+use YourCompany\Infrastructure\Metrics\MetricsClient;
 
 class MonitoredCache implements CacheItemPoolInterface
 {
@@ -341,7 +341,7 @@ class MonitoredCache implements CacheItemPoolInterface
 namespace Tests\Infrastructure\Metrics;
 
 use PHPUnit\Framework\TestCase;
-use Hellofresh\Infrastructure\Metrics\MetricsClient;
+use YourCompany\Infrastructure\Metrics\MetricsClient;
 
 class MetricsClientTest extends TestCase
 {

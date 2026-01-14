@@ -21,7 +21,7 @@ You are responsible for implementing HTTP client integrations for communicating 
 ```php
 <?php
 
-namespace Hellofresh\Business\Client;
+namespace YourCompany\Business\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -160,11 +160,11 @@ class HttpClientFactory
 ```php
 <?php
 
-namespace Hellofresh\Business\BoxSku;
+namespace YourCompany\Business\BoxSku;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use Hellofresh\Business\Helper\Http\ResponseParser;
+use YourCompany\Business\Helper\Http\ResponseParser;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -423,7 +423,7 @@ class BoxSkuConfigRetriever
 ```php
 <?php
 
-namespace Hellofresh\Business\Helper\Http;
+namespace YourCompany\Business\Helper\Http;
 
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Http\Message\ResponseInterface;
@@ -535,7 +535,7 @@ class ResponseParser
 ```php
 <?php
 
-namespace Hellofresh\Business\Client\DeliveryService;
+namespace YourCompany\Business\Client\DeliveryService;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -783,17 +783,17 @@ class DeliveryServiceClient
 ```php
 <?php
 
-namespace Hellofresh\Business\Client;
+namespace YourCompany\Business\Client;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
-use Hellofresh\Business\Exception\ExternalServiceException;
-use Hellofresh\Business\Exception\ExternalServiceUnavailableException;
-use Hellofresh\Business\Exception\NotFoundException;
-use Hellofresh\Business\Exception\ValidationException;
+use YourCompany\Business\Exception\ExternalServiceException;
+use YourCompany\Business\Exception\ExternalServiceUnavailableException;
+use YourCompany\Business\Exception\NotFoundException;
+use YourCompany\Business\Exception\ValidationException;
 use Psr\Log\LoggerInterface;
 
 class ResilientHttpClient
@@ -1029,7 +1029,7 @@ class ResilientHttpClient
 ```php
 <?php
 
-namespace Hellofresh\Business\Client;
+namespace YourCompany\Business\Client;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -1195,13 +1195,13 @@ class CachedApiClient
 services:
     # HTTP Client Factory
     yourcompany.business.client.http_client_factory:
-        class: Hellofresh\Business\Client\HttpClientFactory
+        class: YourCompany\Business\Client\HttpClientFactory
         arguments:
             - '@logger'
 
     # Box SKU Configuration Service
     yourcompany.business.box_sku.config_retriever:
-        class: Hellofresh\Business\BoxSku\BoxSkuConfigRetriever
+        class: YourCompany\Business\BoxSku\BoxSkuConfigRetriever
         arguments:
             - '@yourcompany.business.client.rcs'
             - '@cache.app'
@@ -1218,7 +1218,7 @@ services:
 
     # Delivery Service Client
     yourcompany.business.client.delivery_service:
-        class: Hellofresh\Business\Client\DeliveryService\DeliveryServiceClient
+        class: YourCompany\Business\Client\DeliveryService\DeliveryServiceClient
         arguments:
             - '@yourcompany.business.client.delivery_service_http'
             - '@logger'
@@ -1243,7 +1243,7 @@ namespace Tests\Unit\Client;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
-use Hellofresh\Business\Client\DeliveryService\DeliveryServiceClient;
+use YourCompany\Business\Client\DeliveryService\DeliveryServiceClient;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -1319,7 +1319,7 @@ class DeliveryServiceClientTest extends TestCase
 
 namespace Tests\Integration\Client;
 
-use Hellofresh\Business\Client\DeliveryService\DeliveryServiceClient;
+use YourCompany\Business\Client\DeliveryService\DeliveryServiceClient;
 use Tests\Integration\IntegrationTestCase;
 
 class DeliveryServiceClientIntegrationTest extends IntegrationTestCase

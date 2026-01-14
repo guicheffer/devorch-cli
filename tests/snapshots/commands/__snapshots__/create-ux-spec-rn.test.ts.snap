@@ -429,7 +429,7 @@ Use \`ImageCloudinary\` for all images:
 
 \`\`\`tsx
 <ImageCloudinary
-  src="https://res.cloudinary.com/hellofresh/image/upload/..."
+  src="https://res.cloudinary.com/yourcompany/image/upload/..."
   quality="auto:eco"
   width={width}
   height={Math.round(width * 0.5625)} // 16:9 aspect ratio

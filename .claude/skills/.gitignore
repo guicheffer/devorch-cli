@@ -1,14 +1,21 @@
 # Skills installed by devorch (auto-generated)
 
 cli-tools-jira-cli/
+cli-tools-jira-cli/
 figma-dev-mode-figma-image-downloader/
 figma-dev-mode-figma-researcher/
-ui-design-system-images/
-ui-design-system-responsive-design/
+mobile-mcp/
 ui-design-system-rn-accessibility/
-ui-design-system-styling-patterns/
+ui-design-system-rn-images/
+ui-design-system-rn-responsive-design/
+ui-design-system-rn-styling-patterns/
+ui-design-system-rn-zest-component-creation/
+ui-design-system-rn-zest-components/
+ui-design-system-rn-zest-integration/
 ui-design-system-web-accessibility/
+ui-design-system-web-styled-components/
+ui-design-system-web-zest-components/
+ui-design-system-web-zest-integration/
 ui-design-system-zest-components/
 ui-design-system-zest-components-web-patterns/
-ui-design-system-zest-integration/
 ui-design-system-zest-web-integration/

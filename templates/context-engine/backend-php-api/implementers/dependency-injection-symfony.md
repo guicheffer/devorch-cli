@@ -29,7 +29,7 @@ services:
 
     # Domain Services
     yourcompany.business.domain.subscription.delivery_details_changer:
-        class: Hellofresh\Business\Domain\Subscription\DeliveryDetailsChanger
+        class: YourCompany\Business\Domain\Subscription\DeliveryDetailsChanger
         arguments:
             - '@yourcompany.business.repository.subscriptions'
             - '@yourcompany.business.repository.delivery_options'
@@ -44,13 +44,13 @@ services:
 
     # Repositories
     yourcompany.business.repository.subscriptions:
-        class: Hellofresh\Business\Repository\SubscriptionsRepository
+        class: YourCompany\Business\Repository\SubscriptionsRepository
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments:
-            - 'Hellofresh\Business\Entity\Subscription'
+            - 'YourCompany\Business\Entity\Subscription'
 
     yourcompany.business.repository.delivery_options:
-        class: Hellofresh\Business\Repository\DeliveryOptionsRepository
+        class: YourCompany\Business\Repository\DeliveryOptionsRepository
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@cache.app'
@@ -58,16 +58,16 @@ services:
             - [setCountry, ['%country%']]
 
     # Command Handlers
-    Hellofresh\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler:
+    YourCompany\Business\Handler\Plan\ChangePlanDeliveryDetailsHandler:
         arguments:
             - '@yourcompany.business.domain.subscription.delivery_details_changer'
             - '@yourcompany.business.security.authorization_checker'
         tags:
-            - { name: tactician.handler, command: Hellofresh\Business\Command\Plan\ChangePlanDeliveryDetails }
+            - { name: tactician.handler, command: YourCompany\Business\Command\Plan\ChangePlanDeliveryDetails }
 
     # Event Subscribers
     yourcompany.business.event_subscriber.subscription_post_update:
-        class: Hellofresh\Business\Domain\Subscription\Subscribers\PostUpdateOneOffChangeSubscriber
+        class: YourCompany\Business\Domain\Subscription\Subscribers\PostUpdateOneOffChangeSubscriber
         arguments:
             - '@yourcompany.business.repository.change_schedule'
             - '@logger'
@@ -100,14 +100,14 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Order;
+namespace YourCompany\Business\Domain\Order;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Hellofresh\Business\Domain\Payment\PaymentGateway;
-use Hellofresh\Business\Domain\Pricing\PriceCalculator;
-use Hellofresh\Business\Helper\Metric\Prometheus;
-use Hellofresh\Business\Repository\OrderRepositoryInterface;
-use Hellofresh\Business\Repository\ProductRepositoryInterface;
+use YourCompany\Business\Domain\Payment\PaymentGateway;
+use YourCompany\Business\Domain\Pricing\PriceCalculator;
+use YourCompany\Business\Helper\Metric\Prometheus;
+use YourCompany\Business\Repository\OrderRepositoryInterface;
+use YourCompany\Business\Repository\ProductRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -198,7 +198,7 @@ class OrderCreator
 ```yaml
 services:
     yourcompany.business.domain.order.order_creator:
-        class: Hellofresh\Business\Domain\Order\OrderCreator
+        class: YourCompany\Business\Domain\Order\OrderCreator
         arguments:
             - '@yourcompany.business.repository.orders'
             - '@yourcompany.business.repository.products'
@@ -235,23 +235,23 @@ services:
 ```yaml
 services:
     # Command Handler Tags
-    Hellofresh\Business\Handler\Subscription\CreateSubscriptionHandler:
+    YourCompany\Business\Handler\Subscription\CreateSubscriptionHandler:
         arguments:
             - '@yourcompany.business.domain.subscription.subscription_creator'
             - '@yourcompany.business.security.authorization_checker'
         tags:
-            - { name: tactician.handler, command: Hellofresh\Business\Command\Subscription\CreateSubscription }
+            - { name: tactician.handler, command: YourCompany\Business\Command\Subscription\CreateSubscription }
 
-    Hellofresh\Business\Handler\Order\CancelOrderHandler:
+    YourCompany\Business\Handler\Order\CancelOrderHandler:
         arguments:
             - '@yourcompany.business.domain.order.order_canceller'
             - '@yourcompany.business.security.authorization_checker'
         tags:
-            - { name: tactician.handler, command: Hellofresh\Business\Command\Order\CancelOrder }
+            - { name: tactician.handler, command: YourCompany\Business\Command\Order\CancelOrder }
 
     # Event Subscriber Tags
     yourcompany.business.event_subscriber.order_placed:
-        class: Hellofresh\Business\EventSubscriber\OrderPlacedSubscriber
+        class: YourCompany\Business\EventSubscriber\OrderPlacedSubscriber
         arguments:
             - '@yourcompany.business.domain.notification.email_sender'
             - '@logger'
@@ -260,7 +260,7 @@ services:
 
     # Repository Decorator Tags
     yourcompany.business.repository.subscriptions.cached:
-        class: Hellofresh\Business\Repository\Decorator\CachedSubscriptionsRepository
+        class: YourCompany\Business\Repository\Decorator\CachedSubscriptionsRepository
         decorates: yourcompany.business.repository.subscriptions
         decoration_priority: 10
         arguments:
@@ -269,7 +269,7 @@ services:
             - '@logger'
 
     yourcompany.business.repository.subscriptions.feature_flagged:
-        class: Hellofresh\Business\Repository\Decorator\FeatureFlaggedSubscriptionsRepository
+        class: YourCompany\Business\Repository\Decorator\FeatureFlaggedSubscriptionsRepository
         decorates: yourcompany.business.repository.subscriptions
         decoration_priority: 20
         arguments:
@@ -278,12 +278,12 @@ services:
 
     # Custom Tags for Collection
     yourcompany.business.validator.subscription:
-        class: Hellofresh\Business\Validator\SubscriptionValidator
+        class: YourCompany\Business\Validator\SubscriptionValidator
         tags:
             - { name: yourcompany.validator, entity: subscription }
 
     yourcompany.business.validator.order:
-        class: Hellofresh\Business\Validator\OrderValidator
+        class: YourCompany\Business\Validator\OrderValidator
         tags:
             - { name: yourcompany.validator, entity: order }
 ```
@@ -292,7 +292,7 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\DependencyInjection\Compiler;
+namespace YourCompany\Business\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -349,12 +349,12 @@ class ValidatorPass implements CompilerPassInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Factory;
+namespace YourCompany\Business\Factory;
 
-use Hellofresh\Business\Domain\Subscription\SubscriptionValidator;
-use Hellofresh\Business\Repository\DeliveryOptionsRepositoryInterface;
-use Hellofresh\Business\Repository\PostcodeRepositoryInterface;
-use Hellofresh\Business\Repository\ProductRepositoryInterface;
+use YourCompany\Business\Domain\Subscription\SubscriptionValidator;
+use YourCompany\Business\Repository\DeliveryOptionsRepositoryInterface;
+use YourCompany\Business\Repository\PostcodeRepositoryInterface;
+use YourCompany\Business\Repository\ProductRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionValidatorFactory
@@ -445,7 +445,7 @@ class SubscriptionValidatorFactory
 ```yaml
 services:
     yourcompany.business.factory.subscription_validator:
-        class: Hellofresh\Business\Factory\SubscriptionValidatorFactory
+        class: YourCompany\Business\Factory\SubscriptionValidatorFactory
         arguments:
             - '@yourcompany.business.repository.delivery_options'
             - '@yourcompany.business.repository.postcodes'
@@ -455,11 +455,11 @@ services:
 
     # Use factory to create services
     yourcompany.business.validator.subscription.creation:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionValidator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionValidator
         factory: ['@yourcompany.business.factory.subscription_validator', createForCreation]
 
     yourcompany.business.validator.subscription.update:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionValidator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionValidator
         factory: ['@yourcompany.business.factory.subscription_validator', createForUpdate]
 ```
 
@@ -468,16 +468,16 @@ services:
 services:
     # Repository via factory method
     yourcompany.business.repository.subscriptions:
-        class: Hellofresh\Business\Repository\SubscriptionsRepository
+        class: YourCompany\Business\Repository\SubscriptionsRepository
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments:
-            - 'Hellofresh\Business\Entity\Subscription'
+            - 'YourCompany\Business\Entity\Subscription'
 
     yourcompany.business.repository.orders:
-        class: Hellofresh\Business\Repository\OrdersRepository
+        class: YourCompany\Business\Repository\OrdersRepository
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments:
-            - 'Hellofresh\Business\Entity\Order'
+            - 'YourCompany\Business\Entity\Order'
 ```
 
 **Guidelines:**
@@ -526,7 +526,7 @@ parameters:
 # config/services.yml
 services:
     yourcompany.business.domain.subscription.subscription_creator:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionCreator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionCreator
         arguments:
             - '@yourcompany.business.repository.subscriptions'
             - '@yourcompany.business.repository.products'
@@ -541,7 +541,7 @@ services:
             - [setFeatureFlags, ['@yourcompany.business.feature_flags']]
 
     yourcompany.business.domain.payment.payment_gateway:
-        class: Hellofresh\Business\Domain\Payment\PaymentGateway
+        class: YourCompany\Business\Domain\Payment\PaymentGateway
         arguments:
             - '@yourcompany.business.http_client'
             - '@logger'
@@ -554,13 +554,13 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription;
+namespace YourCompany\Business\Domain\Subscription;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Hellofresh\Business\Domain\Pricing\PriceCalculator;
-use Hellofresh\Business\Entity\Subscription;
-use Hellofresh\Business\Repository\ProductRepositoryInterface;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Domain\Pricing\PriceCalculator;
+use YourCompany\Business\Entity\Subscription;
+use YourCompany\Business\Repository\ProductRepositoryInterface;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionCreator
@@ -689,7 +689,7 @@ class SubscriptionCreator
 ```php
 <?php
 
-namespace Hellofresh\Business\DependencyInjection\Compiler;
+namespace YourCompany\Business\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -754,7 +754,7 @@ class RepositoryDecoratorPass implements CompilerPassInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\DependencyInjection\Compiler;
+namespace YourCompany\Business\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -805,15 +805,15 @@ class CommandHandlerPass implements CompilerPassInterface
 ```php
 <?php
 
-namespace Hellofresh\Business;
+namespace YourCompany\Business;
 
-use Hellofresh\Business\DependencyInjection\Compiler\CommandHandlerPass;
-use Hellofresh\Business\DependencyInjection\Compiler\RepositoryDecoratorPass;
-use Hellofresh\Business\DependencyInjection\Compiler\ValidatorPass;
+use YourCompany\Business\DependencyInjection\Compiler\CommandHandlerPass;
+use YourCompany\Business\DependencyInjection\Compiler\RepositoryDecoratorPass;
+use YourCompany\Business\DependencyInjection\Compiler\ValidatorPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class HellofreshBusinessBundle extends Bundle
+class YourCompanyBusinessBundle extends Bundle
 {
     public function build(ContainerBuilder $container): void
     {
@@ -832,11 +832,11 @@ class HellofreshBusinessBundle extends Bundle
 services:
     # Repository decorator registry
     yourcompany.business.repository.decorator_registry:
-        class: Hellofresh\Business\Repository\DecoratorRegistry
+        class: YourCompany\Business\Repository\DecoratorRegistry
 
     # Decorated repositories
     yourcompany.business.repository.subscriptions.cached:
-        class: Hellofresh\Business\Repository\Decorator\CachedSubscriptionsRepository
+        class: YourCompany\Business\Repository\Decorator\CachedSubscriptionsRepository
         arguments:
             - '@yourcompany.business.repository.subscriptions'
             - '@cache.app'
@@ -844,7 +844,7 @@ services:
             - { name: yourcompany.repository_decorator, repository: subscriptions, priority: 10 }
 
     yourcompany.business.repository.subscriptions.feature_flagged:
-        class: Hellofresh\Business\Repository\Decorator\FeatureFlaggedSubscriptionsRepository
+        class: YourCompany\Business\Repository\Decorator\FeatureFlaggedSubscriptionsRepository
         arguments:
             - '@yourcompany.business.repository.subscriptions'
             - '@yourcompany.business.feature_flags'
@@ -877,55 +877,55 @@ services:
 ```yaml
 services:
     # Concrete implementation
-    Hellofresh\Business\Repository\SubscriptionsRepository:
-        class: Hellofresh\Business\Repository\SubscriptionsRepository
+    YourCompany\Business\Repository\SubscriptionsRepository:
+        class: YourCompany\Business\Repository\SubscriptionsRepository
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments:
-            - 'Hellofresh\Business\Entity\Subscription'
+            - 'YourCompany\Business\Entity\Subscription'
 
     # Interface alias for type-hinting
-    Hellofresh\Business\Repository\SubscriptionsRepositoryInterface:
-        alias: Hellofresh\Business\Repository\SubscriptionsRepository
+    YourCompany\Business\Repository\SubscriptionsRepositoryInterface:
+        alias: YourCompany\Business\Repository\SubscriptionsRepository
         public: false
 
     # Legacy alias for backward compatibility
     yourcompany.business.repository.subscriptions:
-        alias: Hellofresh\Business\Repository\SubscriptionsRepository
+        alias: YourCompany\Business\Repository\SubscriptionsRepository
         public: true
 
     # Domain service implementation
-    Hellofresh\Business\Domain\Order\OrderCreator:
+    YourCompany\Business\Domain\Order\OrderCreator:
         arguments:
-            - '@Hellofresh\Business\Repository\OrderRepositoryInterface'
-            - '@Hellofresh\Business\Domain\Payment\PaymentGatewayInterface'
+            - '@YourCompany\Business\Repository\OrderRepositoryInterface'
+            - '@YourCompany\Business\Domain\Payment\PaymentGatewayInterface'
             - '@doctrine.orm.entity_manager'
 
-    Hellofresh\Business\Repository\OrderRepositoryInterface:
-        alias: Hellofresh\Business\Repository\OrdersRepository
+    YourCompany\Business\Repository\OrderRepositoryInterface:
+        alias: YourCompany\Business\Repository\OrdersRepository
 
-    Hellofresh\Business\Domain\Payment\PaymentGatewayInterface:
-        alias: Hellofresh\Business\Domain\Payment\StripePaymentGateway
+    YourCompany\Business\Domain\Payment\PaymentGatewayInterface:
+        alias: YourCompany\Business\Domain\Payment\StripePaymentGateway
 
     # Environment-specific aliases
-    Hellofresh\Business\Domain\Notification\NotificationSenderInterface:
+    YourCompany\Business\Domain\Notification\NotificationSenderInterface:
         alias: '%notification_sender.service%'
 
 # config/parameters_dev.yml
 parameters:
-    notification_sender.service: 'Hellofresh\Business\Domain\Notification\LogNotificationSender'
+    notification_sender.service: 'YourCompany\Business\Domain\Notification\LogNotificationSender'
 
 # config/parameters_prod.yml
 parameters:
-    notification_sender.service: 'Hellofresh\Business\Domain\Notification\EmailNotificationSender'
+    notification_sender.service: 'YourCompany\Business\Domain\Notification\EmailNotificationSender'
 ```
 
 **Interface Example:**
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
-use Hellofresh\Business\Entity\Subscription;
+use YourCompany\Business\Entity\Subscription;
 
 interface SubscriptionsRepositoryInterface
 {
@@ -958,9 +958,9 @@ interface SubscriptionsRepositoryInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Domain\Subscription;
+namespace YourCompany\Business\Domain\Subscription;
 
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 
 class SubscriptionFinder
 {
@@ -1050,15 +1050,15 @@ services:
 services:
     # Legacy style (snake_case with namespace prefix)
     yourcompany.business.domain.subscription.creator:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionCreator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionCreator
 
     # Modern style (FQCN)
-    Hellofresh\Business\Domain\Subscription\SubscriptionCreator:
+    YourCompany\Business\Domain\Subscription\SubscriptionCreator:
         arguments: [...]
 
     # Interface alias
-    Hellofresh\Business\Domain\Subscription\SubscriptionCreatorInterface:
-        alias: Hellofresh\Business\Domain\Subscription\SubscriptionCreator
+    YourCompany\Business\Domain\Subscription\SubscriptionCreatorInterface:
+        alias: YourCompany\Business\Domain\Subscription\SubscriptionCreator
 ```
 
 ### Constructor Dependency Order
@@ -1106,27 +1106,27 @@ public function __construct(
 ```yaml
 # config/services.yml
 services:
-    Hellofresh\Business\Domain\Payment\PaymentGatewayInterface:
+    YourCompany\Business\Domain\Payment\PaymentGatewayInterface:
         alias: '%payment_gateway.implementation%'
 
     # All implementations defined
-    Hellofresh\Business\Domain\Payment\StripePaymentGateway:
+    YourCompany\Business\Domain\Payment\StripePaymentGateway:
         arguments: [...]
 
-    Hellofresh\Business\Domain\Payment\MockPaymentGateway:
+    YourCompany\Business\Domain\Payment\MockPaymentGateway:
         arguments: [...]
 
 # config/parameters.yml
 parameters:
-    payment_gateway.implementation: 'Hellofresh\Business\Domain\Payment\StripePaymentGateway'
+    payment_gateway.implementation: 'YourCompany\Business\Domain\Payment\StripePaymentGateway'
 
 # config/parameters_dev.yml
 parameters:
-    payment_gateway.implementation: 'Hellofresh\Business\Domain\Payment\MockPaymentGateway'
+    payment_gateway.implementation: 'YourCompany\Business\Domain\Payment\MockPaymentGateway'
 
 # config/parameters_test.yml
 parameters:
-    payment_gateway.implementation: 'Hellofresh\Business\Domain\Payment\MockPaymentGateway'
+    payment_gateway.implementation: 'YourCompany\Business\Domain\Payment\MockPaymentGateway'
 ```
 
 ### Testing with DI Container
@@ -1137,7 +1137,7 @@ parameters:
 
 namespace Tests\Functional\Domain\Subscription;
 
-use Hellofresh\Business\Domain\Subscription\SubscriptionCreator;
+use YourCompany\Business\Domain\Subscription\SubscriptionCreator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SubscriptionCreatorTest extends KernelTestCase
@@ -1172,8 +1172,8 @@ class SubscriptionCreatorTest extends KernelTestCase
 
 namespace Tests\Unit\Domain\Subscription;
 
-use Hellofresh\Business\Domain\Subscription\SubscriptionCreator;
-use Hellofresh\Business\Repository\SubscriptionsRepositoryInterface;
+use YourCompany\Business\Domain\Subscription\SubscriptionCreator;
+use YourCompany\Business\Repository\SubscriptionsRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 
 class SubscriptionCreatorTest extends TestCase
@@ -1268,7 +1268,7 @@ services:
         autowire: true  # Dangerous in legacy codebases!
         autoconfigure: true
 
-    Hellofresh\Business\Domain\Subscription\SubscriptionCreator: ~
+    YourCompany\Business\Domain\Subscription\SubscriptionCreator: ~
 ```
 
 **Good:**
@@ -1280,7 +1280,7 @@ services:
         public: false
 
     yourcompany.business.domain.subscription.creator:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionCreator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionCreator
         arguments:
             - '@yourcompany.business.repository.subscriptions'
             - '@yourcompany.business.repository.products'
@@ -1298,7 +1298,7 @@ services:
         public: true  # Everything public - wrong!
 
     yourcompany.business.domain.subscription.creator:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionCreator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionCreator
 ```
 
 **Good:**
@@ -1314,7 +1314,7 @@ services:
 
     # Domain services are private
     yourcompany.business.domain.subscription.creator:
-        class: Hellofresh\Business\Domain\Subscription\SubscriptionCreator
+        class: YourCompany\Business\Domain\Subscription\SubscriptionCreator
         public: false
 ```
 
@@ -1431,7 +1431,7 @@ class SubscriptionCreator
 ```yaml
 services:
     # Command handler without tag
-    Hellofresh\Business\Handler\CreateOrderHandler:
+    YourCompany\Business\Handler\CreateOrderHandler:
         arguments:
             - '@yourcompany.business.domain.order.creator'
         # Missing tag - handler won't be registered!
@@ -1440,11 +1440,11 @@ services:
 **Good:**
 ```yaml
 services:
-    Hellofresh\Business\Handler\CreateOrderHandler:
+    YourCompany\Business\Handler\CreateOrderHandler:
         arguments:
             - '@yourcompany.business.domain.order.creator'
         tags:
-            - { name: tactician.handler, command: Hellofresh\Business\Command\CreateOrder }
+            - { name: tactician.handler, command: YourCompany\Business\Command\CreateOrder }
 ```
 
 ---

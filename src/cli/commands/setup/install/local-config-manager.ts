@@ -104,7 +104,11 @@ async function handleNoContextTrainings(
     }
 
     // User selected a boilerplate - install it
-    installContextBoilerplate(selected, sourceConfigDir!, projectDir);
+    // sourceConfigDir is guaranteed to exist here because availableBoilerplates.length > 0
+    if (!sourceConfigDir) {
+      throw new Error('sourceConfigDir is required to install context boilerplate');
+    }
+    installContextBoilerplate(selected, sourceConfigDir, projectDir);
 
     // Now create the local config pointing to this context
     createLocalConfig(projectDir, selected);

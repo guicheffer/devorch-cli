@@ -24,8 +24,8 @@ syntax = "proto3";
 
 package yourcompany.subscription.v1;
 
-option php_namespace = "Hellofresh\\Protobuf\\Subscription\\V1";
-option php_metadata_namespace = "Hellofresh\\Protobuf\\Metadata\\Subscription\\V1";
+option php_namespace = "YourCompany\\Protobuf\\Subscription\\V1";
+option php_metadata_namespace = "YourCompany\\Protobuf\\Metadata\\Subscription\\V1";
 
 // Subscription event messages
 
@@ -210,9 +210,9 @@ protoc --php_out=src/Protobuf --proto_path=proto proto/subscription.proto
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging;
+namespace YourCompany\Business\Messaging;
 
-use Hellofresh\Protobuf\Subscription\V1\SubscriptionCreated;
+use YourCompany\Protobuf\Subscription\V1\SubscriptionCreated;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -392,7 +392,7 @@ services:
             - '%rabbitmq.vhost%'
 
     yourcompany.business.messaging.publisher:
-        class: Hellofresh\Business\Messaging\MessagePublisher
+        class: YourCompany\Business\Messaging\MessagePublisher
         arguments:
             - '@yourcompany.business.messaging.rabbitmq_connection'
             - '@logger'
@@ -412,9 +412,9 @@ parameters:
 ```php
 <?php
 
-use Hellofresh\Business\Messaging\MessagePublisherInterface;
-use Hellofresh\Protobuf\Subscription\V1\SubscriptionCreated;
-use Hellofresh\Protobuf\Subscription\V1\SubscriptionItem;
+use YourCompany\Business\Messaging\MessagePublisherInterface;
+use YourCompany\Protobuf\Subscription\V1\SubscriptionCreated;
+use YourCompany\Protobuf\Subscription\V1\SubscriptionItem;
 
 class SubscriptionCreator
 {
@@ -484,10 +484,10 @@ class SubscriptionCreator
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging;
+namespace YourCompany\Business\Messaging;
 
-use Hellofresh\Business\Messaging\Handler\MessageHandlerInterface;
-use Hellofresh\Protobuf\Subscription\V1\SubscriptionCreated;
+use YourCompany\Business\Messaging\Handler\MessageHandlerInterface;
+use YourCompany\Protobuf\Subscription\V1\SubscriptionCreated;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -724,7 +724,7 @@ class MessageConsumer
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging\Handler;
+namespace YourCompany\Business\Messaging\Handler;
 
 interface MessageHandlerInterface
 {
@@ -748,10 +748,10 @@ interface MessageHandlerInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging\Handler;
+namespace YourCompany\Business\Messaging\Handler;
 
-use Hellofresh\Business\Domain\Notification\EmailSender;
-use Hellofresh\Protobuf\Subscription\V1\SubscriptionCreated;
+use YourCompany\Business\Domain\Notification\EmailSender;
+use YourCompany\Protobuf\Subscription\V1\SubscriptionCreated;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionCreatedHandler implements MessageHandlerInterface
@@ -813,19 +813,19 @@ class SubscriptionCreatedHandler implements MessageHandlerInterface
 services:
     # Handlers
     yourcompany.business.messaging.handler.subscription_created:
-        class: Hellofresh\Business\Messaging\Handler\SubscriptionCreatedHandler
+        class: YourCompany\Business\Messaging\Handler\SubscriptionCreatedHandler
         arguments:
             - '@yourcompany.business.domain.notification.email_sender'
             - '@logger'
 
     # Consumer
     yourcompany.business.messaging.consumer:
-        class: Hellofresh\Business\Messaging\MessageConsumer
+        class: YourCompany\Business\Messaging\MessageConsumer
         arguments:
             - '@yourcompany.business.messaging.rabbitmq_connection'
             - '@logger'
             - handlers:
-                'Hellofresh\Protobuf\Subscription\V1\SubscriptionCreated': '@yourcompany.business.messaging.handler.subscription_created'
+                'YourCompany\Protobuf\Subscription\V1\SubscriptionCreated': '@yourcompany.business.messaging.handler.subscription_created'
             - 'subscription_events_queue'
 ```
 
@@ -835,7 +835,7 @@ services:
 
 namespace App\Command;
 
-use Hellofresh\Business\Messaging\MessageConsumer;
+use YourCompany\Business\Messaging\MessageConsumer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -892,7 +892,7 @@ class ConsumeMessagesCommand extends Command
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging;
+namespace YourCompany\Business\Messaging;
 
 use Google\Protobuf\Internal\Message;
 use Psr\Log\LoggerInterface;
@@ -1051,7 +1051,7 @@ class MessageSerializer
 # Setup DLX and DLQ
 services:
     yourcompany.business.messaging.dlx_setup:
-        class: Hellofresh\Business\Messaging\DLXSetup
+        class: YourCompany\Business\Messaging\DLXSetup
         arguments:
             - '@yourcompany.business.messaging.rabbitmq_connection'
 ```
@@ -1060,7 +1060,7 @@ services:
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging;
+namespace YourCompany\Business\Messaging;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
@@ -1104,7 +1104,7 @@ class DLXSetup
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging;
+namespace YourCompany\Business\Messaging;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Psr\Log\LoggerInterface;
@@ -1259,10 +1259,10 @@ $consumer3 = new MessageConsumer(
 ```php
 <?php
 
-namespace Hellofresh\Business\Messaging\Handler;
+namespace YourCompany\Business\Messaging\Handler;
 
-use Hellofresh\Business\Repository\ProcessedMessageRepositoryInterface;
-use Hellofresh\Protobuf\Subscription\V1\SubscriptionCreated;
+use YourCompany\Business\Repository\ProcessedMessageRepositoryInterface;
+use YourCompany\Protobuf\Subscription\V1\SubscriptionCreated;
 use Psr\Log\LoggerInterface;
 
 class IdempotentSubscriptionCreatedHandler implements MessageHandlerInterface
@@ -1339,7 +1339,7 @@ class IdempotentSubscriptionCreatedHandler implements MessageHandlerInterface
 ```php
 <?php
 
-namespace Hellofresh\Business\Repository;
+namespace YourCompany\Business\Repository;
 
 interface ProcessedMessageRepositoryInterface
 {
