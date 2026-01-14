@@ -12,6 +12,10 @@ Configure exactly which AI agents and commands you need for your project.
 
 ---
 
+![DevOrch Hero](docs/assets/devorch-hero.png)
+
+---
+
 **✨ New to devorch?** Start here: **[Quick Start →](docs/user-guide/quickstart.md)**
 
 **🎥 Want to see it in action?** Watch: **[Video Tutorial ↓](#-video-tutorial)**
