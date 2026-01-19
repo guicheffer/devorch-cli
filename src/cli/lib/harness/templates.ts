@@ -50,8 +50,8 @@ export function getAsciiArt(): string {
 export function renderPromptTemplate(featureName: string, contextTrainingName: string): string {
   return renderTemplate('PROMPT.template.md', {
     FEATURE_NAME: featureName,
-    HARNESS_DIR: `devorch/harness/${featureName}`,
-    CONTEXT_TRAINING_PATH: `spec-machine/context-training/${contextTrainingName}`,
+    RALPH_DIR: `devorch/harness/${featureName}`,
+    CONTEXT_TRAINING_PATH: `devorch/context-training/${contextTrainingName}`,
   });
 }
 
