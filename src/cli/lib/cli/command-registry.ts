@@ -5,6 +5,8 @@ import { agentCommand } from '@/cli/commands/agent/index.js';
 // Troubleshoot commands
 import { countTokensCommand } from '@/cli/commands/diagnose/count-tokens.js';
 import { diagnoseCommand } from '@/cli/commands/diagnose/index.js';
+// Workflow commands
+import { harnessCommand } from '@/cli/commands/harness/index.js';
 // Manage commands
 import { checkVersionCommand } from '@/cli/commands/manage/check-version/index.js';
 import { updateCommand } from '@/cli/commands/manage/update/index.js';
@@ -41,7 +43,7 @@ export type CommandHandler = (options?: GlobalOptions) => Promise<void>;
 export interface CommandMetadata {
   name: string;
   handler: CommandHandler;
-  category: 'setup' | 'manage' | 'spec' | 'troubleshoot' | 'agent';
+  category: 'setup' | 'manage' | 'spec' | 'troubleshoot' | 'agent' | 'workflow';
   description: string;
   hint: string;
 }
@@ -114,6 +116,15 @@ export const COMMAND_REGISTRY: Record<string, CommandMetadata> = {
     category: 'troubleshoot',
     description: 'Diagnose installation',
     hint: 'Show status and run health checks',
+  },
+
+  // Workflow commands
+  harness: {
+    name: 'harness',
+    handler: harnessCommand,
+    category: 'workflow',
+    description: 'Ralph Wiggum autonomous loop',
+    hint: 'Run external harness loop for autonomous development',
   },
 };
 
