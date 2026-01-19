@@ -33,7 +33,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --no-cache
 
       - name: Determine version
         id: version
@@ -55,7 +55,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --no-cache
 
       - name: Load asset names
         id: assets
@@ -144,7 +144,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --no-cache
 
       - name: Load asset names
         id: assets
@@ -231,7 +231,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --no-cache
 
       - name: Load asset names
         id: assets
