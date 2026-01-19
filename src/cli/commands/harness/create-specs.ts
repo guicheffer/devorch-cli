@@ -108,7 +108,7 @@ export async function createSpecsCommand(options: CreateSpecsOptions): Promise<v
   }
 
   if (contextTrainingName) {
-    const contextTrainingPath = `spec-machine/context-training/${contextTrainingName}`;
+    const contextTrainingPath = `devorch/context-training/${contextTrainingName}`;
     const contextPreamble = `## Load Project Context First
 
 **IMPORTANT:** Before investigating, use the Explore subagent to understand project patterns:

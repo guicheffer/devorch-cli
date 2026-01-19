@@ -54,7 +54,7 @@ describe('lib/harness/templates', () => {
       const rendered = renderPromptTemplate('auth-system', 'mobile-app');
       expect(rendered).toContain('auth-system');
       expect(rendered).toContain('devorch/harness/auth-system');
-      expect(rendered).toContain('spec-machine/context-training/mobile-app');
+      expect(rendered).toContain('devorch/context-training/mobile-app');
     });
   });
 
