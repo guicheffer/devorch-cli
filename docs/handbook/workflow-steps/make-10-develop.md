@@ -220,8 +220,8 @@ git commit
 ### Resources
 
 - **devorch**: https://github.com/guicheffer/devorch
-- **Documentation**: https://github.com/guicheffer/devorch/tree/master/docs
-- **Examples**: https://github.com/guicheffer/devorch/tree/master/templates
+- **Documentation**: https://github.com/guicheffer/devorch/tree/main/docs
+- **Examples**: https://github.com/guicheffer/devorch/tree/main/templates
 
 ## Common Pitfalls
 

@@ -175,7 +175,7 @@ tests/evals/snapshots/
 # Test eval projects (persistent for SDK sessions)
 tests/evals/projects/
 
-# Auto-update reports (only committed to update branches, not master)
+# Auto-update reports (only committed to update branches, not main)
 **/.updater/reports/
 
 # IDE specific gitignore
