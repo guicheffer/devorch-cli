@@ -40,7 +40,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     log('', 'info');
     log('To fix this:', 'info');
     log('  1. Run /train-context to create context training for your project', 'info');
-    log('  2. Add to spec-machine/config.local.yml:', 'info');
+    log('  2. Add to devorch/config.local.yml:', 'info');
     log('     profile:', 'info');
     log('       context_training: your-training-name', 'info');
     await flushAndExit(1);

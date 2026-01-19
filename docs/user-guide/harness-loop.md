@@ -23,7 +23,7 @@ The Harness Loop implements the [Ralph Wiggum technique](https://ghuntley.com/ra
 Ralph requires **context training** to be configured. This provides Claude with your project's patterns and conventions.
 
 ```yaml
-# spec-machine/config.local.yml
+# devorch/config.local.yml
 profile:
   context_training: your-training-name
 ```
@@ -270,7 +270,7 @@ The prompt sent to Claude each iteration. Created at `init` time with your conte
 **IMPORTANT:** Before starting work, use the Explore subagent to understand project patterns:
 
 Task tool with subagent_type=Explore:
-"Quickly scan spec-machine/context-training/your-training-name for key patterns..."
+"Quickly scan devorch/context-training/your-training-name for key patterns..."
 
 ---
 
