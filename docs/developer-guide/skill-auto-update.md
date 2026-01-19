@@ -45,7 +45,7 @@ templates/skills/
 - **Auto-discovered:** Workflow scans for `.updater/prompt.md` files - if present, skill is auto-updated
 - `prompt.md` contains frontmatter defining which repos to clone and skill-specific update instructions
 - Reports are generated per skill in `.updater/reports/`
-- **Reports are gitignored on master** but **committed to update branches** (so they appear in PRs for review)
+- **Reports are gitignored on main** but **committed to update branches** (so they appear in PRs for review)
 - Everything related to auto-update is co-located with the skill (easier to maintain)
 - **No central configuration needed** - just add `.updater/prompt.md` to any skill to enable auto-updates
 
@@ -152,10 +152,10 @@ After:
    - Add labels (documentation, automated, claude-code, zest)
 
 **Report Flow:**
-- Reports are **gitignored on master** (via root `.gitignore`)
+- Reports are **gitignored on main** (via root `.gitignore`)
 - Reports are **committed to update branches** (using `git add -f`)
 - Reports are **included in PR body** for easy review
-- Reports are **deleted when PR merges** (because they're gitignored on master)
+- Reports are **deleted when PR merges** (because they're gitignored on main)
 
 ## Configuration
 
@@ -252,7 +252,7 @@ Any other directories (like `.updater/`) are automatically ignored. No configura
 
 1. Go to **Actions** → **Auto-Update Skills**
 2. Click **Run workflow**
-3. Select branch: `master` (or `feature/skill-auto-update-system` for testing)
+3. Select branch: `main` (or `feature/skill-auto-update-system` for testing)
 4. Click **Run workflow**
 
 ### Test Single Skill

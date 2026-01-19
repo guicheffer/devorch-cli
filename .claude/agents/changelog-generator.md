@@ -125,8 +125,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Important Notes
 
-- Always work on the `master` branch when analyzing changes
-- Never commit directly to master - create a branch for the changelog update
+- Always work on the `main` branch when analyzing changes
+- Never commit directly to main - create a branch for the changelog update
 - Use `@/` path aliases consistently when referencing code
 - Maintain the exact format specified by Keep a Changelog
 - When in doubt about categorization, prefer user impact over technical implementation

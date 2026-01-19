@@ -2,13 +2,6 @@
 
 Guide for AI assistants working on devorch.
 
-**MASTER IS PROTECTED - ALWAYS CREATE PRs**
-
-- NEVER run `git push` to master
-- NEVER commit directly to master
-- ALWAYS create a branch and PR for changes
-- Use `gh pr create` to create pull requests
-
 ## Project Overview
 
 **devorch** is a CLI that installs AI workflow automation (subagents, commands, skills) for Claude Code.

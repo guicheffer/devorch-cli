@@ -481,7 +481,7 @@ See `test-project/readme.md` and existing templates for more examples.
 
 ## Release Process
 
-Template changes trigger **patch** releases automatically on merge to master. CLI changes (`src/`) trigger **minor** releases. Use PR labels to override:
+Template changes trigger **patch** releases automatically on merge to main. CLI changes (`src/`) trigger **minor** releases. Use PR labels to override:
 - `semver:patch` - Template-only update
 - `semver:minor` - CLI update required
 - `semver:major` - Breaking changes

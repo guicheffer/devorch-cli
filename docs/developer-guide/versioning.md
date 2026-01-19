@@ -16,7 +16,7 @@ devorch uses semantic versioning (semver) with independent tracking of CLI and t
 
 ## Automatic Version Bumping
 
-Releases are triggered automatically when PRs merge to `master`. The bump type is determined by:
+Releases are triggered automatically when PRs merge to `main`. The bump type is determined by:
 
 ### 1. PR Labels (Highest Priority)
 
@@ -126,7 +126,7 @@ When running locally without `BUILD_VERSION`:
 
 ## Release Workflow
 
-1. PR merges to `master`
+1. PR merges to `main`
 2. `determine-version.ts` calculates bump type
 3. If not `skip`, release workflow:
    - Builds CLI binaries (macOS, Linux, Windows)

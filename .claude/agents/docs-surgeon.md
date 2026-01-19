@@ -79,7 +79,7 @@ Every documentation update must be:
 Per CLAUDE.md:
 - This project uses **Bun exclusively** - any npm/yarn/pnpm references in docs are outdated
 - Uses `@/` path alias for imports - docs should reflect this
-- Protected master branch - any Git workflow docs must emphasize PR workflow
+- Protected main branch - any Git workflow docs must emphasize PR workflow
 - Project structure: `src/cli`, `src/schemas`, `src/utils`, `templates/`
 
 ## Decision-Making Framework
