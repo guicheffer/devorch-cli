@@ -2,11 +2,11 @@
 
 > **⚠️ PRE-ALPHA WARNING**
 >
-> DevOrch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
+> Dev Orch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
 >
 ---
 
-**DevOrch is a CLI tool for composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
+**Dev Orch is a CLI tool for composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
 
 Configure exactly which AI agents and commands you need for your project.
 
@@ -16,7 +16,7 @@ Configure exactly which AI agents and commands you need for your project.
 
 ---
 
-![DevOrch Hero](docs/assets/devorch-hero.png)
+![Dev Orch Hero](docs/assets/devorch-hero.png)
 
 ---
 
@@ -88,7 +88,7 @@ Available commands: `install`, `diagnose`, `count-tokens`, `update`, `check-vers
 
 ### 2. Configure Anthropic API
 
-DevOrch uses Claude models directly via the Anthropic API. Configure your environment:
+Dev Orch uses Claude models directly via the Anthropic API. Configure your environment:
 
 ```bash
 export ANTHROPIC_API_KEY=your_api_key_here
@@ -341,7 +341,7 @@ Vibe Coding ←─── Agentic Coding ←─── Spec-Driven Development
 
 **Spec-Driven Development** - Comprehensive, planned work
 - Example: User engagement feature across frontend and backend
-- Tools: DevOrch CLI with workflows
+- Tools: Dev Orch CLI with workflows
 - Benefit: Consistent implementation and verification across workspace
 
 See [Workflows](docs/user-guide/workflows.md) for detailed guide.
@@ -551,7 +551,7 @@ See [Extending Guide](docs/developer-guide/extending.md) and [Template Creation 
 
 ### Inspiration
 
-DevOrch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - a systematic approach to AI-assisted software development that emphasizes:
+Dev Orch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - a systematic approach to AI-assisted software development that emphasizes:
 - Breaking down complex work into manageable phases (research, specification, implementation, verification)
 - Using specialized agents for different types of tasks
 - Maintaining context through documentation and structured workflows
@@ -560,7 +560,7 @@ DevOrch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METH
 ---
 
 **Links:**
-- [DevOrch Website](https://devor.ch/) (coming soon)
+- [Dev Orch Website](https://devor.ch/) (coming soon)
 - [This Repository](https://github.com/guicheffer/devorch)
 - [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
 
