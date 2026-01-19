@@ -1,9 +1,9 @@
 # Feature: {{{FEATURE_NAME}}}
 
 <files>
-- **Specs:** `{{{RALPH_DIR}}}/specs/`
-- **Plan:** `{{{RALPH_DIR}}}/PLAN.md`
-- **Logs:** `{{{RALPH_DIR}}}/logs/`
+- **Specs:** `{{{HARNESS_DIR}}}/specs/`
+- **Plan:** `{{{HARNESS_DIR}}}/PLAN.md`
+- **Logs:** `{{{HARNESS_DIR}}}/logs/`
 - **Context training:** `{{{CONTEXT_TRAINING_PATH}}}`
 </files>
 
@@ -11,14 +11,14 @@
 1. **Discover files** - Glob in parallel (single message):
    - `{{{CONTEXT_TRAINING_PATH}}}/implementers/*.md`
    - `{{{CONTEXT_TRAINING_PATH}}}/verifiers/*.md`
-   - `{{{RALPH_DIR}}}/specs/*.md`
-   - `{{{RALPH_DIR}}}/logs/iteration-*.md`
+   - `{{{HARNESS_DIR}}}/specs/*.md`
+   - `{{{HARNESS_DIR}}}/logs/iteration-*.md`
 2. **Read all files** - Read in parallel (single message):
    - `{{{CONTEXT_TRAINING_PATH}}}/specification.md` (skip if not found)
    - `{{{CONTEXT_TRAINING_PATH}}}/implementation.md` (skip if not found)
    - All implementer/verifier files from step 1
    - All spec files from step 1
-   - `{{{RALPH_DIR}}}/PLAN.md`
+   - `{{{HARNESS_DIR}}}/PLAN.md`
    - Last 2-3 logs only (save context)
 3. **Find task** - First task with unchecked acceptance criteria
 4. **Do the work** - Complete that ONE task
@@ -41,7 +41,7 @@
 </constraints>
 
 <log_format>
-Create at: `{{{RALPH_DIR}}}/logs/iteration-{NNN}.md`
+Create at: `{{{HARNESS_DIR}}}/logs/iteration-{NNN}.md`
 
 ```markdown
 # Iteration {NNN}

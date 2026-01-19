@@ -50,11 +50,11 @@ describe('lib/harness/templates', () => {
   });
 
   describe('renderPromptTemplate', () => {
-    it('should render with feature name, ralph dir, and context training', () => {
+    it('should render with feature name, harness dir, and context training', () => {
       const rendered = renderPromptTemplate('auth-system', 'mobile-app');
       expect(rendered).toContain('auth-system');
       expect(rendered).toContain('devorch/harness/auth-system');
-      expect(rendered).toContain('spec-machine/context-training/mobile-app');
+      expect(rendered).toContain('devorch/context-training/mobile-app');
     });
   });
 
