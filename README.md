@@ -3,12 +3,16 @@
 > **⚠️ PRE-ALPHA WARNING**
 >
 > DevOrch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
-> 
+>
 ---
 
-**Composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
+**DevOrch is a CLI tool for composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
 
 Configure exactly which AI agents and commands you need for your project.
+
+**🌐 Learn more:** [https://devor.ch/](https://devor.ch/) (coming soon)
+
+**💡 Based on:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - A systematic approach to AI-assisted development
 
 ---
 
@@ -541,8 +545,24 @@ See [Extending Guide](docs/developer-guide/extending.md) and [Template Creation 
 
 ---
 
+## 🌐 About DevOrch
+
+**DevOrch is currently a CLI tool.** The web application at [https://devor.ch/](https://devor.ch/) is planned for future development and will serve as a reference and documentation hub for the open-source CLI.
+
+### Inspiration
+
+DevOrch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - a systematic approach to AI-assisted software development that emphasizes:
+- Breaking down complex work into manageable phases (research, specification, implementation, verification)
+- Using specialized agents for different types of tasks
+- Maintaining context through documentation and structured workflows
+- Automated verification to ensure quality
+
+---
+
 **Links:**
+- [DevOrch Website](https://devor.ch/) (coming soon)
 - [This Repository](https://github.com/guicheffer/devorch)
+- [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
 
 **Issues & Feedback:**
 - [Create an issue](https://github.com/guicheffer/devorch/issues) on GitHub
