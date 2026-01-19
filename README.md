@@ -1,4 +1,4 @@
-# DevOrch
+# Dev Orch
 
 > **⚠️ PRE-ALPHA WARNING**
 >
@@ -10,7 +10,7 @@
 
 Configure exactly which AI agents and commands you need for your project.
 
-**🌐 Learn more:** [https://devor.ch/](https://devor.ch/) (coming soon)
+**🌐 Learn more:** [https://devor.ch/cli](https://devor.ch/cli) (coming soon)
 
 **💡 Based on:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - A systematic approach to AI-assisted development
 
@@ -545,9 +545,9 @@ See [Extending Guide](docs/developer-guide/extending.md) and [Template Creation 
 
 ---
 
-## 🌐 About DevOrch
+## 🌐 About Dev Orch
 
-**DevOrch is currently a CLI tool.** The web application at [https://devor.ch/](https://devor.ch/) is planned for future development and will serve as a reference and documentation hub for the open-source CLI.
+**Dev Orch is currently a CLI tool.** The web application at [https://devor.ch/cli](https://devor.ch/cli) is planned for future development and will serve as a reference and documentation hub for the open-source CLI.
 
 ### Inspiration
 
