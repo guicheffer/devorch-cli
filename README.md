@@ -1,12 +1,14 @@
-# Dev Orch
+# devorch-cli
 
 > **⚠️ PRE-ALPHA WARNING**
 >
-> Dev Orch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
+> devorch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
 >
 ---
 
-**Dev Orch is a CLI tool for composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
+**devorch is a CLI tool for composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
+
+devorch app is available here: https://devor.ch/app
 
 Configure exactly which AI agents and commands you need for your project.
 
@@ -16,7 +18,7 @@ Configure exactly which AI agents and commands you need for your project.
 
 ---
 
-![Dev Orch Hero](docs/assets/devorch-hero.png)
+![devorch Hero](docs/assets/devorch-hero.png)
 
 ---
 
@@ -88,7 +90,7 @@ Available commands: `install`, `diagnose`, `count-tokens`, `update`, `check-vers
 
 ### 2. Configure Anthropic API
 
-Dev Orch uses Claude models directly via the Anthropic API. Configure your environment:
+devorch uses Claude models directly via the Anthropic API. Configure your environment:
 
 ```bash
 export ANTHROPIC_API_KEY=your_api_key_here
@@ -341,7 +343,7 @@ Vibe Coding ←─── Agentic Coding ←─── Spec-Driven Development
 
 **Spec-Driven Development** - Comprehensive, planned work
 - Example: User engagement feature across frontend and backend
-- Tools: Dev Orch CLI with workflows
+- Tools: devorch CLI with workflows
 - Benefit: Consistent implementation and verification across workspace
 
 See [Workflows](docs/user-guide/workflows.md) for detailed guide.
@@ -545,13 +547,13 @@ See [Extending Guide](docs/developer-guide/extending.md) and [Template Creation 
 
 ---
 
-## 🌐 About Dev Orch
+## 🌐 About devorch
 
-**Dev Orch is currently a CLI tool.** The web application at [https://devor.ch/cli](https://devor.ch/cli) is planned for future development and will serve as a reference and documentation hub for the open-source CLI.
+**devorch is currently a CLI tool.** The web application at [https://devor.ch/cli](https://devor.ch/cli) is planned for future development and will serve as a reference and documentation hub for the open-source CLI.
 
 ### Inspiration
 
-Dev Orch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - a systematic approach to AI-assisted software development that emphasizes:
+devorch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - a systematic approach to AI-assisted software development that emphasizes:
 - Breaking down complex work into manageable phases (research, specification, implementation, verification)
 - Using specialized agents for different types of tasks
 - Maintaining context through documentation and structured workflows
@@ -560,7 +562,7 @@ Dev Orch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-MET
 ---
 
 **Links:**
-- [Dev Orch Website](https://devor.ch/) (coming soon)
+- [devorch Website](https://devor.ch/) (coming soon)
 - [This Repository](https://github.com/guicheffer/devorch)
 - [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
 
