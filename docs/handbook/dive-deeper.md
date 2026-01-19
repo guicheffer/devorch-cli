@@ -14,7 +14,7 @@ Before you jump into each discipline’s playbook.
 
 ## Playbook by Discipline
 
-Each part of the value stream can improve its own inner loop ([AI Transformation Strategy for HelloTech](https://docs.google.com/document/d/1jWz5ppZVQGQZDvKfYZSvKSfCY20tuzizczj8ZojTOEA/edit?tab=t.0#heading=h.twa41vpl7h46)); we describe playbooks for each role below:
+Each part of the value stream can improve its own inner loop; we describe playbooks for each role below:
 
 * [Product Playbook (⭐☆☆)]()  
 * [UX Playbook (⭐☆☆)]()  
