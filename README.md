@@ -2,6 +2,8 @@
 
 **Composable AI workflow automation for Claude Code** - Build custom subagents, slash commands, and knowledge modules tailored to your codebase.
 
+> **Built on [AgentOS](https://github.com/caspianai/agentos)** - Special thanks to [@CasJam](https://github.com/caspianai) for creating the foundation that makes devorch possible.
+
 ---
 
 > **⚠️ PRE-ALPHA SOFTWARE**
@@ -16,20 +18,22 @@
 
 ## What is devorch?
 
-devorch installs specialized AI workflows directly into your project's `.claude/` directory. Instead of generic AI assistance, you get context-aware commands that understand your tech stack, follow your patterns, and enforce your standards.
+devorch brings systematic AI automation to your development workflow. By installing specialized subagents, commands, and knowledge modules directly into your `.claude/` directory, you transform generic AI assistance into context-aware automation that understands your tech stack, follows your team's patterns, and enforces your coding standards.
 
-**🌐 Website:** [https://devor.ch/cli](https://devor.ch/cli) (coming soon) | **💡 Based on:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
-
-**Web app:** [https://devor.ch/app](https://devor.ch/app)
+**🌐 Website:** [https://devor.ch/cli](https://devor.ch/cli) (coming soon)
+**💡 Methodology:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - Systematic AI-assisted development
+**🚀 Web Platform:** [https://devor.ch/app](https://devor.ch/app)
 
 ---
 
 ## Getting Started
 
-**New users:** [Quick Start Guide →](docs/user-guide/quickstart.md)
-**Developers:** [Developer's Guide →](docs/developer-guide/dev-guide.md)
-**Designers:** [Designer's Guide →](docs/developer-guide/designers-guide.md)
-**Deep dive:** [Core Concepts →](docs/user-guide/concepts.md)
+Choose your path:
+
+- **👤 New to devorch?** Start with the [Quick Start Guide →](docs/user-guide/quickstart.md)
+- **👨‍💻 Software engineer?** See [Developer's Guide →](docs/developer-guide/dev-guide.md) for workflows and patterns
+- **🎨 Product designer?** Check [Designer's Guide →](docs/developer-guide/designers-guide.md) for design automation
+- **🧠 Want the full picture?** Read [Core Concepts →](docs/user-guide/concepts.md) to understand the architecture
 
 ---
 
@@ -157,12 +161,12 @@ See [Core Concepts](docs/user-guide/concepts.md) for architecture details.
 | `/jira-gather-requirements` | Fetch ticket and post questions |
 | `/jira-create-spec` | Generate spec from ticket + answers |
 
-#### Design & UX
+#### Design Automation
 
 | Command | Purpose |
 |---------|---------|
-| `/design-change-web` | Implement Figma designs (styling only) |
-| `/verify-figma-file` | Audit designs for design system compliance |
+| `/design-change-web` | Transform design files into styled components and layouts |
+| `/verify-figma-file` | Validate design file structure and design system adherence |
 
 #### Context Management
 
@@ -463,7 +467,7 @@ New installations automatically use the latest version.
 ### Developer Guides
 
 - **[Developer's Guide](docs/developer-guide/dev-guide.md)** - Workflows and best practices
-- **[Designer's Guide](docs/developer-guide/designers-guide.md)** - Figma to code
+- **[Designer's Guide](docs/developer-guide/designers-guide.md)** - Design to implementation workflows
 - **[Extending](docs/developer-guide/extending.md)** - Build custom components
 - **[Template Creation](templates/CONTRIBUTING.md)** - Detailed template guide
 - **[Local Development](docs/developer-guide/development.md)** - Contributing to devorch
@@ -517,29 +521,39 @@ devorch collects anonymous usage data to improve the tool. Uses Sentry for error
 
 ## About devorch
 
-devorch is an open-source CLI tool for AI workflow automation. The web application at [https://devor.ch/cli](https://devor.ch/cli) will serve as documentation and reference (planned).
+devorch is an open-source CLI tool that extends [AgentOS](https://github.com/caspianai/agentos) to deliver composable AI workflow automation for Claude Code. Built on the foundation created by [@CasJam](https://github.com/caspianai), devorch adds specialized workflows, knowledge systems, and automation patterns specifically designed for modern development teams.
 
-### Inspiration
+### Philosophy
 
-Based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - systematic AI-assisted development emphasizing:
-- Phased approach (research → specification → implementation → verification)
-- Specialized agents for different domains
-- Context preservation through documentation
-- Automated quality verification
+devorch follows the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) principles for systematic AI-assisted development:
 
----
+**Phased Development**
+Research → Specification → Implementation → Verification
 
-## Links
+**Specialized Agents**
+Domain-specific automation prevents context overload and improves quality
 
-**Project:**
-- [devorch Website](https://devor.ch/) (coming soon)
-- [GitHub Repository](https://github.com/guicheffer/devorch)
-- [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
+**Knowledge Preservation**
+Extract patterns from your codebase to maintain consistency across the team
+
+**Automated Verification**
+Built-in quality checks ensure standards compliance before code review
+
+### Project Links
+
+**Core:**
+- [GitHub Repository](https://github.com/guicheffer/devorch) - Source code and issue tracking
+- [Documentation](docs/index.md) - Complete reference and guides
+- [devorch Website](https://devor.ch/) - Project homepage (coming soon)
+
+**Foundation:**
+- [AgentOS](https://github.com/caspianai/agentos) - The extensible agent framework powering devorch
+- [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - Methodology and best practices
 
 **Support:**
-- [Create an Issue](https://github.com/guicheffer/devorch/issues)
-- [Documentation](docs/index.md)
+- [Create an Issue](https://github.com/guicheffer/devorch/issues) - Bug reports and feature requests
+- [Discussions](https://github.com/guicheffer/devorch/discussions) - Community support
 
 ---
 
-**Built with AI-assisted development in mind.**
+**Systematic AI automation for development teams.**
