@@ -1,20 +1,12 @@
-# devorch-cli
+# devorch
 
-> **⚠️ PRE-ALPHA WARNING**
->
-> devorch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
->
+**Composable AI workflow automation for Claude Code** - Build custom subagents, slash commands, and knowledge modules tailored to your codebase.
+
 ---
 
-**devorch is a CLI tool for composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
-
-devorch app is available here: https://devor.ch/app
-
-Configure exactly which AI agents and commands you need for your project.
-
-**🌐 Learn more:** [https://devor.ch/cli](https://devor.ch/cli) (coming soon)
-
-**💡 Based on:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - A systematic approach to AI-assisted development
+> **⚠️ PRE-ALPHA SOFTWARE**
+>
+> devorch is experimental and under active development. APIs are unstable, breaking changes are frequent. Not recommended for production environments.
 
 ---
 
@@ -22,75 +14,56 @@ Configure exactly which AI agents and commands you need for your project.
 
 ---
 
-**✨ New to devorch?** Start here: **[Quick Start →](docs/user-guide/quickstart.md)**
+## What is devorch?
 
-**🎥 Want to see it in action?** Watch: **[Video Tutorial ↓](#-video-tutorial)**
+devorch installs specialized AI workflows directly into your project's `.claude/` directory. Instead of generic AI assistance, you get context-aware commands that understand your tech stack, follow your patterns, and enforce your standards.
 
-**📖 Looking for commands?** See: **[Command Reference →](docs/user-guide/command-reference.md)**
+**🌐 Website:** [https://devor.ch/cli](https://devor.ch/cli) (coming soon) | **💡 Based on:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
 
-**👨‍💻 Are you a developer?** See: **[Developer's Guide →](docs/developer-guide/dev-guide.md)**
-
-**🎨 Are you a designer?** See: **[Designer's Guide →](docs/developer-guide/designers-guide.md)**
-
-**🧠 Want to understand how it works?** Read: **[Core Concepts →](docs/user-guide/concepts.md)**
+**Web app:** [https://devor.ch/app](https://devor.ch/app)
 
 ---
 
-## 📚 Documentation
+## Getting Started
 
-### Getting Started
-- **[Quick Start](docs/user-guide/quickstart.md)** - Install CLI and set up your first project (5 minutes)
-- **[Model Configuration](docs/user-guide/model-configuration.md)** - Configure Anthropic API models
-- **[Command Reference](docs/user-guide/command-reference.md)** - Complete command guide with examples and troubleshooting
-- **[Developer's Guide](docs/developer-guide/dev-guide.md)** - For developers: workflows, commands, and best practices
-- **[Designer's Guide](docs/developer-guide/designers-guide.md)** - For designers: turn Figma into code without coding
-- **[Core Concepts](docs/user-guide/concepts.md)** - Understand the architecture and components
-- **[Configuration Guide](docs/user-guide/configuration.md)** - Complete `devorch.config.yml` reference
-- **[Workflows](docs/user-guide/workflows.md)** - When and how to use commands
-
-### Features
-- **[Context Training System](docs/user-guide/context-training.md)** - Customize devorch for your repository
-- **[Skills System](docs/user-guide/skills.md)** - Knowledge modules from real codebases (Claude Code only)
-
-### Advanced
-- **[Extending](docs/developer-guide/extending.md)** - Creating custom commands, subagents, and skills
-- **[Template Creation](templates/CONTRIBUTING.md)** - Detailed guide for creating commands, subagents, and skills
-- **[Local Development](docs/developer-guide/development.md)** - Contributing to devorch
+**New users:** [Quick Start Guide →](docs/user-guide/quickstart.md)
+**Developers:** [Developer's Guide →](docs/developer-guide/dev-guide.md)
+**Designers:** [Designer's Guide →](docs/developer-guide/designers-guide.md)
+**Deep dive:** [Core Concepts →](docs/user-guide/concepts.md)
 
 ---
 
-## 🚀 Quick Start
+## Installation
 
-### 1. Install the CLI
+### Requirements
 
-**For non-technical users (PMs, UX designers):**
+- [GitHub CLI](https://cli.github.com/) ([authenticate first](https://cli.github.com/manual/gh_auth_login))
+- [Anthropic API key](https://console.anthropic.com/)
 
-See the [Installation Guide](docs/user-guide/install.md) for step-by-step instructions with screenshots. You'll download a zip file, run a simple script, and you're done!
+**Non-technical users:** See the [Installation Guide](docs/user-guide/install.md) for step-by-step instructions with screenshots.
 
-**For developers:**
-
-Requires [GitHub CLI](https://cli.github.com/). [Authenticate first](https://cli.github.com/manual/gh_auth_login) if needed.
+### Install CLI
 
 ```bash
 gh api repos/guicheffer/devorch/contents/installer/setup.sh \
   --jq '.content' | base64 -d | sh
 ```
 
-**Add to PATH:**
+Add to your PATH:
+
 ```bash
 export PATH="$PATH:$HOME/.local/bin"
 ```
 
-**Verify installation:**
+Verify:
+
 ```bash
 devorch --help
 ```
 
-Available commands: `install`, `diagnose`, `count-tokens`, `update`, `check-version`
+### Configure API Access
 
-### 2. Configure Anthropic API
-
-devorch uses Claude models directly via the Anthropic API. Configure your environment:
+devorch uses Claude models via the Anthropic API. Set your environment:
 
 ```bash
 export ANTHROPIC_API_KEY=your_api_key_here
@@ -102,323 +75,207 @@ export ANTHROPIC_MODEL=claude-sonnet-4-5-20250929-v1:0
 - `claude-opus-4-5-20251101`
 - `claude-3-5-sonnet-20241022`
 
-Add these to your shell profile (~/.zshrc or ~/.bashrc) to persist across sessions.
+Add to your shell profile (`~/.zshrc` or `~/.bashrc`) to persist.
 
-### 3. Install in Your Project
+See [Model Configuration](docs/user-guide/model-configuration.md) for details.
+
+### Install in Project
+
+Navigate to your project and run:
 
 ```bash
 cd /path/to/your-project
 devorch install
 ```
 
-This command:
-1. Creates config if missing
-2. Guides you through interactive setup
-3. Installs all available commands
-4. Auto-resolves dependencies (subagents and skills)
-5. Components installed to `.claude/`
+This will:
+1. Create `devorch.config.yml` if missing
+2. Guide you through interactive setup
+3. Install commands, subagents, and skills to `.claude/`
+4. Auto-create `.gitignore` files for generated content
 
-### 3. Automatic .gitignore (No Action Required)
-
-**devorch automatically creates `.gitignore` files during installation** to keep generated files out of version control:
-
-```
-# Auto-created by installer
-.claude/agents/devorch/.gitignore      # Ignores all generated subagents
-.claude/commands/devorch/.gitignore    # Ignores all generated commands
-.claude/skills/.gitignore                   # Ignores enabled bundled skills only
-devorch/.gitignore                     # Ignores .state/ directory
-```
-
-**What gets auto-gitignored:**
-- ✅ Generated subagents and commands (always gitignored)
-- ✅ Enabled bundled skills (gitignored, can be regenerated)
-- ✅ Installation state (gitignored)
-- ❌ Custom skills (not gitignored - user-created content)
-- ❌ Config file (not gitignored - team settings)
-
-**Why automatic?**
-- Generated files can be recreated with `devorch install`
-- Each developer can customize their setup without conflicts
-- Keeps your repo clean and focused on source code
-
-**After cloning:** Just run `devorch install` to regenerate everything.
-
-### 4. Update Configuration
-
-```bash
-# Edit config
-vim devorch.config.yml
-
-# Reinstall with new config
-devorch install
-```
-
-### 5. Keep devorch Updated
-
-**devorch automatically uses the latest version.** The installed version is tracked in `devorch/.state/state.json`, and commands will prompt you to update when new versions are available.
-
-```bash
-# Update CLI and install updated templates
-devorch update
-```
-
-**How it works:**
-- Version is tracked in `.state/state.json`, not in your config
-- New installations automatically use latest
-- Commands notify you when updates are available (both CLI and templates)
-- Running `devorch update` automatically updates the CLI and installs updated templates
-
-See [Updating devorch](docs/user-guide/quickstart.md#updating-devorch) for details.
-
-### 6. Got Stuck? You Can Help!
-
-If a command fails or gets stuck:
-1. **Ask Claude why** - "Why did you get stuck?" or "Why did you include this file?"
-2. **Understand the issue** - Work with Claude to diagnose root cause
-3. **Share improvements** - Create a GitHub issue
-
-See **[Contributing as User](docs/developer-guide/contributing-as-user.md)** for complete debugging workflow.
-
-Your struggles are valuable feedback that helps improve devorch for everyone! 🚀
+**After cloning a project:** Just run `devorch install` to regenerate everything.
 
 ---
 
-## 📦 Available Components
+## Core Concepts
+
+### Development Spectrum
+
+devorch supports three development modes:
+
+```
+Vibe Coding ←──── Agentic Coding ←──── Spec-Driven Development
+(Ad-hoc)          (Context-aware)       (Systematic)
+```
+
+**Vibe Coding** - Quick changes
+Natural language: "Change button color to red"
+
+**Agentic Coding** - Context-aware work
+Load patterns: `/load-context-training` + freeform prompting
+
+**Spec-Driven Development** - Planned features
+Full workflow: `/gather-requirements` → `/create-spec` → `/implement-spec`
+
+See [Workflows Guide](docs/user-guide/workflows.md) for detailed breakdown.
+
+### Component Types
+
+**Commands** - Slash commands (`/gather-requirements`, `/create-spec`)
+User-initiated workflows for high-level tasks
+
+**Subagents** - Specialized agents (`ui-implementer`, `spec-writer`)
+Focused automation called by commands, each with narrow expertise
+
+**Skills** - Knowledge modules (`zustand-patterns`, `zest-design-system`)
+Repository-specific patterns extracted from your codebase (Claude Code only)
+
+See [Core Concepts](docs/user-guide/concepts.md) for architecture details.
+
+---
+
+## Available Components
 
 ### Commands
 
-Slash commands for AI-driven workflows:
-
-#### Context & Planning
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/analyze-tech-stack` | Document repository tech stack | Before context training (one-time setup) |
-| `/train-context` | Generate context training from codebase | After tech stack analysis (one-time setup) |
-| `/load-context-training` | Load context training files into conversation | Reference patterns, debug context training |
-
 #### Specification Workflow
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/gather-requirements` | Research and plan new feature | Starting new feature/epic |
-| `/create-spec` | Transform requirements into blueprint | After research is complete |
-| `/update-spec` | Update existing spec with changed requirements | Before tasks created - pre-implementation iteration |
-| `/create-tasks` | Break down spec into tasks | After spec is written |
-| `/implement-task` | Implement specific tasks | Granular control over implementation |
-| `/implement-spec` | Batch implement all tasks | Ready for full implementation |
-| `/jira-gather-requirements` | Fetch Jira ticket and post clarifying questions | Starting from Jira ticket (alternative workflow) |
-| `/jira-create-spec` | Generate spec from Jira ticket + answers | After questions answered in Jira (alternative workflow) |
+
+| Command | Purpose |
+|---------|---------|
+| `/gather-requirements` | Research and plan new features |
+| `/create-spec` | Transform requirements into implementation blueprint |
+| `/update-spec` | Modify existing specification |
+| `/create-tasks` | Break spec into actionable tasks |
+| `/implement-task` | Implement individual tasks |
+| `/implement-spec` | Batch implement all tasks |
+
+#### Jira Integration
+
+| Command | Purpose |
+|---------|---------|
+| `/jira-gather-requirements` | Fetch ticket and post questions |
+| `/jira-create-spec` | Generate spec from ticket + answers |
 
 #### Design & UX
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/design-change-web` | Implement visual/styling changes from Figma (colors, spacing, layout) | Design handoff for web apps (styling only - no interactivity/state/API changes) |
-| `/verify-figma-file` | Audit Figma files for design system compliance | Design review and validation |
+
+| Command | Purpose |
+|---------|---------|
+| `/design-change-web` | Implement Figma designs (styling only) |
+| `/verify-figma-file` | Audit designs for design system compliance |
+
+#### Context Management
+
+| Command | Purpose |
+|---------|---------|
+| `/analyze-tech-stack` | Document repository technologies |
+| `/train-context` | Generate context training from codebase |
+| `/load-context-training` | Load patterns into conversation |
 
 #### Utilities
-| Command | Purpose | When to Use |
-|---------|---------|-------------|
-| `/worktree` | Create git worktree with branch | Working on multiple features |
-| `/panic` | Debug context collection | Something is broken |
 
-See **[Command Reference](docs/user-guide/command-reference.md)** for complete details.
+| Command | Purpose |
+|---------|---------|
+| `/worktree` | Create git worktree with branch |
+| `/panic` | Emergency context capture for debugging |
+
+📖 **[Full Command Reference](docs/user-guide/command-reference.md)** with examples and troubleshooting
 
 ### Subagents
 
-Specialized agents for focused tasks:
+Specialized agents handle focused tasks to prevent context overload:
 
-**Categories:**
 - **`specification/*`** - Create and verify specifications
-- **`implementers/*`** - Implement changes (UI, data access, state, etc.)
-- **`verifiers/*`** - Verify implementations with automation
-- **`researchers/*`** - Research patterns and conventions
+- **`implementers/*`** - Implement UI, state, API, data layer changes
+- **`verifiers/*`** - Run tests, check types, validate implementations
+- **`researchers/*`** - Analyze patterns and extract conventions
 
-**Why multiple agents?** Prevents context overload. Each agent sees only relevant knowledge for their specialty.
+Each agent sees only knowledge relevant to its specialty.
 
-See **[Configuration Guide](docs/user-guide/configuration.md)** for available subagents.
+📖 **[Configuration Guide](docs/user-guide/configuration.md)** lists all available subagents
 
 ### Skills
 
-**Knowledge modules extracted from real codebases. Claude Code only.**
+Knowledge modules auto-generated from your codebase. Claude Code only.
 
-Skills are auto-generated by analyzing your repository code, extracting patterns, best practices, and conventions.
-
-**Available skills:**
-- `zustand-patterns` - State management patterns
+**Popular skills:**
+- `zustand-patterns` - State management
 - `zest-design-system` - Design system usage
-- `graphql-api` - GraphQL integration patterns
+- `graphql-api` - GraphQL integration
 - `navigation-patterns` - Routing and deep linking
 - `test-patterns` - Testing conventions
-- And many more...
 
-See **[Skills System](docs/user-guide/skills.md)** for complete details.
-
----
-
-## ⚙️ Configuration
-
-Your config file defines what gets installed. devorch looks for config in:
-1. `devorch.config.yml` in project root (primary)
-2. `devorch/config.yml` (secondary - keeps all devorch files together)
-
-**Quick example:**
-```yaml
-profile:
-  name: my-project
-  agents: [claude-code]
-
-commands:
-  - name: /gather-requirements
-    enabled: true
-  - name: /create-spec
-    enabled: true
-  - name: /create-tasks
-    enabled: true
-  - name: /implement-spec
-    enabled: true
-  - name: /worktree
-    enabled: true
-  - name: /panic
-    enabled: true
-
-# Subagents and skills are auto-resolved from command dependencies
-```
-
-**Advanced example with context training:**
-
-> **Important:** The `context_training` field must be placed in `devorch/config.local.yml` (not versioned), not in the main config file. Context training is developer-specific and should not be committed to the repository. This prevents merge conflicts and avoids accidentally committing personal configurations.
-
-```yaml
-# devorch/config.local.yml
-profile:
-  name: my-project
-  agents: [claude-code]
-  context_training: mobile-app  # Developer-specific context
-
-commands:
-  - name: /implement-spec
-    enabled: true
-
-# Manually specify subagents (or let dependencies auto-resolve)
-subagents:
-  - name: specification/spec-writer
-    enabled: true
-  - name: implementers/ui-implementer
-    enabled: true
-
-# Manually specify skills (Claude Code only)
-skills:
-  - name: zest-design-system
-    enabled: true
-  - name: zustand-patterns
-    enabled: false  # Available but not enabled
-```
-
-**With context training:**
-- Custom implementers merged from `devorch/context-training/mobile-app/implementers/*.md`
-- Specification guidelines from `specification.md` appended to spec writers
-- Implementation guide from `implementation.md` helps with task assignment
-
-See [Configuration Guide](docs/user-guide/configuration.md) for complete reference.
+📖 **[Skills System](docs/user-guide/skills.md)** for generation and usage
 
 ---
 
-## 🔄 Development Spectrum
+## Example Workflow
 
-Choose the right tool for the task:
+**Scenario:** Build user profile settings feature
 
-```
-Vibe Coding ←─── Agentic Coding ←─── Spec-Driven Development
-(Quick)          (Tagged)            (Planned)
-```
+### One-Time Setup
 
-**Vibe Coding** - Quick, ad-hoc changes
-- Example: "Change button color to red"
-- Tools: Direct AI assistance in IDE
+Analyze your tech stack:
 
-**Agentic Coding** - Targeted, context-aware work
-- Example: `/load-context-training` then freeform prompting with domain context
-- Tools: Load context training files, then natural language requests
-- Benefit: Right standards without context overload
-
-**Spec-Driven Development** - Comprehensive, planned work
-- Example: User engagement feature across frontend and backend
-- Tools: devorch CLI with workflows
-- Benefit: Consistent implementation and verification across workspace
-
-See [Workflows](docs/user-guide/workflows.md) for detailed guide.
-
----
-
-## 🎯 Example Workflow
-
-**Scenario:** Build a new user profile settings feature
-
-### 0. Setup (One-Time)
-
-**Analyze your tech stack:**
 ```bash
 /analyze-tech-stack
 ```
 
-**Output:** `devorch/tech-stack.md` documenting your platform, libraries, and available skills
+Output: `devorch/tech-stack.md`
 
-**Create repository-specific context training:**
+Generate context training:
+
 ```bash
 /train-context
 ```
 
-**Output:**
-- `devorch/context-training/my-app/` with domain customizations
-- Config updated with context-training reference and detected skills
-- Merged implementers installed (ui-implementer, state-implementer, etc.)
+Output: `devorch/context-training/` with custom implementers and patterns
 
-### 1. Research (`/gather-requirements`)
+### Feature Development
 
-```
+**1. Research phase**
+
+```bash
 /gather-requirements
-
-> What feature are you building?
-User profile settings page
-
-> What's the main user goal?
-Allow users to update preferences...
-
-... (interactive research)
 ```
 
-**Output:** Research folder with requirements and assets
+Interactive session gathers requirements and constraints.
 
-### 2. Create Blueprint (`/create-spec`)
+**2. Specification phase**
 
-```
+```bash
 /create-spec
 ```
 
-**Output:**
-- `spec.md` - Detailed specification (follows your context training's specification guidelines)
-- `tasks.md` - Breakdown by specialty (uses your custom implementers)
+Generates `spec.md` and `tasks.md` following your patterns.
 
-### 3. Implement (`/implement-spec`)
+**3. Implementation phase**
 
-```
+```bash
 /implement-spec
 ```
 
-**What happens:**
-- Discovers your custom implementers (ui-implementer, state-implementer, etc.)
-- Selects appropriate implementer based on task
-- Implementer follows your domain preferences from context training
-- References skills mentioned in context training (**zustand-patterns**, **ui-design-system/zest**)
-- Verifier checks work using your verification rules
+Routes tasks to specialized implementers:
+- UI changes → `ui-implementer`
+- State logic → `state-implementer`
+- API calls → `api-implementer`
+- Database → `data-implementer`
 
-**Output:** Implementation docs and verification report
+Each implementer references your context training and skills.
+
+**4. Verification phase**
+
+Automated verification checks:
+- Tests pass
+- Types valid
+- Standards followed
+- A11y compliant
 
 ---
 
-## 🗺️ Complete Workflow Diagram
+## Workflow Diagram
 
-The following diagram shows the complete spec-driven development workflow with all phases and agent interactions:
+Complete spec-driven development flow:
 
 ```mermaid
 graph TD
@@ -479,92 +336,210 @@ graph TD
 ```
 
 **Legend:**
-- 🔵 **Specification Phase** - Define what to build
-- 🟡 **Task Planning** - Break down into actionable tasks
-- 🟢 **Implementation Phase** - Domain-specific implementers (UI, State, API, Data)
-- 🟡 **Verification Phase** - Automated verification (tests, types, standards)
-- 🔄 **Feedback Loop** - Failed verification triggers fixes
+- 🔵 Specification - Define requirements
+- 🟡 Task Planning - Break into steps
+- 🟢 Implementation - Domain-specific builders
+- 🟡 Verification - Automated quality checks
+- 🔄 Feedback Loop - Iterate until passing
 
 ---
 
-## 🛠️ Creating Custom Assets
+## Configuration
 
-Create custom commands, subagents, and skills by editing markdown files:
+Config files define installed components. devorch looks for:
+1. `devorch.config.yml` (project root)
+2. `devorch/config.yml` (alternate location)
 
-```bash
-mkdir -p templates/commands/my-command/single-agent
-vim templates/commands/my-command/single-agent/my-command.md
+### Basic Configuration
+
+```yaml
+profile:
+  name: my-project
+  agents: [claude-code]
+
+commands:
+  - name: /gather-requirements
+    enabled: true
+  - name: /create-spec
+    enabled: true
+  - name: /implement-spec
+    enabled: true
+
+# Dependencies (subagents, skills) auto-resolve from commands
 ```
 
-See [Extending Guide](docs/developer-guide/extending.md) and [Template Creation Guide](templates/CONTRIBUTING.md) for detailed instructions on:
-- Creating custom commands
-- Building subagents
-- Developing skills
-- Contributing to devorch
+### Advanced Configuration
+
+**Important:** Place `context_training` in `devorch/config.local.yml` (gitignored), not main config.
+
+```yaml
+# devorch/config.local.yml
+profile:
+  name: my-project
+  agents: [claude-code]
+  context_training: mobile-app  # Developer-specific
+
+commands:
+  - name: /implement-spec
+    enabled: true
+
+# Manual subagent control (optional)
+subagents:
+  - name: specification/spec-writer
+    enabled: true
+  - name: implementers/ui-implementer
+    enabled: true
+
+# Manual skill control (Claude Code only)
+skills:
+  - name: zest-design-system
+    enabled: true
+  - name: zustand-patterns
+    enabled: false
+```
+
+**Context training effects:**
+- Merges custom implementers from `devorch/context-training/mobile-app/implementers/*.md`
+- Appends specification guidelines to spec writers
+- Guides task assignment with `implementation.md`
+
+📖 **[Configuration Guide](docs/user-guide/configuration.md)** for complete reference
 
 ---
 
-## 📖 Additional Resources
+## Version Control
 
-### Documentation
-- [Configuration Guide](docs/user-guide/configuration.md) - Complete config reference
-- [Workflows](docs/user-guide/workflows.md) - When and how to use commands
-- [Skills System](docs/user-guide/skills.md) - Knowledge modules (Claude Code)
+devorch automatically creates `.gitignore` files during installation:
 
-### Advanced Topics
+```
+.claude/agents/devorch/.gitignore      # Generated subagents
+.claude/commands/devorch/.gitignore    # Generated commands
+.claude/skills/.gitignore              # Bundled skills
+devorch/.gitignore                     # State directory
+```
 
-- [Extending](docs/developer-guide/extending.md) - Creating custom components
-- [Development](docs/developer-guide/development.md) - Contributing to devorch codebase
-- [Polyrepo Setup](docs/user-guide/polyrepo.md) - Multi-repo coordination (alternate setup)
+**Gitignored:**
+- ✅ Generated subagents and commands
+- ✅ Enabled bundled skills
+- ✅ Installation state
 
-### Community
-- [Contributing as User](docs/developer-guide/contributing-as-user.md) - When you get stuck and how to help improve devorch
+**Not gitignored:**
+- ❌ Custom skills (user-created)
+- ❌ Config file (team settings)
 
-### Troubleshooting
-- Check CLI help: `devorch --help`
-- Check installation health: `devorch diagnose`
-- **Got stuck?** See [Contributing as User](docs/developer-guide/contributing-as-user.md) for debugging help
+**Why?** Generated files are reproducible via `devorch install`. Each developer can customize their setup without conflicts.
 
-### Privacy & Telemetry
+---
 
-**devorch collects anonymous usage data** to help improve the tool. This telemetry is privacy-focused and uses Sentry for error tracking.
+## Keeping Updated
 
-**What we collect:**
-- ✅ Command usage (which commands you run)
-- ✅ Command duration and success/failure
-- ✅ CLI version and platform (OS, Node version)
-- ✅ Computer ID (system username for user identification)
-- ✅ Error messages and stack traces (when commands fail)
+devorch tracks versions in `devorch/.state/state.json`. Commands notify you when updates are available.
 
-**What we DON'T collect:**
+```bash
+# Update CLI and templates
+devorch update
+```
+
+New installations automatically use the latest version.
+
+📖 **[Updating Guide](docs/user-guide/quickstart.md#updating-devorch)** for details
+
+---
+
+## Documentation Hub
+
+### User Guides
+
+- **[Quick Start](docs/user-guide/quickstart.md)** - Installation and first project
+- **[Command Reference](docs/user-guide/command-reference.md)** - Complete command guide
+- **[Workflows](docs/user-guide/workflows.md)** - When to use which approach
+- **[Configuration](docs/user-guide/configuration.md)** - Config file reference
+- **[Core Concepts](docs/user-guide/concepts.md)** - Architecture and design
+- **[Model Configuration](docs/user-guide/model-configuration.md)** - API setup
+- **[Context Training](docs/user-guide/context-training.md)** - Customize for your repo
+- **[Skills System](docs/user-guide/skills.md)** - Knowledge modules (Claude Code)
+- **[Polyrepo Setup](docs/user-guide/polyrepo.md)** - Multi-repo coordination
+
+### Developer Guides
+
+- **[Developer's Guide](docs/developer-guide/dev-guide.md)** - Workflows and best practices
+- **[Designer's Guide](docs/developer-guide/designers-guide.md)** - Figma to code
+- **[Extending](docs/developer-guide/extending.md)** - Build custom components
+- **[Template Creation](templates/CONTRIBUTING.md)** - Detailed template guide
+- **[Local Development](docs/developer-guide/development.md)** - Contributing to devorch
+- **[Contributing as User](docs/developer-guide/contributing-as-user.md)** - Report issues effectively
+
+---
+
+## Troubleshooting
+
+When commands fail or get stuck:
+
+1. **Ask Claude why** - "Why did you get stuck?"
+2. **Understand the root cause** - Work with Claude to diagnose
+3. **Share improvements** - Create a [GitHub issue](https://github.com/guicheffer/devorch/issues)
+
+Your feedback helps improve devorch for everyone.
+
+### Useful Commands
+
+```bash
+devorch --help            # Show available commands
+devorch diagnose          # Check installation health
+devorch count-tokens      # Analyze template token usage
+devorch check-version     # Check for updates
+```
+
+📖 **[Contributing as User](docs/developer-guide/contributing-as-user.md)** for debugging workflow
+
+---
+
+## Privacy & Telemetry
+
+devorch collects anonymous usage data to improve the tool. Uses Sentry for error tracking.
+
+**Collected:**
+- ✅ Command usage and duration
+- ✅ CLI version and platform
+- ✅ Computer ID (system username)
+- ✅ Error messages and stack traces
+
+**Not collected:**
 - ❌ File paths or directory names
-- ❌ Command arguments or parameters
+- ❌ Command arguments
 - ❌ Environment variables
 - ❌ Project-specific data
-- ❌ Sensitive personal information
+- ❌ Sensitive information
 
-**Note:** Telemetry is automatically disabled in CI environments.
+**Note:** Automatically disabled in CI environments.
 
 ---
 
-## 🌐 About devorch
+## About devorch
 
-**devorch is currently a CLI tool.** The web application at [https://devor.ch/cli](https://devor.ch/cli) is planned for future development and will serve as a reference and documentation hub for the open-source CLI.
+devorch is an open-source CLI tool for AI workflow automation. The web application at [https://devor.ch/cli](https://devor.ch/cli) will serve as documentation and reference (planned).
 
 ### Inspiration
 
-devorch is based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - a systematic approach to AI-assisted software development that emphasizes:
-- Breaking down complex work into manageable phases (research, specification, implementation, verification)
-- Using specialized agents for different types of tasks
-- Maintaining context through documentation and structured workflows
-- Automated verification to ensure quality
+Based on the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - systematic AI-assisted development emphasizing:
+- Phased approach (research → specification → implementation → verification)
+- Specialized agents for different domains
+- Context preservation through documentation
+- Automated quality verification
 
 ---
 
-**Links:**
+## Links
+
+**Project:**
 - [devorch Website](https://devor.ch/) (coming soon)
-- [This Repository](https://github.com/guicheffer/devorch)
+- [GitHub Repository](https://github.com/guicheffer/devorch)
 - [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
 
-**Issues & Feedback:**
-- [Create an issue](https://github.com/guicheffer/devorch/issues) on GitHub
+**Support:**
+- [Create an Issue](https://github.com/guicheffer/devorch/issues)
+- [Documentation](docs/index.md)
+
+---
+
+**Built with AI-assisted development in mind.**
