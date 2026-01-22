@@ -1,8 +1,8 @@
-# Developer's Guide to DevOrch
+# Developer's Guide to devorch
 
 ![Developer's Guide](../assets/dev-guide-header.jpg)
 
-A practical guide to using DevOrch with Claude Code for AI-powered development workflows.
+A practical guide to using devorch with Claude Code for AI-powered development workflows.
 
 ## Quick Start
 

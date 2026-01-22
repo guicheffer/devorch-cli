@@ -55,7 +55,7 @@ Add integration tests for the auth flow
 - New payment flow with verification
 - Multi-repo refactoring
 
-**Tools:** DevOrch commands (`/gather-requirements`, `/create-spec`, `/create-tasks`, `/implement-task`, `/implement-spec`)
+**Tools:** devorch commands (`/gather-requirements`, `/create-spec`, `/create-tasks`, `/implement-task`, `/implement-spec`)
 
 **Benefits:**
 - Consistent implementation across workspace

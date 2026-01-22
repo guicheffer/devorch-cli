@@ -408,5 +408,5 @@ devorch debug-bedrock
 ## Getting Help
 
 - Run `devorch --help` for CLI help
-- Check [Working with DevOrch](./working-with-devorch.md) for detailed workflows
+- Check [Working with devorch](./working-with-devorch.md) for detailed workflows
 - Open an issue at [github.com/guicheffer/devorch](https://github.com/guicheffer/devorch)

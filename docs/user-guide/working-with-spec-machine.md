@@ -1,8 +1,8 @@
-# Working with DevOrch
+# Working with devorch
 
 ## When to Use Spec-Driven Development
 
-DevOrch is for **larger chunks of work** - epics and features requiring careful planning and execution across multiple repositories.
+devorch is for **larger chunks of work** - epics and features requiring careful planning and execution across multiple repositories.
 
 ### The Development Spectrum
 
@@ -24,7 +24,7 @@ Vibe Coding ←────── Agentic Coding ←────── Spec-Driv
 
 **Spec-Driven Development** - Comprehensive, planned work
 - Example: User engagement feature across frontend and backend
-- Tools: DevOrch CLI with profiles and workflows
+- Tools: devorch CLI with profiles and workflows
 - Benefit: Consistent implementation and verification across workspace
 
 ---
@@ -70,7 +70,7 @@ See [Polyrepo Setup Guide](./polyrepo.md) for details.
 
 ## Getting Started
 
-### 1. Install DevOrch
+### 1. Install devorch
 
 ```bash
 cd /path/to/your-repository
@@ -218,7 +218,7 @@ Add tests for the auth flow
 ## Summary
 
 ### Setup
-1. Install DevOrch
+1. Install devorch
 2. Choose preset or configure manually
 3. Set up MCP servers (optional)
 

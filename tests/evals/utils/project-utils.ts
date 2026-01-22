@@ -144,7 +144,7 @@ export async function createTestProject(testName: string, config: TestConfig): P
   console.log('\n📁 Test Project Paths:');
   console.log(`  Project:      ${paths.projectDir}`);
   console.log(`  Claude:       ${paths.claudeDir}`);
-  console.log(`  DevOrch: ${paths.specMachineDir}`);
+  console.log(`  devorch: ${paths.specMachineDir}`);
   console.log(`  Config:       ${paths.configPath}\n`);
 
   return paths;

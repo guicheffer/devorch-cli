@@ -1,7 +1,7 @@
 {
   "name": "devorch",
   "version": "2.1.0",
-  "description": "DevOrch - A CLI tool for composable AI workflow automation. Install custom subagents and commands for Claude Code.",
+  "description": "devorch - A CLI tool for composable AI workflow automation. Install custom subagents and commands for Claude Code.",
   "homepage": "https://devor.ch",
   "repository": {
     "type": "git",

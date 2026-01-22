@@ -45,7 +45,7 @@ You don't need to master everything; just find one or two new tools or rituals t
 
 **Step 3: Try One New Thing.** You don't have to change everything at once. The best way to start is to pick one small thing and try it for a week.
 
-* **Engineers:** Try using **DevOrch** for your next task.  
+* **Engineers:** Try using **devorch** for your next task.  
 * **Product:** Try writing your next spec as a `prd.md` file.  
 * **UX:** Try structuring your next Figma file for better AI handoff.  
 * **Everyone:** Try the "Demo Daily" ritual.

@@ -10,7 +10,7 @@ Your objective is to maximize team velocity and predictability by managing **con
 
 ### Key tools and services
 
-* **DevOrch:** The primary framework your team uses for consistency.  
+* **devorch:** The primary framework your team uses for consistency.  
   * **Onboarding:** Familiarize yourself with the concept of Profiles. Your role is not to write them, but to empower your team to own their creation and maintenance. Grant your senior engineers access to the [devorch](https://github.com/guicheffer/devorch) repository.  
 * **Survey Tools (e.g., Google Forms)**: Standard tools for gathering weekly team feedback.  
 * **Onboarding**: Create a simple, anonymous weekly survey for your team.  
@@ -43,7 +43,7 @@ Your primary function is to ensure the continuous flow of high-quality, unambigu
 Your team's success depends on the consistent application of AI-native workflows.
 
 1. **Coach the "When" and "Why":** Guide your team on when to use Agentic Development for quick, tactical tasks versus Spec-Driven Development for larger, strategic features.  
-2. **Empower, Don't Prescribe:** Empower your senior engineers to own and evolve your team's Context Training in DevOrch. Your job is to ensure they have the time and support to maintain these crucial customizations.  
+2. **Empower, Don't Prescribe:** Empower your senior engineers to own and evolve your team's Context Training in devorch. Your job is to ensure they have the time and support to maintain these crucial customizations.  
 3. **Focus on Outcomes:** Measure what matters: sprint predictability, feature lead time, and team satisfaction.
 
 #### Workflow 3: Leveraging AI for Oversight

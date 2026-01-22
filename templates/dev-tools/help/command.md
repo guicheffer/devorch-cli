@@ -9,7 +9,7 @@ partials:
   setup: common/partials/commands/command-setup.md
 ---
 
-# DevOrch Help
+# devorch Help
 
 ## Purpose
 
@@ -38,7 +38,7 @@ gh api repos/guicheffer/devorch/contents/docs/user-guide/quickstart.md --jq '.co
 
 ### PHASE 1: Present Help Menu
 
-🔧 DevOrch Help
+🔧 devorch Help
 
 What would you like help with?
 

@@ -1,6 +1,6 @@
 # Quick Install
 
-This guide is designed for non-technical users (PMs, UX designers) who want to install DevOrch on a fresh computer without developer tools.
+This guide is designed for non-technical users (PMs, UX designers) who want to install devorch on a fresh computer without developer tools.
 
 > **Windows Users:** See the [Windows Setup Guide](./windows-setup.md) for Windows-specific instructions.
 
@@ -63,7 +63,7 @@ The setup wizard will automatically:
 - ✅ Help you select a Claude model
 - ✅ Configure Claude Code settings
 
-That's it! You're ready to use DevOrch.
+That's it! You're ready to use devorch.
 
 ## Troubleshooting
 

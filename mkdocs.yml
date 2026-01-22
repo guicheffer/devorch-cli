@@ -1,4 +1,4 @@
-site_name: 'DevOrch'
+site_name: 'devorch'
 site_description: 'Composable AI workflow automation. Complete AI toolkit for AI Native PDLC'
 
 plugins:
@@ -17,7 +17,7 @@ nav:
       - Core Concepts: 'user-guide/concepts.md'
       - Configuration: 'user-guide/configuration.md'
       - Workflows: 'user-guide/workflows.md'
-      - Working with DevOrch: 'user-guide/working-with-devorch.md'
+      - Working with devorch: 'user-guide/working-with-devorch.md'
       - Command Reference: 'user-guide/command-reference.md'
       - Skills: 'user-guide/skills.md'
       - Context Training: 'user-guide/context-training.md'
