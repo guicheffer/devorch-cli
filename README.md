@@ -20,9 +20,17 @@
 
 devorch brings systematic AI automation to your development workflow. By installing specialized subagents, commands, and knowledge modules directly into your `.claude/` directory, you transform generic AI assistance into context-aware automation that understands your tech stack, follows your team's patterns, and enforces your coding standards.
 
-**🌐 Website:** [https://devor.ch/cli](https://devor.ch/cli) (coming soon)
+### The devorch Platform
+
+**[devor.ch](https://devor.ch)** - The devorch platform was built using this open-source CLI and offers autonomous AI agents that can independently build features and entire projects using this same technology. The platform provides:
+
+- **Autonomous Development** - AI agents that build features end-to-end without manual intervention
+- **Systematic Workflows** - Same methodology used in this CLI, scaled to cloud infrastructure
+- **Team Collaboration** - Share agents, patterns, and workflows across your organization
+
+**🚀 Get Started:** [https://devor.ch](https://devor.ch)
+**🎛️ Console Access:** [https://devor.ch/console](https://devor.ch/console) (requires approved invite)
 **💡 Methodology:** [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - Systematic AI-assisted development
-**🚀 Web Platform:** [https://devor.ch/app](https://devor.ch/app)
 
 ---
 
@@ -541,18 +549,18 @@ Built-in quality checks ensure standards compliance before code review
 
 ### Project Links
 
-**Core:**
+**Platform:**
+- [devorch Website](https://devor.ch) - Autonomous AI agents for building features and projects
+- [Console](https://devor.ch/console) - Platform access (requires approved invite)
+
+**Open Source:**
 - [GitHub Repository](https://github.com/guicheffer/devorch) - Source code and issue tracking
-- [Documentation](docs/index.md) - Complete reference and guides
-- [devorch Website](https://devor.ch/) - Project homepage (coming soon)
+- [Documentation](docs/index.md) - Complete CLI reference and guides
+- [Create an Issue](https://github.com/guicheffer/devorch/issues) - Bug reports and feature requests
 
 **Foundation:**
 - [AgentOS](https://github.com/caspianai/agentos) - The extensible agent framework powering devorch
 - [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) - Methodology and best practices
-
-**Support:**
-- [Create an Issue](https://github.com/guicheffer/devorch/issues) - Bug reports and feature requests
-- [Discussions](https://github.com/guicheffer/devorch/discussions) - Community support
 
 ---
 
