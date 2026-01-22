@@ -14,7 +14,7 @@ To create actionable, context-rich design specs that serve as a direct input for
   * **Onboarding**: Structure your Figma pages to mirror the steps of the user journey (e.g., Information, Cart & Review, Shipping, Payment). This makes it easier for both AI and engineers to locate and understand the relevant screens.  
 * **AI Assistants (Thought Partner)**: Use tools like **ChatGPT** or **Gemini** to brainstorm and capture key aspects of the user journey, such as user objectives, friction points, edge cases, and microcopy.  
 * **AI Assistants (Implementation)**: Use tools like **Cursor** or **Claude Code** to make small, targeted design changes directly in the codebase without needing an engineer.  
-  * **Onboarding**: Get access to the relevant code repositories and the team's DevOrch profile. This will allow you to use agentic commands (e.g., `@ui-implementer`) to make precise changes.  
+  * **Onboarding**: Get access to the relevant code repositories and the team's devorch profile. This will allow you to use agentic commands (e.g., `@ui-implementer`) to make precise changes.  
 * **Markdown**: The format for your primary deliverable, the `ux-spec.md` file.  
   * **Onboarding**: Learn to create structured markdown documents that clearly link out to your Figma files and related specs.
 

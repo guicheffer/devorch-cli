@@ -2,7 +2,7 @@
 
 Understanding devorch's architecture and components.
 
-## What is DevOrch?
+## What is devorch?
 
 **Composable AI workflow automation** for Claude Code. Install exactly the commands, subagents, and skills you need for your project.
 

@@ -46,7 +46,7 @@ function commandsToMenuOptions(commands: CommandMetadata[]): MenuOption[] {
 export async function showMainMenu(version: string): Promise<string> {
   displayHeader(version);
 
-  clack.intro(colors.red('DevOrch CLI'));
+  clack.intro(colors.red('devorch CLI'));
   console.log(colors.dim('  Press Ctrl+C at any time to cancel and return to menu\n'));
 
   const category = await clack.select({

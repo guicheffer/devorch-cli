@@ -14,7 +14,7 @@ const LOGO = `
  */
 export function showHelp(version: string): void {
   console.log(colors.red(LOGO));
-  console.log(colors.bold('DevOrch CLI'));
+  console.log(colors.bold('devorch CLI'));
   console.log(colors.dim(`Version ${version}\n`));
   console.log('Usage:');
   console.log('  devorch              Start interactive menu');

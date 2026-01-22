@@ -1,7 +1,7 @@
 import pc from 'picocolors';
 
 /**
- * DevOrch Brand Colors
+ * devorch Brand Colors
  *
  * The CLI uses a modern color palette with:
  * - Primary: Red (used for main branding, logo, buttons)

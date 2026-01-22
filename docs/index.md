@@ -1,8 +1,8 @@
-# DevOrch Documentation
+# devorch Documentation
 
 > **⚠️ PRE-ALPHA WARNING**
 >
-> DevOrch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
+> devorch is currently in pre-alpha development and **not ready for production use**. Features are experimental, APIs may change without notice, and breaking changes are expected. Use at your own risk.
 
 **Composable AI workflow automation** - Install custom subagents and slash commands for Claude Code.
 
@@ -13,7 +13,7 @@ Configure exactly which AI agents and commands you need for your project.
 ## 📖 Documentation
 
 ### [User Guide](user-guide/quickstart.md)
-Complete guides for using DevOrch in your projects:
+Complete guides for using devorch in your projects:
 - Installation and setup
 - Configuration
 - Commands and workflows
@@ -21,7 +21,7 @@ Complete guides for using DevOrch in your projects:
 - Skills and context training
 
 ### [Developer Guide](developer-guide/development.md)
-Resources for contributing to DevOrch:
+Resources for contributing to devorch:
 - Development setup
 - Architecture
 - Creating custom commands and subagents

@@ -191,10 +191,10 @@ The v1.0.x series represents the rapid evolution of devorch from its initial rel
 
 #### Early Features (v1.0.1-87)
 - Simplify CLI for git-clone workflow
-- Rebrand from Agent OS to DevOrch
+- Rebrand from Agent OS to devorch
 - Add version source from GitHub releases
 - Add documentation links and table of contents to README
-- Add section for updating local DevOrch installation
+- Add section for updating local devorch installation
 - Reorganize documentation: prioritize embedded specs over polyrepo
 - Refactor polyrepo setup with various approaches
 - Improve git submodules handling
@@ -268,7 +268,7 @@ The v1.0.x series represents the rapid evolution of devorch from its initial rel
 - Documentation and setup guides
 
 ### Changed
-- Project rebranded from "Agent OS" to "DevOrch"
+- Project rebranded from "Agent OS" to "devorch"
 - Reorganized file structure with improved separation of concerns
 
 ### Fixed

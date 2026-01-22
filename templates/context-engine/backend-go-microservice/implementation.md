@@ -388,7 +388,7 @@ All patterns are extracted from yourcompany/reward-wallet, a production microser
 - **91% tech stack coverage** of declared technologies
 - **100% of patterns** used in production
 
-## Integration with DevOrch
+## Integration with devorch
 
 ### Workflow Integration
 

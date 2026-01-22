@@ -102,7 +102,7 @@ Create `.mcp.json` in specs repo root:
 
 See [Workflows](./workflows.md) for MCP server details.
 
-### 5. Install DevOrch
+### 5. Install devorch
 
 ```bash
 devorch install

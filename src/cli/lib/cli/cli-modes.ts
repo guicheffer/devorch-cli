@@ -106,7 +106,7 @@ export async function runInteractiveMode(
       }
 
       if (command === 'exit') {
-        showOutro('Thanks for using DevOrch! 👋', 'green');
+        showOutro('Thanks for using devorch! 👋', 'green');
         return;
       }
 

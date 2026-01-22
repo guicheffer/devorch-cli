@@ -1,10 +1,10 @@
-# Extending DevOrch
+# Extending devorch
 
 Create custom commands, subagents, and skills for your project.
 
 ## Overview
 
-DevOrch can be extended with custom assets:
+devorch can be extended with custom assets:
 - **Commands:** Slash commands for workflows
 - **Subagents:** Specialized agents for focused tasks
 - **Skills:** Knowledge modules (Claude Code only, advanced)

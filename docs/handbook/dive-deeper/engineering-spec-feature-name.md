@@ -40,7 +40,7 @@
 
 ## 5. Task Breakdown & Agent Assignment
 
-*This section breaks down the work into actionable tasks, assigning each to a specific Implementer and Verifier agent from the DevOrch profile.*
+*This section breaks down the work into actionable tasks, assigning each to a specific Implementer and Verifier agent from the devorch profile.*
 
 ---
 
