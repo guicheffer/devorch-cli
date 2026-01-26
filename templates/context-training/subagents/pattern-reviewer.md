@@ -295,7 +295,7 @@ Please describe the verification checks:
 
 After receiving verification details, acknowledge and store them for this domain.
 
-#### Step 3f: Ask About Quality Standards (NEW)
+#### Step 3f: Ask About Quality Standards
 
 For each domain, ask about quality expectations to inform the quality-checker later.
 
