@@ -10,11 +10,14 @@ dependencies:
     - context-training/pr-pattern-analyzer
     - context-training/pattern-reviewer
     - context-training/artifact-generator
+    - context-training/context-verifier
+    - context-training/quality-checker
 partials:
   setup: common/partials/commands/command-setup.md
   context-training-check: common/partials/commands/check-context-training.md
   standard-instructions-footer: common/partials/commands/standard-instructions-footer.md
   fetch-prs: context-training/partials/fetch-prs.md
+  verify-context: context-training/partials/verify-context.md
 ---
 
 # Purpose
@@ -288,6 +291,22 @@ Summary:
 - [actual count] patterns updated
 - From [actual count] PRs analyzed: #[PR numbers]
 ```
+
+#### Step 4e: Verify and Quality Check
+
+After integrating new patterns, verify the updated context-training files for accuracy and quality.
+
+**Set the context training name:**
+
+```bash
+CONTEXT_TRAINING_NAME="{{context-training-name}}"
+```
+
+{{partials.verify-context}}
+
+**After verification completes:**
+
+The updated context-training files have been verified and quality-checked. Any issues found have been reported and addressed according to user preferences.
 
 ### PHASE 5: Report
 
