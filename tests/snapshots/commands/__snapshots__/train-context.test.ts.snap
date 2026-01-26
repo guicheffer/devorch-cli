@@ -12,6 +12,8 @@ dependencies:
     - "context-training/pr-pattern-analyzer"
     - "context-training/pattern-reviewer"
     - "context-training/artifact-generator"
+    - "context-training/context-verifier"
+    - "context-training/quality-checker"
 ---
 
 # Purpose
@@ -71,6 +73,8 @@ This command requires these subagents to function properly. Please ensure your p
 - context-training/pr-pattern-analyzer
 - context-training/pattern-reviewer
 - context-training/artifact-generator
+- context-training/context-verifier
+- context-training/quality-checker
 
 
 ## Instructions
@@ -629,6 +633,37 @@ echo "$GENERATION_JSON" > devorch/.state/artifacts/commands/train-context-2/gene
 Where \`$GENERATION_JSON\` is the JSON returned by the subagent. This artifact documents what files were created and validates generation success.
 
 Present the summary to the user with clear next steps for using the context training.
+
+
+### Step 7: Verify Context
+
+This step verifies the generated context-training files against the actual codebase and checks code quality.
+
+**What happens in this step:**
+1. Context Verifier validates all code examples and references
+2. Critical issues (wrong paths, signatures) are auto-fixed
+3. Quality Checker analyzes code for best practices and security
+4. Combined report (INCONSISTENCIES.md) is generated
+5. User can iterate up to 3 times to fix issues
+
+**Set the context training name:**
+
+Parse the context training name from the artifact generator output (Step 6).
+
+\`\`\`bash
+# Extract from previous step's JSON output
+CONTEXT_TRAINING_NAME="<name from Step 6 output>"
+\`\`\`
+
+
+
+**After verification completes:**
+
+The verification and quality check process has completed. The context-training files have been validated and are ready for use.
+
+**Final summary:**
+
+Present the final status to the user based on the verification outcome.
 
 "
 `;

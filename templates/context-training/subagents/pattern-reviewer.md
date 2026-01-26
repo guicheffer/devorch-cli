@@ -295,9 +295,86 @@ Please describe the verification checks:
 
 After receiving verification details, acknowledge and store them for this domain.
 
-#### Step 3f: Repeat for All Domains
+#### Step 3f: Ask About Quality Standards
 
-Repeat Steps 3a-3e for each domain discovered in the pattern analysis.
+For each domain, ask about quality expectations to inform the quality-checker later.
+
+**Output this text directly:**
+
+```
+Now let's discuss quality standards for {domain} patterns.
+
+These standards will help ensure the patterns in context-training teach best practices. Please share your expectations for:
+
+**1. Best Practices**
+What best practices should {domain} code follow? For example:
+- Clear naming conventions
+- Proper error handling patterns
+- TypeScript usage guidelines
+- Code organization standards
+
+**2. Anti-Patterns to Avoid**
+What should NOT be done in {domain} code? For example:
+- God functions or components
+- Tight coupling
+- Missing error boundaries
+- Magic numbers/strings
+
+**3. Security Considerations**
+Any security requirements specific to {domain}? For example:
+- Input validation rules
+- Authentication/authorization patterns
+- Data sanitization requirements
+- Secure API usage
+
+**4. Performance Standards**
+Any performance expectations for {domain}? For example:
+- Optimization requirements
+- Rendering performance for UI
+- API response time expectations
+- Resource usage limits
+
+**5. Maintainability Goals**
+What makes {domain} code maintainable in your project? For example:
+- Code length limits
+- Complexity thresholds
+- Documentation requirements
+- Testing coverage expectations
+
+Please describe your quality expectations (or type "skip" to use defaults):
+```
+
+**CRITICAL: STOP HERE and wait for the user's response.**
+
+**After receiving quality standards:**
+
+If user provides standards, acknowledge and store them for this domain:
+```
+✓ Quality standards noted for {domain}. These will be used during quality verification.
+```
+
+If user types "skip" or provides minimal input, acknowledge:
+```
+✓ Will use default quality standards for {domain}.
+```
+
+Store the quality standards data:
+```json
+{
+  "domain": "domain-name",
+  "quality_standards": {
+    "best_practices": ["user provided items"],
+    "anti_patterns": ["user provided items"],
+    "security": ["user provided items"],
+    "performance": ["user provided items"],
+    "maintainability": ["user provided items"]
+  }
+}
+```
+
+#### Step 3g: Repeat for All Domains
+
+Repeat Steps 3a-3f for each domain discovered in the pattern analysis.
 
 **Important:** Process domains in the order they were discovered. Don't assume a fixed list of domains - review whatever domains the pr-pattern-analyzer found.
 
@@ -308,8 +385,9 @@ Repeat Steps 3a-3e for each domain discovered in the pattern analysis.
 - Rejected/skipped patterns (for documentation)
 - Verification methods selected per domain
 - Verification check details for each method
+- Quality standards per domain
 
-### Step 4: Ask About Context Training Name
+### Step 5: Ask About Context Training Name
 
 Ask the user what to name this context training using AskUserQuestion:
 
@@ -344,7 +422,7 @@ Example: If this is for your mobile team's React Native patterns, you might name
 
 Store the name for next step output.
 
-### Step 5: Present Final Summary and Return Results
+### Step 6: Present Final Summary and Return Results
 
 Show the user a final summary of validated patterns:
 
@@ -394,7 +472,14 @@ Return structured JSON for artifact generation:
           "user_approved": true,
           "source": "user-added"
         }
-      ]
+      ],
+      "quality_standards": {
+        "best_practices": ["Clear component naming", "Proper error handling", "TypeScript for all props"],
+        "anti_patterns": ["God components", "Missing error boundaries"],
+        "security": ["Sanitize user input", "Validate props"],
+        "performance": ["Memoization for expensive calculations", "Avoid unnecessary re-renders"],
+        "maintainability": ["Keep components under 200 lines", "Single responsibility"]
+      }
     }
   ],
   "summary": {
@@ -433,7 +518,14 @@ Your final output should be structured JSON that the artifact-generator can cons
           "related_libraries": ["lib1"],
           "notes": "optional user notes"
         }
-      ]
+      ],
+      "quality_standards": {
+        "best_practices": ["user provided standards or defaults"],
+        "anti_patterns": ["patterns to avoid"],
+        "security": ["security requirements"],
+        "performance": ["performance expectations"],
+        "maintainability": ["maintainability goals"]
+      }
     }
   ],
   "summary": {

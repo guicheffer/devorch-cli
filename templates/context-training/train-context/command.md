@@ -10,6 +10,8 @@ dependencies:
     - context-training/pr-pattern-analyzer
     - context-training/pattern-reviewer
     - context-training/artifact-generator
+    - context-training/context-verifier
+    - context-training/quality-checker
 partials:
   setup: common/partials/commands/command-setup.md
   check-prerequisites: context-training/train-context/partials/1.check-prerequisites.md
@@ -18,6 +20,8 @@ partials:
   analyze-patterns: context-training/train-context/partials/4.analyze-patterns.md
   review-patterns: context-training/train-context/partials/5.review-patterns.md
   generate-artifacts: context-training/train-context/partials/6.generate-artifacts.md
+  verify-context: context-training/partials/verify-context.md
+  verify-context-step: context-training/train-context/partials/7.verify-context-step.md
 ---
 
 # Purpose
@@ -64,3 +68,7 @@ echo "$PR_JSON" > {{artifacts-path}}/commands/train-context-2/fetched-prs.json
 ### Step 6: Generate Artifacts
 
 {{partials.generate-artifacts}}
+
+### Step 7: Verify Context
+
+{{partials.verify-context-step}}

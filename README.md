@@ -181,8 +181,11 @@ See [Core Concepts](docs/user-guide/concepts.md) for architecture details.
 | Command | Purpose |
 |---------|---------|
 | `/analyze-tech-stack` | Document repository technologies |
-| `/train-context` | Generate context training from codebase |
+| `/train-context` | Generate context training from codebase (includes verification) |
+| `/update-context` | Update existing context training with new PRs |
 | `/load-context-training` | Load patterns into conversation |
+
+Both `/train-context` and `/update-context` automatically verify generated files for accuracy and code quality. Import paths, function signatures, and code examples are validated against your codebase. Critical issues are auto-fixed, quality issues are reported.
 
 #### Utilities
 
@@ -242,6 +245,8 @@ Generate context training:
 ```
 
 Output: `devorch/context-training/` with custom implementers and patterns
+
+Context-training files are automatically verified for accuracy and quality. Import paths and function signatures are validated against your codebase. Code examples are checked for best practices and security. Critical issues are auto-fixed, mismatches are reported for review.
 
 ### Feature Development
 
