@@ -185,7 +185,7 @@ See [Core Concepts](docs/user-guide/concepts.md) for architecture details.
 | `/update-context` | Update existing context training with new PRs |
 | `/load-context-training` | Load patterns into conversation |
 
-**Context Verification:** Both `/train-context` and `/update-context` automatically verify generated files for accuracy and code quality. Import paths, function signatures, and code examples are validated against your codebase. Critical issues are auto-fixed, quality issues are reported. See [Verification Guide](docs/VERIFICATION.md).
+Both `/train-context` and `/update-context` automatically verify generated files for accuracy and code quality. Import paths, function signatures, and code examples are validated against your codebase. Critical issues are auto-fixed, quality issues are reported.
 
 #### Utilities
 
@@ -246,12 +246,7 @@ Generate context training:
 
 Output: `devorch/context-training/` with custom implementers and patterns
 
-**Automatic verification:** Context-training files are automatically verified against your codebase to ensure accuracy and quality. The system checks:
-- ✅ Import paths and function signatures match your code
-- ✅ Code examples follow best practices and security standards
-- ✅ Patterns are current and not outdated
-
-Critical issues are auto-fixed, mismatches are reported for review. See [Verification Guide](docs/VERIFICATION.md) for details.
+Context-training files are automatically verified for accuracy and quality. Import paths and function signatures are validated against your codebase. Code examples are checked for best practices and security. Critical issues are auto-fixed, mismatches are reported for review.
 
 ### Feature Development
 
