@@ -80,7 +80,7 @@ Parse the verification results from the Task tool response. The subagent returns
     "fictional_accepted": 42,
     "total_issues": 8
   },
-  "report_path": "devorch/context-training/{name}/INCONSISTENCIES.md"
+  "report_path": "devorch/context-training/{context-training-name}/INCONSISTENCIES.md"
 }
 ```
 
@@ -106,7 +106,7 @@ Critical Issues: {count} (auto-fixed)
 Mismatches: {count} (review needed)
 Fictional Examples: {count} (accepted)
 
-Report: devorch/context-training/{name}/INCONSISTENCIES.md
+Report: devorch/context-training/{context-training-name}/INCONSISTENCIES.md
 ```
 
 **If mismatches found, ask user:**
@@ -243,7 +243,7 @@ Anti-Patterns: {score}/100
 Critical Issues: {count}
 Warnings: {count}
 
-Updated Report: devorch/context-training/{name}/INCONSISTENCIES.md
+Updated Report: devorch/context-training/{context-training-name}/INCONSISTENCIES.md
 ```
 
 **If warnings only (no critical issues):**
@@ -346,7 +346,7 @@ After {MAX_ITERATIONS} attempts, some issues remain:
 Verification Status: {status}
 Quality Status: {status}
 
-Report: devorch/context-training/{name}/INCONSISTENCIES.md
+Report: devorch/context-training/{context-training-name}/INCONSISTENCIES.md
 ```
 
 Use AskUserQuestion tool:

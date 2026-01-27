@@ -480,7 +480,7 @@ Create comprehensive report with all findings:
 - No further verification needed
 ```
 
-Use Write tool to create `devorch/context-training/{name}/INCONSISTENCIES.md`
+Use Write tool to create `devorch/context-training/{context-training-name}/INCONSISTENCIES.md`
 
 ### Step 8: Return Verification Results
 
