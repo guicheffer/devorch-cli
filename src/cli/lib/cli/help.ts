@@ -13,7 +13,7 @@ const LOGO = `
  * Display help information
  */
 export function showHelp(version: string): void {
-  console.log(colors.red(LOGO));
+  console.log(colors.cyan(LOGO));
   console.log(colors.bold('devorch CLI'));
   console.log(colors.dim(`Version ${version}\n`));
   console.log('Usage:');
