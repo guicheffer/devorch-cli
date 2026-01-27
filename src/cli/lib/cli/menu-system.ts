@@ -24,7 +24,7 @@ export type CategoryType = 'setup' | 'manage' | 'troubleshoot';
  */
 export function displayHeader(version: string): void {
   console.clear();
-  console.log(colors.red(LOGO));
+  console.log(colors.cyan(LOGO));
   console.log(colors.dim('  Multi-Agent Development Workflows for Claude Code\n'));
   console.log(colors.dim(`  Version ${version}\n`));
 }
